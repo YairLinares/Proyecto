@@ -48,8 +48,7 @@
                     <td>{{ $producto->categoria->nombre }}</td>
                     <td>${{ number_format($producto->precio_venta, 0, ',', '.') }}</td>
                     <td>
-                        <span class="badge {{ $producto->isStockBajo() ? 'badge-pending' : 'badge-completed' }}">
-                            {{ $producto->stock_disponible }}
+<span class="badge {{ $producto->stock_disponible <= $producto->stock_minimo ? 'badge-pending' : 'badge-completed' }}">                            {{ $producto->stock_disponible }}
                         </span>
                     </td>
                     <td>

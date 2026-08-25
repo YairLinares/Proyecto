@@ -26,7 +26,7 @@ class Producto extends Model
 
     public function insumos()
     {
-        return $this->belongsToMany(Insumo::class)
+        return $this->belongsToMany(Insumo::class, 'producto_insumo')
             ->withPivot('cantidad_necesaria')
             ->withTimestamps();
     }
@@ -34,5 +34,21 @@ class Producto extends Model
     public function detallesPedido()
     {
         return $this->hasMany(DetallePedido::class);
+    }
+
+    /**
+     * Verificar si el stock es bajo
+     */
+    public function isStockBajo()
+    {
+        return $this->stock_disponible <= $this->stock_minimo;
+    }
+
+    /**
+     * Calcular ganancia (precio venta - costo producción)
+     */
+    public function calcularGanancia()
+    {
+        return $this->precio_venta - $this->costo_produccion;
     }
 }

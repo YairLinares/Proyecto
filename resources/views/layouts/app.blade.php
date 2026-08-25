@@ -211,40 +211,28 @@
             </div>
 
             <div class="sidebar-section-title">Clientes</div>
-            <div class="sidebar-menu">
-                <a href="{{ route('clientes.index') }}" class="@if(request()->routeIs('clientes.*')) active @endif">
-                    <i class="fas fa-users"></i>
-                    <span>Lista de Clientes</span>
-                </a>
-                <a href="{{ route('clientes.create') }}">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Registrar Cliente</span>
-                </a>
-            </div>
+<div class="sidebar-menu">
+    <a href="{{ route('clientes.index') }}" class="@if(request()->routeIs('clientes.*')) active @endif">
+        <i class="fas fa-users"></i>
+        <span>Lista de Clientes</span>
+    </a>
+</div>
 
-            <div class="sidebar-section-title">Inventario</div>
-            <div class="sidebar-menu">
-                <a href="{{ route('productos.index') }}" class="@if(request()->routeIs('productos.*')) active @endif">
-                    <i class="fas fa-box"></i>
-                    <span>Productos</span>
-                </a>
-                <a href="{{ route('productos.create') }}">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Registrar Producto</span>
-                </a>
-                <a href="{{ route('insumos.index') }}" class="@if(request()->routeIs('insumos.*')) active @endif">
-                    <i class="fas fa-flask"></i>
-                    <span>Insumos</span>
-                </a>
-                <a href="{{ route('insumos.create') }}">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Registrar Insumo</span>
-                </a>
-                <a href="{{ route('categorias.index') }}" class="@if(request()->routeIs('categorias.*')) active @endif">
-                    <i class="fas fa-tags"></i>
-                    <span>Categorías</span>
-                </a>
-            </div>
+          <div class="sidebar-section-title">Inventario</div>
+<div class="sidebar-menu">
+    <a href="{{ route('productos.index') }}" class="@if(request()->routeIs('productos.*')) active @endif">
+        <i class="fas fa-box"></i>
+        <span>Productos</span>
+    </a>
+    <a href="{{ route('insumos.index') }}" class="@if(request()->routeIs('insumos.*')) active @endif">
+        <i class="fas fa-flask"></i>
+        <span>Insumos</span>
+    </a>
+    <a href="{{ route('categorias.index') }}" class="@if(request()->routeIs('categorias.*')) active @endif">
+        <i class="fas fa-tags"></i>
+        <span>Categorías</span>
+    </a>
+</div>
 
             <div class="sidebar-section-title">Pedidos</div>
             <div class="sidebar-menu">
