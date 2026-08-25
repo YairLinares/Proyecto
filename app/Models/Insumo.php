@@ -19,9 +19,14 @@ class Insumo extends Model
 
     public function productos()
     {
-        return $this->belongsToMany(Producto::class)
+        return $this->belongsToMany(Producto::class, 'producto_insumo')
             ->withPivot('cantidad_necesaria')
             ->withTimestamps();
+    }
+
+    public function isStockBajo()
+    {
+        return $this->stock_actual <= $this->stock_minimo;
     }
 
     public function actualizarEstado(): void
