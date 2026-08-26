@@ -20,8 +20,7 @@ class ClienteController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nombre_completo', 'like', "%$search%")
-                  ->orWhere('email', 'like', "%$search%")
-                  ->orWhere('numero_documento', 'like', "%$search%");
+                  ->orWhere('telefono_principal', 'like', "%$search%");
             });
         }
 
@@ -52,16 +51,13 @@ class ClienteController extends Controller
     {
         $validated = $request->validate([
             'nombre_completo' => 'required|string|max:255',
-            'tipo_documento' => 'required|string',
-            'numero_documento' => 'required|unique:clientes|string',
-            'telefono_principal' => 'required|string',
-            'telefono_alternativo' => 'nullable|string',
-            'email' => 'required|email',
-            'ciudad' => 'required|string',
-            'direccion' => 'required|string',
-            'tipo_cliente' => 'required|in:Regular,Corporativo',
-            'notas_preferencias' => 'nullable|string',
+            'telefono_principal' => ['required', 'string', 'size:8', 'regex:/^[0-9]{8}$/'],
+            'tipo_cliente' => 'nullable|in:Regular,Corporativo',
+            'direccion' => 'nullable|string',
         ]);
+
+        $validated['tipo_cliente'] = $validated['tipo_cliente'] ?? 'Regular';
+        $validated['direccion'] = $validated['direccion'] ?? 'No especificada';
 
         Cliente::create($validated);
 
@@ -92,17 +88,14 @@ class ClienteController extends Controller
     {
         $validated = $request->validate([
             'nombre_completo' => 'required|string|max:255',
-            'tipo_documento' => 'required|string',
-            'numero_documento' => 'required|unique:clientes,numero_documento,' . $cliente->id . '|string',
-            'telefono_principal' => 'required|string',
-            'telefono_alternativo' => 'nullable|string',
-            'email' => 'required|email',
-            'ciudad' => 'required|string',
-            'direccion' => 'required|string',
-            'tipo_cliente' => 'required|in:Regular,Corporativo',
-            'notas_preferencias' => 'nullable|string',
-            'estado' => 'required|in:activo,inactivo',
+            'telefono_principal' => ['required', 'string', 'size:8', 'regex:/^[0-9]{8}$/'],
+            'tipo_cliente' => 'nullable|in:Regular,Corporativo',
+            'direccion' => 'nullable|string',
+            'estado' => 'nullable|in:activo,inactivo',
         ]);
+
+        $validated['tipo_cliente'] = $validated['tipo_cliente'] ?? 'Regular';
+        $validated['direccion'] = $validated['direccion'] ?? 'No especificada';
 
         $cliente->update($validated);
 

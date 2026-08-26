@@ -59,43 +59,59 @@ class PedidoController extends Controller
             'cliente_id' => 'required|exists:clientes,id',
             'tipo_pedido' => 'required|in:Personalizado,Predefinido',
             'prioridad' => 'required|in:Bajo,Normal,Alto',
-            'fecha_entrega' => 'required|date',
+            'fecha_entrega' => 'nullable|date',
             'descripcion_especificaciones' => 'nullable|string',
-            'direccion_entrega' => 'required|string',
-            'telefono_contacto' => 'required|string',
+            'direccion_entrega' => 'nullable|string',
+            'telefono_contacto' => 'nullable|string',
             'metodo_pago' => 'required|in:Efectivo,Tarjeta,Transferencia',
             'anticipo_recibido' => 'nullable|numeric|min:0',
             'descuento' => 'nullable|numeric|min:0',
             'costo_envio' => 'nullable|numeric|min:0',
+            'productos' => 'required|array|min:1',
+            'productos.*.cantidad' => 'required|integer|min:1',
         ]);
+
+        $cliente = Cliente::findOrFail($validated['cliente_id']);
+        $productos = Producto::whereIn('id', array_keys($validated['productos']))
+            ->where('estado', 'activo')
+            ->get()
+            ->keyBy('id');
+
+        if ($productos->count() !== count($validated['productos'])) {
+            return back()->withInput()->withErrors([
+                'productos' => 'Uno de los productos seleccionados ya no está disponible.',
+            ]);
+        }
 
         $validated['numero_pedido'] = Pedido::generarNumeroPedido();
         $validated['fecha_pedido'] = now()->toDateString();
+        $validated['fecha_entrega'] = $validated['fecha_entrega'] ?? now()->toDateString();
+        $validated['direccion_entrega'] = $validated['direccion_entrega'] ?: ($cliente->direccion ?: 'Por coordinar');
+        $validated['telefono_contacto'] = $validated['telefono_contacto'] ?: ($cliente->telefono_principal ?: 'Por coordinar');
+        $validated['anticipo_recibido'] = $validated['anticipo_recibido'] ?? 0;
+        $validated['descuento'] = $validated['descuento'] ?? 0;
+        $validated['costo_envio'] = $validated['costo_envio'] ?? 0;
         $validated['usuario_id'] = Auth::id();
         $validated['estado'] = 'Pendiente';
 
         $pedido = Pedido::create($validated);
 
-        // Procesar detalles del pedido
-        if ($request->has('productos')) {
-            $subtotal = 0;
-            foreach ($request->productos as $productoId => $datos) {
-                if ($datos['cantidad'] > 0) {
-                    $producto = Producto::find($productoId);
-                    $detalle = new DetallePedido([
-                        'producto_id' => $productoId,
-                        'cantidad' => $datos['cantidad'],
-                        'precio_unitario' => $producto->precio_venta,
-                    ]);
-                    $detalle->calcularSubtotal();
-                    $pedido->detalles()->save($detalle);
-                    $subtotal += $detalle->subtotal;
-                }
-            }
-            $pedido->subtotal = $subtotal;
-            $pedido->calcularTotal();
-            $pedido->save();
+        $subtotal = 0;
+        foreach ($validated['productos'] as $productoId => $datos) {
+            $producto = $productos->get((int) $productoId);
+            $detalle = new DetallePedido([
+                'producto_id' => $producto->id,
+                'cantidad' => $datos['cantidad'],
+                'precio_unitario' => $producto->precio_venta,
+            ]);
+            $detalle->calcularSubtotal();
+            $pedido->detalles()->save($detalle);
+            $subtotal += $detalle->subtotal;
         }
+
+        $pedido->subtotal = $subtotal;
+        $pedido->calcularTotal();
+        $pedido->save();
 
         return redirect()->route('pedidos.show', $pedido)->with('success', 'Pedido creado correctamente.');
     }

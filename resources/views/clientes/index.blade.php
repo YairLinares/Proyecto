@@ -46,7 +46,7 @@
                 <input type="text" name="search" class="form-control" placeholder="Buscar cliente..." value="{{ $search }}">
             </div>
             <div class="col-md-4">
-                <select name="filter" class="form-select">
+                <select name="filter" class="form-select" onchange="this.form.submit()">
                     <option value="todos">Todos los estados</option>
                     <option value="activo" @if($filter == 'activo') selected @endif>Activo</option>
                     <option value="inactivo" @if($filter == 'inactivo') selected @endif>Inactivo</option>
@@ -64,11 +64,10 @@
                 <tr>
                     <th>Nombre</th>
                     <th>Teléfono</th>
-                    <th>Email</th>
-                    <th>Ciudad</th>
                     <th>Pedidos</th>
                     <th>Total Compras</th>
                     <th>Tipo</th>
+                    <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -77,8 +76,6 @@
                 <tr>
                     <td><strong>{{ $cliente->nombre_completo }}</strong></td>
                     <td>{{ $cliente->telefono_principal }}</td>
-                    <td>{{ $cliente->email }}</td>
-                    <td>{{ $cliente->ciudad }}</td>
                     <td>{{ $cliente->pedidos->count() }}</td>
                     <td>${{ number_format($cliente->total_compras, 0, ',', '.') }}</td>
                     <td>
@@ -86,6 +83,13 @@
                             <span class="badge" style="background-color: #c7436f;">VIP</span>
                         @else
                             <span class="badge" style="background-color: #6c757d;">Regular</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($cliente->estado === 'activo')
+                            <span class="badge text-bg-success">Activo</span>
+                        @else
+                            <span class="badge text-bg-secondary">Inactivo</span>
                         @endif
                     </td>
                     <td>
@@ -107,7 +111,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="text-center text-muted">No hay clientes registrados</td>
+                    <td colspan="7" class="text-center text-muted">No hay clientes registrados</td>
                 </tr>
                 @endforelse
             </tbody>

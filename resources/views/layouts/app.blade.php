@@ -218,22 +218,6 @@
     </a>
 </div>
 
-          <div class="sidebar-section-title">Inventario</div>
-<div class="sidebar-menu">
-    <a href="{{ route('productos.index') }}" class="@if(request()->routeIs('productos.*')) active @endif">
-        <i class="fas fa-box"></i>
-        <span>Productos</span>
-    </a>
-    <a href="{{ route('insumos.index') }}" class="@if(request()->routeIs('insumos.*')) active @endif">
-        <i class="fas fa-flask"></i>
-        <span>Insumos</span>
-    </a>
-    <a href="{{ route('categorias.index') }}" class="@if(request()->routeIs('categorias.*')) active @endif">
-        <i class="fas fa-tags"></i>
-        <span>Categorías</span>
-    </a>
-</div>
-
             <div class="sidebar-section-title">Pedidos</div>
             <div class="sidebar-menu">
                 <a href="{{ route('pedidos.index') }}" class="@if(request()->routeIs('pedidos.*')) active @endif">
@@ -243,6 +227,22 @@
                 <a href="{{ route('pedidos.create') }}">
                     <i class="fas fa-plus-circle"></i>
                     <span>Registrar Pedido</span>
+                </a>
+            </div>
+
+            <div class="sidebar-section-title">Inventario</div>
+            <div class="sidebar-menu">
+                <a href="{{ route('productos.index') }}" class="@if(request()->routeIs('productos.*')) active @endif">
+                    <i class="fas fa-box"></i>
+                    <span>Productos</span>
+                </a>
+                <a href="{{ route('insumos.index') }}" class="@if(request()->routeIs('insumos.*')) active @endif">
+                    <i class="fas fa-flask"></i>
+                    <span>Insumos</span>
+                </a>
+                <a href="{{ route('categorias.index') }}" class="@if(request()->routeIs('categorias.*')) active @endif">
+                    <i class="fas fa-tags"></i>
+                    <span>Categorías</span>
                 </a>
             </div>
 

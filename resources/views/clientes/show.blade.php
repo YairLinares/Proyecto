@@ -20,10 +20,7 @@
                 <h5 class="mb-0">Información Personal</h5>
             </div>
             <div class="card-body">
-                <p><strong>Documento:</strong> {{ $cliente->tipo_documento }} - {{ $cliente->numero_documento }}</p>
-                <p><strong>Email:</strong> {{ $cliente->email }}</p>
                 <p><strong>Teléfono:</strong> {{ $cliente->telefono_principal }}</p>
-                <p><strong>Ciudad:</strong> {{ $cliente->ciudad }}</p>
                 <p><strong>Dirección:</strong> {{ $cliente->direccion }}</p>
                 <p><strong>Tipo:</strong> 
                     @if($cliente->tipo_cliente == 'Corporativo')
@@ -99,16 +96,6 @@
             </div>
         </div>
 
-        @if($cliente->notas_preferencias)
-        <div class="card mt-3">
-            <div class="card-header">
-                <h5 class="mb-0">Notas y Preferencias</h5>
-            </div>
-            <div class="card-body">
-                <p>{{ $cliente->notas_preferencias }}</p>
-            </div>
-        </div>
-        @endif
     </div>
 </div>
 @endsection
