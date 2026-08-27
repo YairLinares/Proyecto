@@ -22,7 +22,9 @@ class InsumoController extends Controller
                   ->orWhere('proveedor', 'like', "%$search%");
         }
 
-        if ($filter != 'todos') {
+        if ($filter === 'critico') {
+            $query->whereColumn('stock_actual', '<=', 'stock_minimo');
+        } elseif ($filter != 'todos') {
             $query->where('estado', $filter);
         }
 

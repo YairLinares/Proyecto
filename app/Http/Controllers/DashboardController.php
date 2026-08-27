@@ -30,6 +30,51 @@ class DashboardController extends Controller
 
         $alertasStock = Producto::whereRaw('stock_disponible <= stock_minimo')->count();
 
+        // Tarjetas rápidas del día
+        $pedidosHoy = Pedido::whereDate('created_at', today())->count();
+
+        $clientesTotal = Cliente::count();
+
+        $ventasHoy = Pedido::whereDate('created_at', today())
+            ->where('estado', 'Completado')
+            ->sum('total');
+
+        $stockCritico = Insumo::whereColumn('stock_actual', '<=', 'stock_minimo')->count();
+
+        $stockBajo = Insumo::whereColumn('stock_actual', '>', 'stock_minimo')
+            ->whereRaw('stock_actual <= stock_minimo * 1.2')
+            ->count();
+
+        $produccionHoy = DB::table('detalles_pedidos')
+            ->join('pedidos', 'detalles_pedidos.pedido_id', '=', 'pedidos.id')
+            ->whereDate('pedidos.fecha_entrega', today())
+            ->sum('detalles_pedidos.cantidad');
+
+        $pedidosSemana = Pedido::whereBetween('fecha_pedido', [
+            now()->startOfWeek(),
+            now()->endOfWeek(),
+        ])->count();
+
+        // Producto con stock más crítico
+        $productoStockBajo = Producto::whereRaw('stock_disponible <= stock_minimo')
+            ->orderBy('stock_disponible', 'asc')
+            ->first();
+
+        // Ventas por día de la semana actual (Lun a Dom)
+        $inicioSemana = now()->startOfWeek();
+        $ventasSemanaRaw = Pedido::where('estado', 'Completado')
+            ->whereBetween('fecha_pedido', [$inicioSemana, now()->endOfWeek()])
+            ->selectRaw('DAYOFWEEK(fecha_pedido) as dia, SUM(total) as total')
+            ->groupBy('dia')
+            ->pluck('total', 'dia');
+
+        // DAYOFWEEK: 1=Domingo ... 7=Sábado, reordenamos Lun-Dom
+        $ventasSemana = [];
+        foreach (range(1, 7) as $i) {
+            $diaSql = $i === 7 ? 1 : $i + 1; // Lun(1)->2 ... Dom(7)->1
+            $ventasSemana[] = (float) ($ventasSemanaRaw[$diaSql] ?? 0);
+        }
+
         // Pedidos recientes
         $pedidosRecientes = Pedido::with('cliente')
             ->latest()
@@ -60,6 +105,15 @@ class DashboardController extends Controller
             'pedidosActivos',
             'clientesNuevos',
             'alertasStock',
+            'pedidosHoy',
+            'clientesTotal',
+            'ventasHoy',
+            'stockCritico',
+            'stockBajo',
+            'produccionHoy',
+            'pedidosSemana',
+            'productoStockBajo',
+            'ventasSemana',
             'pedidosRecientes',
             'ventasMensuales',
             'ventasPorCategoria',

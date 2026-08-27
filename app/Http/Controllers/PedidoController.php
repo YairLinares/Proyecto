@@ -18,6 +18,8 @@ class PedidoController extends Controller
     {
         $search = $request->get('search');
         $estado = $request->get('estado', 'todos');
+        $fecha = $request->get('fecha');
+        $entrega = $request->get('entrega');
 
         $query = Pedido::with('cliente');
 
@@ -30,6 +32,16 @@ class PedidoController extends Controller
 
         if ($estado != 'todos') {
             $query->where('estado', $estado);
+        }
+
+        if ($fecha === 'hoy') {
+            $query->whereDate('created_at', today());
+        } elseif ($fecha === 'semana') {
+            $query->whereBetween('fecha_pedido', [now()->startOfWeek(), now()->endOfWeek()]);
+        }
+
+        if ($entrega === 'hoy') {
+            $query->whereDate('fecha_entrega', today());
         }
 
         $pedidos = $query->latest()->paginate(10);
@@ -86,8 +98,8 @@ class PedidoController extends Controller
         $validated['numero_pedido'] = Pedido::generarNumeroPedido();
         $validated['fecha_pedido'] = now()->toDateString();
         $validated['fecha_entrega'] = $validated['fecha_entrega'] ?? now()->toDateString();
-        $validated['direccion_entrega'] = $validated['direccion_entrega'] ?: ($cliente->direccion ?: 'Por coordinar');
-        $validated['telefono_contacto'] = $validated['telefono_contacto'] ?: ($cliente->telefono_principal ?: 'Por coordinar');
+        $validated['direccion_entrega'] = ($validated['direccion_entrega'] ?? null) ?: ($cliente->direccion ?: 'Por coordinar');
+        $validated['telefono_contacto'] = ($validated['telefono_contacto'] ?? null) ?: ($cliente->telefono_principal ?: 'Por coordinar');
         $validated['anticipo_recibido'] = $validated['anticipo_recibido'] ?? 0;
         $validated['descuento'] = $validated['descuento'] ?? 0;
         $validated['costo_envio'] = $validated['costo_envio'] ?? 0;
