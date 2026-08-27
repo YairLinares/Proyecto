@@ -80,7 +80,7 @@
                         };
                     @endphp
                     <tr>
-                        <td><span class="pedido-number">{{ $pedido->numero_pedido }}</span></td>
+                        <td><span class="pedido-number">{{ $pedido->codigo_pedido }}</span></td>
                         <td><span class="pedido-client">{{ $pedido->cliente->nombre_completo }}</span></td>
                         <td>{{ $pedido->fecha_pedido->format('d/m/Y') }}</td>
                         <td class="pedido-product">

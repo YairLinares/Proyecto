@@ -33,10 +33,18 @@ class Pedido extends Model
 
     public static function generarNumeroPedido(): string
     {
-        $ultimoPedido = self::latest('id')->first();
-        $siguiente = $ultimoPedido ? $ultimoPedido->id + 1 : 1;
+        $ultimoCodigo = self::where('numero_pedido', 'REGEXP', '^PED-[0-9]{3}$')
+            ->orderByRaw('CAST(SUBSTRING(numero_pedido, 5) AS UNSIGNED) DESC')
+            ->value('numero_pedido');
 
-        return 'PED-' . now()->format('Ymd') . '-' . str_pad((string) $siguiente, 4, '0', STR_PAD_LEFT);
+        $siguiente = $ultimoCodigo ? ((int) substr($ultimoCodigo, 4) + 1) : 1;
+
+        return 'PED-' . str_pad((string) $siguiente, 3, '0', STR_PAD_LEFT);
+    }
+
+    public function getCodigoPedidoAttribute(): string
+    {
+        return $this->numero_pedido ?: 'PED-' . str_pad((string) $this->id, 3, '0', STR_PAD_LEFT);
     }
 
     public function calcularTotal(): void

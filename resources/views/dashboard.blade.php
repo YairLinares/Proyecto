@@ -163,7 +163,7 @@
                     <tbody>
                         @forelse($pedidosRecientes as $pedido)
                         <tr>
-                            <td><strong>{{ $pedido->numero_pedido }}</strong></td>
+                            <td><strong>{{ $pedido->codigo_pedido }}</strong></td>
                             <td>{{ $pedido->cliente->nombre_completo }}</td>
                             <td>
                                 @if($pedido->detalles->count() > 0)

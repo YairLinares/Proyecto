@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pedido ' . $pedido->numero_pedido)
+@section('title', 'Pedido ' . $pedido->codigo_pedido)
 
 @section('content')
 @php
@@ -46,7 +46,7 @@
 
         <div class="card-body p-4">
             <div class="pedido-detail__grid">
-                <div class="pedido-detail__field"><span>Número de pedido</span><strong>{{ $pedido->numero_pedido }}</strong></div>
+                <div class="pedido-detail__field"><span>Número de pedido</span><strong>{{ $pedido->codigo_pedido }}</strong></div>
                 <div class="pedido-detail__field"><span>Cliente</span><strong>{{ $pedido->cliente->nombre_completo }}</strong></div>
                 <div class="pedido-detail__field"><span>Fecha</span><strong>{{ $pedido->fecha_pedido->format('d/m/Y') }}</strong></div>
                 <div class="pedido-detail__field"><span>Producto{{ $pedido->detalles->count() === 1 ? '' : 's' }}</span><strong>{{ $productosPedido ?: 'Sin productos' }}</strong></div>

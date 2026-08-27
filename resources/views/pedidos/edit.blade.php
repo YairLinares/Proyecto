@@ -1,11 +1,11 @@
 
 @extends('layouts.app')
  
-@section('title', 'Editar ' . $pedido->numero_pedido)
+@section('title', 'Editar ' . $pedido->codigo_pedido)
  
 @section('content')
 <div class="page-header">
-    <h1 class="page-title">Editar Pedido: {{ $pedido->numero_pedido }}</h1>
+    <h1 class="page-title">Editar Pedido: {{ $pedido->codigo_pedido }}</h1>
 </div>
  
 <div class="row">
@@ -61,11 +61,6 @@
                         </div>
                     </div>
  
-                    <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" name="descripcion_especificaciones" rows="3">{{ $pedido->descripcion_especificaciones }}</textarea>
-                    </div>
- 
                     <h5 class="mb-3">Dirección de Entrega</h5>
  
                     <div class="row">
@@ -88,30 +83,9 @@
                     <div class="row">
                         <div class="col-md-3">
                             <div class="mb-3">
-                                <label class="form-label">Método Pago *</label>
-                                <select class="form-select" name="metodo_pago" required>
-                                    <option value="Efectivo" {{ $pedido->metodo_pago == 'Efectivo' ? 'selected' : '' }}>Efectivo</option>
-                                    <option value="Tarjeta" {{ $pedido->metodo_pago == 'Tarjeta' ? 'selected' : '' }}>Tarjeta</option>
-                                    <option value="Transferencia" {{ $pedido->metodo_pago == 'Transferencia' ? 'selected' : '' }}>Transferencia</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-3">
-                                <label class="form-label">Descuento</label>
-                                <input type="number" class="form-control" name="descuento" step="0.01" value="{{ $pedido->descuento }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-3">
-                                <label class="form-label">Envío</label>
-                                <input type="number" class="form-control" name="costo_envio" step="0.01" value="{{ $pedido->costo_envio }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="mb-3">
-                                <label class="form-label">Anticipo</label>
-                                <input type="number" class="form-control" name="anticipo_recibido" step="0.01" value="{{ $pedido->anticipo_recibido }}">
+                                <label class="form-label">Método de pago</label>
+                                <input type="text" class="form-control" value="Efectivo" readonly>
+                                <input type="hidden" name="metodo_pago" value="Efectivo">
                             </div>
                         </div>
                     </div>

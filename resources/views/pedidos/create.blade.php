@@ -43,11 +43,16 @@
                 <h2 class="pedido-title"><i class="fas fa-clipboard-list"></i>Datos del Pedido</h2>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label">Fecha (automática)</label>
                         <input type="text" class="form-control" value="{{ now()->format('d/m/Y') }}" readonly>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="fecha_entrega">Fecha de Entrega <span class="text-danger">*</span></label>
+                        <input type="date" id="fecha_entrega" class="form-control @error('fecha_entrega') is-invalid @enderror" name="fecha_entrega" min="{{ now()->format('Y-m-d') }}" value="{{ old('fecha_entrega', now()->format('Y-m-d')) }}" required>
+                        @error('fecha_entrega')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-4 mb-3">
                         <label class="form-label" for="cliente_id">Cliente <span class="text-danger">*</span></label>
                         <select id="cliente_id" class="form-select @error('cliente_id') is-invalid @enderror" name="cliente_id" required>
                             <option value="">Seleccionar cliente...</option>
@@ -85,13 +90,10 @@
                 <div class="pedido-panel__body">
                     <h2 class="pedido-title"><i class="fas fa-money-bill-wave"></i>Pago</h2>
                     <div class="payment-choice">
-                        <label class="form-label mb-1" for="metodo_pago">Método de pago</label>
-                        <select id="metodo_pago" name="metodo_pago" class="form-select border-0 bg-transparent px-0" required>
-                            <option value="Efectivo" @selected(old('metodo_pago', 'Efectivo') === 'Efectivo')>Efectivo</option>
-                            <option value="Tarjeta" @selected(old('metodo_pago') === 'Tarjeta')>Tarjeta</option>
-                            <option value="Transferencia" @selected(old('metodo_pago') === 'Transferencia')>Transferencia</option>
-                        </select>
-                        <small>Selecciona cómo realizará el pago.</small>
+                        <span class="form-label mb-1 d-block">Método de pago</span>
+                        <strong><i class="fas fa-money-bill-wave me-1"></i>Efectivo</strong>
+                        <input type="hidden" name="metodo_pago" value="Efectivo">
+                        <small>Único método disponible por ahora.</small>
                     </div>
                 </div>
             </section>

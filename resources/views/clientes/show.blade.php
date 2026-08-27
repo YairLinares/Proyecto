@@ -86,7 +86,7 @@
                     <tbody>
                         @forelse($pedidos as $pedido)
                             <tr>
-                                <td><strong>{{ $pedido->numero_pedido }}</strong></td>
+                                <td><strong>{{ $pedido->codigo_pedido }}</strong></td>
                                 <td>{{ $pedido->fecha_pedido->format('d/m/Y') }}</td>
                                 <td>{{ $pedido->fecha_entrega->format('d/m/Y') }}</td>
                                 <td>Bs {{ number_format($pedido->total, 0, ',', '.') }}</td>
