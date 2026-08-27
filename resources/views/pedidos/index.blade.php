@@ -60,6 +60,7 @@
                     <th>Pedido</th>
                     <th>Cliente</th>
                     <th>Fecha</th>
+                    <th>Entrega</th>
                     <th>Producto</th>
                     <th class="text-center">Cant.</th>
                     <th>Total</th>
@@ -83,6 +84,7 @@
                         <td><span class="pedido-number">{{ $pedido->codigo_pedido }}</span></td>
                         <td><span class="pedido-client">{{ $pedido->cliente->nombre_completo }}</span></td>
                         <td>{{ $pedido->fecha_pedido->format('d/m/Y') }}</td>
+                        <td>{{ $pedido->fecha_entrega->format('d/m/Y') }}</td>
                         <td class="pedido-product">
                             @if($primerProducto)
                                 {{ $primerProducto->producto->nombre }}{{ $pedido->detalles->count() > 1 ? ' +' . ($pedido->detalles->count() - 1) : '' }}
@@ -98,17 +100,17 @@
                                 <a href="{{ route('pedidos.show', $pedido) }}" class="btn btn-sm btn-outline-info" title="Ver pedido"><i class="fas fa-eye"></i></a>
                                 <a href="{{ route('pedidos.edit', $pedido) }}" class="btn btn-sm btn-light" title="Editar pedido"><i class="fas fa-pen"></i></a>
                                 @if($pedido->estado === 'Pendiente')
-                                    <form method="POST" action="{{ route('pedidos.destroy', $pedido) }}" onsubmit="return confirm('¿Cancelar este pedido?')">
+                                    <form method="POST" action="{{ route('pedidos.destroy', $pedido) }}" onsubmit="return confirm('¿Eliminar este pedido? Esta acción no se puede deshacer.')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar pedido"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar pedido"><i class="fas fa-trash"></i></button>
                                     </form>
                                 @endif
                             </div>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="text-center text-muted py-4">No hay pedidos para mostrar.</td></tr>
+                    <tr><td colspan="9" class="text-center text-muted py-4">No hay pedidos para mostrar.</td></tr>
                 @endforelse
             </tbody>
         </table>

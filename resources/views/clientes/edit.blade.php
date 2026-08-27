@@ -64,7 +64,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Guardar Cambios
                         </button>
-                        <a href="{{ route('clientes.show', $cliente) }}" class="btn btn-secondary">Cancelar</a>
+                        <a href="{{ route('clientes.index') }}" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </form>
             </div>

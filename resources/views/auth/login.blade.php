@@ -7,190 +7,84 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #c7436f;
-            --secondary-color: #f5e6e0;
-            --dark-color: #5a3d4f;
-        }
-
-        body {
-            background: linear-gradient(135deg, var(--dark-color) 0%, var(--primary-color) 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
-        }
-
-        .register-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            max-width: 600px;
-            width: 100%;
-        }
-
-        .register-header {
-            background: linear-gradient(135deg, var(--dark-color) 0%, var(--primary-color) 100%);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
-        }
-
-        .register-header i {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .register-header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .register-header p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .register-form {
-            padding: 40px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 8px;
-        }
-
-        .form-control {
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            padding: 12px 15px;
-            font-size: 14px;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(199, 67, 111, 0.25);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .btn-register {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--primary-color);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 20px;
-        }
-
-        .btn-register:hover {
-            background-color: #b02d5f;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(199, 67, 111, 0.3);
-        }
-
-        .register-footer {
-            text-align: center;
-            padding: 20px 40px;
-            border-top: 1px solid #eee;
-            font-size: 14px;
-        }
-
-        .register-footer a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .register-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .error-message {
-            color: #dc3545;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-
-        .alert {
-            border-radius: 8px;
-        }
-
-        @media (max-width: 600px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .register-form {
-                padding: 20px;
-            }
-        }
+        :root { --pink: #e91e63; --ink: #15233d; --muted: #8794a9; }
+        * { box-sizing: border-box; }
+        body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; background: #fff8fc; color: var(--ink); font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+        .login-card { width: min(100%, 450px); padding: 32px; border: 1px solid #eef0f4; border-radius: 8px; background: #fff; box-shadow: 0 12px 32px rgba(44, 55, 78, .11); }
+        .login-brand { text-align: center; margin-bottom: 30px; }
+        .login-brand__icon { display: inline-grid; width: 80px; height: 80px; place-items: center; border-radius: 22px; background: #fff0c7; color: #e91e63; font-size: 2rem; }
+        .login-brand h1 { margin: 18px 0 4px; color: var(--ink); font-size: 1.55rem; font-weight: 700; }
+        .login-brand p { margin: 0; color: var(--muted); font-size: .92rem; }
+        .form-label { margin-bottom: 7px; color: var(--ink); font-size: .92rem; font-weight: 600; }
+        .input-wrap { position: relative; }
+        .input-wrap i { position: absolute; top: 50%; left: 15px; color: #9aa6b8; transform: translateY(-50%); }
+        .form-control { min-height: 47px; padding-left: 42px; border-color: #dde2e9; border-radius: 999px; }
+        .form-control:focus { border-color: var(--pink); box-shadow: 0 0 0 .2rem rgba(233, 30, 99, .12); }
+        .remember { display: inline-flex; align-items: center; gap: 9px; cursor: pointer; color: #52617a; font-size: .9rem; }
+        .remember input { position: absolute; opacity: 0; }
+        .remember__switch { width: 42px; height: 23px; position: relative; border-radius: 999px; background: #cbd3df; transition: background .2s; }
+        .remember__switch::after { width: 17px; height: 17px; position: absolute; top: 3px; left: 3px; border-radius: 50%; background: #fff; content: ""; transition: transform .2s; }
+        .remember input:checked + .remember__switch { background: var(--pink); }
+        .remember input:checked + .remember__switch::after { transform: translateX(19px); }
+        .login-submit { width: 100%; min-height: 47px; margin-top: 23px; border: 0; border-radius: 999px; background: var(--pink); box-shadow: 0 5px 12px rgba(233, 30, 99, .22); color: #fff; font-weight: 700; }
+        .login-submit:hover { background: #c91853; color: #fff; }
+        .login-footer { margin: 24px -32px -32px; padding: 18px 32px; border-top: 1px solid #eef0f4; color: var(--muted); font-size: .86rem; text-align: center; }
+        .login-footer a { color: var(--pink); font-weight: 700; text-decoration: none; }
+        .login-footer a:hover { text-decoration: underline; }
+        .alert { border-radius: 8px; font-size: .9rem; }
+        .invalid-feedback { margin-left: 12px; }
+        @media (max-width: 480px) { body { padding: 16px; } .login-card { padding: 26px 20px; } .login-footer { margin-right: -20px; margin-bottom: -26px; margin-left: -20px; padding-right: 20px; padding-left: 20px; } }
     </style>
 </head>
 <body>
-    <div class="register-container">
-        <div class="register-header">
-            <i class="fas fa-cupcake"></i>
+    <main class="login-card">
+        <div class="login-brand">
+            <div class="login-brand__icon"><i class="fas fa-birthday-cake"></i></div>
             <h1>Delicias Dulces</h1>
-            <p>Inicia sesión para continuar</p>
+            <p>Sistema de gestión</p>
         </div>
 
-        <div class="register-form">
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    @foreach ($errors->all() as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+
+        @if($errors->any())
+            <div class="alert alert-danger">
+                @foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
+
+            <div class="mb-3">
+                <label class="form-label" for="email"><i class="fas fa-user me-1"></i>Correo electrónico</label>
+                <div class="input-wrap">
+                    <i class="fas fa-envelope"></i>
+                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" autocomplete="email" required autofocus>
                 </div>
-            @endif
+                @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
 
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
-
-                <div class="form-group">
-                    <label class="form-label">Correo Electrónico</label>
-                    <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                           name="email" value="{{ old('email') }}" required>
-                    @error('email')
-                        <div class="error-message">{{ $message }}</div>
-                    @enderror
+            <div class="mb-3">
+                <label class="form-label" for="password"><i class="fas fa-lock me-1"></i>Contraseña</label>
+                <div class="input-wrap">
+                    <i class="fas fa-key"></i>
+                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="current-password" required>
                 </div>
+                @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
 
-                <div class="form-group">
-                    <label class="form-label">Contraseña</label>
-                    <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                           name="password" required>
-                    @error('password')
-                        <div class="error-message">{{ $message }}</div>
-                    @enderror
-                </div>
+            <label class="remember">
+                <input type="checkbox" name="remember" value="1" @checked(old('remember'))>
+                <span class="remember__switch"></span>
+                Recordarme
+            </label>
 
-                <button type="submit" class="btn-register">Iniciar sesión</button>
-            </form>
-        </div>
+            <button type="submit" class="btn login-submit">Iniciar sesión</button>
+        </form>
 
-        <div class="register-footer">
-            ¿No tienes cuenta? <a href="{{ route('register') }}">Regístrate aquí</a>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <div class="login-footer">¿No tienes cuenta? <a href="{{ route('register') }}">Regístrate aquí</a></div>
+    </main>
 </body>
 </html>

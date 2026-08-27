@@ -15,6 +15,7 @@
                 <form method="POST" action="{{ route('pedidos.update', $pedido) }}">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="tipo_pedido" value="{{ $pedido->tipo_pedido }}">
  
                     <h5 class="mb-3">Información del Pedido</h5>
  
@@ -92,7 +93,7 @@
  
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
-                        <a href="{{ route('pedidos.show', $pedido) }}" class="btn btn-secondary">Cancelar</a>
+                        <a href="{{ route('pedidos.index') }}" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </form>
             </div>

@@ -169,10 +169,11 @@ class PedidoController extends Controller
 
         $pedido->update($validated);
 
-        // Actualizar detalles
-        $pedido->detalles()->delete();
-        $subtotal = 0;
+        // Los productos solo se reemplazan cuando el formulario los envía.
+        // La edición rápida no incluye productos y debe conservar los existentes.
         if ($request->has('productos')) {
+            $pedido->detalles()->delete();
+            $subtotal = 0;
             foreach ($request->productos as $productoId => $datos) {
                 if ($datos['cantidad'] > 0) {
                     $producto = Producto::find($productoId);
@@ -186,10 +187,10 @@ class PedidoController extends Controller
                     $subtotal += $detalle->subtotal;
                 }
             }
+            $pedido->subtotal = $subtotal;
+            $pedido->calcularTotal();
+            $pedido->save();
         }
-        $pedido->subtotal = $subtotal;
-        $pedido->calcularTotal();
-        $pedido->save();
 
         return redirect()->route('pedidos.show', $pedido)->with('success', 'Pedido actualizado correctamente.');
     }

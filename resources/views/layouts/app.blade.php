@@ -224,10 +224,6 @@
                     <i class="fas fa-receipt"></i>
                     <span>Gestión de Pedidos</span>
                 </a>
-                <a href="{{ route('pedidos.create') }}">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Registrar Pedido</span>
-                </a>
             </div>
 
             <div class="sidebar-section-title">Inventario</div>
@@ -267,10 +263,10 @@
             <!-- Topbar -->
             <div class="topbar">
                 <div>
-                    <h5 class="mb-0">Miércoles, 1 de julio de 2026</h5>
+                    <h5 class="mb-0">Delicias Dulces 🧁</h5>
+                    <small class="text-muted">{{ ucfirst(now()->translatedFormat('l, d \d\e F \d\e Y')) }}</small>
                 </div>
                 <div class="topbar-right">
-                    <input type="text" class="form-control" style="width: 250px;" placeholder="Buscar...">
                     <div class="dropdown">
                         <i class="fas fa-bell" id="botonNotificaciones" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; font-size: 18px; position: relative;">
                             @if($notificaciones->count() > 0)
@@ -294,7 +290,7 @@
                             @endforelse
                         </div>
                     </div>
-                    <div class="user-info">
+                    <a href="{{ route('profile.show') }}" class="user-info" style="text-decoration: none; color: inherit; cursor: pointer;">
                         <div class="user-avatar">
                             {{ strtoupper(substr(Auth::user()->nombre, 0, 1)) }}
                         </div>
@@ -302,7 +298,7 @@
                             <small class="text-muted">{{ Auth::user()->cargo }}</small>
                             <div class="font-weight-bold">{{ Auth::user()->nombre }}</div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
 

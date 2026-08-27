@@ -66,10 +66,11 @@
 
         <div class="pedido-detail__actions">
             <a href="{{ route('pedidos.edit', $pedido) }}" class="btn btn-outline-secondary"><i class="fas fa-pen me-1"></i> Editar</a>
-            @if($pedido->estado === 'Pendiente')
-                <form method="POST" action="{{ route('pedidos.destroy', $pedido) }}" onsubmit="return confirm('¿Cancelar este pedido?')">
+            @if($pedido->estado !== 'Cancelado')
+                <form method="POST" action="{{ route('pedidos.cambiarEstado', $pedido) }}" onsubmit="return confirm('¿Cancelar este pedido?')">
                     @csrf
-                    @method('DELETE')
+                    @method('PATCH')
+                    <input type="hidden" name="estado" value="Cancelado">
                     <button type="submit" class="btn btn-outline-danger">Cancelar pedido</button>
                 </form>
             @endif
