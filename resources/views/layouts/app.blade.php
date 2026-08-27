@@ -271,7 +271,29 @@
                 </div>
                 <div class="topbar-right">
                     <input type="text" class="form-control" style="width: 250px;" placeholder="Buscar...">
-                    <i class="fas fa-bell" style="cursor: pointer; font-size: 18px;"></i>
+                    <div class="dropdown">
+                        <i class="fas fa-bell" id="botonNotificaciones" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; font-size: 18px; position: relative;">
+                            @if($notificaciones->count() > 0)
+                                <span style="position: absolute; top: -4px; right: -6px; width: 8px; height: 8px; background: #dc3545; border-radius: 50%;"></span>
+                            @endif
+                        </i>
+                        <div class="dropdown-menu dropdown-menu-end p-0" style="width: 340px; max-height: 420px; overflow-y: auto;" aria-labelledby="botonNotificaciones">
+                            <div class="p-3" style="border-bottom: 1px solid #e0d0ca;">
+                                <strong><i class="fas fa-bell" style="color: #d4a300;"></i> Notificaciones</strong>
+                            </div>
+                            @forelse($notificaciones as $notificacion)
+                                <div class="p-3 d-flex" style="gap: 10px; border-bottom: 1px solid #f0e8e4;">
+                                    <i class="fas {{ $notificacion['icono'] }}" style="color: {{ $notificacion['color'] }}; font-size: 12px; margin-top: 5px;"></i>
+                                    <div>
+                                        <div style="font-size: 14px;">{{ $notificacion['titulo'] }}</div>
+                                        <small class="text-muted">{{ $notificacion['fecha']->diffForHumans() }}</small>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="p-3 text-center text-muted">Sin notificaciones</div>
+                            @endforelse
+                        </div>
+                    </div>
                     <div class="user-info">
                         <div class="user-avatar">
                             {{ strtoupper(substr(Auth::user()->nombre, 0, 1)) }}

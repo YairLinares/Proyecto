@@ -125,22 +125,14 @@
     <div class="col-lg-8">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Ventas Mensuales 2026</h5>
-                <small class="text-muted">En millones COP</small>
+                <h5 class="mb-0">Productos más vendidos</h5>
             </div>
             <div class="card-body">
-                <canvas id="chartVentas"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Ventas por Categoría</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="chartCategoria"></canvas>
+                @if($productosMasVendidos->isEmpty())
+                    <p class="text-muted mb-0">Aún no hay productos vendidos en pedidos completados.</p>
+                @else
+                    <canvas id="chartProductosMasVendidos"></canvas>
+                @endif
             </div>
         </div>
     </div>
@@ -150,8 +142,11 @@
 <div class="row mt-4">
     <div class="col-12">
         <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Pedidos Recientes</h5>
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Pedidos Recientes</h5>
+                <a href="{{ route('pedidos.index') }}" style="color: #c7436f; font-size: 14px; text-decoration: none;">
+                    Ver todos <i class="fas fa-chevron-right"></i>
+                </a>
             </div>
             <div class="card-body">
                 <table class="table table-hover">
@@ -179,13 +174,13 @@
                             <td>${{ number_format($pedido->total, 0, ',', '.') }}</td>
                             <td>
                                 @if($pedido->estado == 'Pendiente')
-                                    <span class="badge badge-pending">Pendiente</span>
+                                    <span class="badge badge-pending"><i class="fas fa-hourglass-half"></i> Pendiente</span>
                                 @elseif($pedido->estado == 'En proceso')
-                                    <span class="badge badge-process">En proceso</span>
+                                    <span class="badge badge-process"><i class="fas fa-sync-alt"></i> En proceso</span>
                                 @elseif($pedido->estado == 'Completado')
-                                    <span class="badge badge-completed">Completado</span>
+                                    <span class="badge badge-completed"><i class="fas fa-check-circle"></i> Completado</span>
                                 @else
-                                    <span class="badge badge-cancelled">Cancelado</span>
+                                    <span class="badge badge-cancelled"><i class="fas fa-times-circle"></i> Cancelado</span>
                                 @endif
                             </td>
                         </tr>
@@ -242,73 +237,37 @@
         }
     });
 
-    // Gráfico de Ventas Mensuales
-    const ctxVentas = document.getElementById('chartVentas').getContext('2d');
-    new Chart(ctxVentas, {
-        type: 'line',
+    const chartProductos = document.getElementById('chartProductosMasVendidos');
+    if (chartProductos) {
+        new Chart(chartProductos, {
+        type: 'bar',
         data: {
-            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'],
+            labels: @json($productosMasVendidos->pluck('nombre')),
             datasets: [{
-                label: 'Ventas (Millones)',
-                data: [3, 2.8, 3.2, 3.5, 4, 4.2, 3.8],
-                borderColor: '#c7436f',
-                backgroundColor: 'rgba(199, 67, 111, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#c7436f',
-                pointRadius: 5,
-                pointHoverRadius: 7
+                label: 'Unidades vendidas',
+                data: @json($productosMasVendidos->pluck('cantidad')),
+                backgroundColor: '#c7436f',
+                borderRadius: 6,
+                maxBarThickness: 34
             }]
         },
         options: {
             responsive: true,
+            indexAxis: 'y',
             plugins: {
                 legend: {
                     display: false
                 }
             },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        drawBorder: false
-                    }
-                },
                 x: {
-                    grid: {
-                        display: false
-                    }
-                }
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                },
+                y: { grid: { display: false } }
             }
         }
-    });
-
-    // Gráfico de Categorías
-    const ctxCategoria = document.getElementById('chartCategoria').getContext('2d');
-    new Chart(ctxCategoria, {
-        type: 'doughnut',
-        data: {
-            labels: ['Tortas', 'Cupcakes', 'Macarons'],
-            datasets: [{
-                data: [42, 28, 15],
-                backgroundColor: [
-                    '#c7436f',
-                    '#d4a5c4',
-                    '#e8c4d8'
-                ],
-                borderColor: '#fff',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
+        });
+    }
 </script>
 @endsection

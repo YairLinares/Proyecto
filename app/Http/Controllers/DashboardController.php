@@ -81,21 +81,15 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Datos para gráfico de ventas mensuales
-        $ventasMensuales = Pedido::selectRaw('MONTH(created_at) as mes, SUM(total) as total')
-            ->where('estado', 'Completado')
-            ->whereYear('created_at', now()->year)
-            ->groupBy('mes')
-            ->get();
-
-        // Datos para gráfico de ventas por categoría
-        $ventasPorCategoria = DB::table('productos')
+        // Productos más vendidos, según las unidades de pedidos completados.
+        $productosMasVendidos = DB::table('productos')
             ->join('detalles_pedidos', 'productos.id', '=', 'detalles_pedidos.producto_id')
             ->join('pedidos', 'detalles_pedidos.pedido_id', '=', 'pedidos.id')
-            ->selectRaw('categorias.nombre, COUNT(*) as cantidad')
-            ->join('categorias', 'productos.categoria_id', '=', 'categorias.id')
+            ->selectRaw('productos.nombre, SUM(detalles_pedidos.cantidad) as cantidad')
             ->where('pedidos.estado', 'Completado')
-            ->groupBy('categorias.nombre')
+            ->groupBy('productos.id', 'productos.nombre')
+            ->orderByDesc('cantidad')
+            ->limit(5)
             ->get();
 
         $insumosBajos = Insumo::where('estado', '!=', 'Normal')->count();
@@ -115,8 +109,7 @@ class DashboardController extends Controller
             'productoStockBajo',
             'ventasSemana',
             'pedidosRecientes',
-            'ventasMensuales',
-            'ventasPorCategoria',
+            'productosMasVendidos',
             'insumosBajos'
         ));
     }

@@ -21,7 +21,7 @@ class PedidoController extends Controller
         $fecha = $request->get('fecha');
         $entrega = $request->get('entrega');
 
-        $query = Pedido::with('cliente');
+        $query = Pedido::with(['cliente', 'detalles.producto']);
 
         if ($search) {
             $query->where('numero_pedido', 'like', "%$search%")
