@@ -27,7 +27,7 @@ class AuthController extends Controller
             'password' => 'required|min:6',
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             return redirect()->route('dashboard')->with('success', '¡Bienvenido!');
         }
@@ -71,7 +71,7 @@ class AuthController extends Controller
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
-        $validated['cargo'] = 'Usuario';
+        $validated['cargo'] = 'Empleado';
         $validated['name'] = trim($validated['nombre'] . ' ' . $validated['apellido']);
 
         User::create($validated);

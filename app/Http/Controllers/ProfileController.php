@@ -30,8 +30,7 @@ class ProfileController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'telefono' => 'nullable|string|max:20',
             'ciudad' => 'nullable|string|max:255',
-            'cargo' => 'nullable|string|max:255',
-            'biografia' => 'nullable|string',
+            'cargo' => 'required|in:Administrador,Empleado',
         ]);
 
         $user->update($validated);

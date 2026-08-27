@@ -19,7 +19,7 @@ class Insumo extends Model
 
     public function productos()
     {
-        return $this->belongsToMany(Producto::class, 'producto_insumo')
+        return $this->belongsToMany(Producto::class, 'insumo_producto')
             ->withPivot('cantidad_necesaria')
             ->withTimestamps();
     }

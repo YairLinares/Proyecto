@@ -20,12 +20,6 @@
         .input-wrap i { position: absolute; top: 50%; left: 15px; color: #9aa6b8; transform: translateY(-50%); }
         .form-control { min-height: 47px; padding-left: 42px; border-color: #dde2e9; border-radius: 999px; }
         .form-control:focus { border-color: var(--pink); box-shadow: 0 0 0 .2rem rgba(233, 30, 99, .12); }
-        .remember { display: inline-flex; align-items: center; gap: 9px; cursor: pointer; color: #52617a; font-size: .9rem; }
-        .remember input { position: absolute; opacity: 0; }
-        .remember__switch { width: 42px; height: 23px; position: relative; border-radius: 999px; background: #cbd3df; transition: background .2s; }
-        .remember__switch::after { width: 17px; height: 17px; position: absolute; top: 3px; left: 3px; border-radius: 50%; background: #fff; content: ""; transition: transform .2s; }
-        .remember input:checked + .remember__switch { background: var(--pink); }
-        .remember input:checked + .remember__switch::after { transform: translateX(19px); }
         .login-submit { width: 100%; min-height: 47px; margin-top: 23px; border: 0; border-radius: 999px; background: var(--pink); box-shadow: 0 5px 12px rgba(233, 30, 99, .22); color: #fff; font-weight: 700; }
         .login-submit:hover { background: #c91853; color: #fff; }
         .login-footer { margin: 24px -32px -32px; padding: 18px 32px; border-top: 1px solid #eef0f4; color: var(--muted); font-size: .86rem; text-align: center; }
@@ -74,12 +68,6 @@
                 </div>
                 @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
-
-            <label class="remember">
-                <input type="checkbox" name="remember" value="1" @checked(old('remember'))>
-                <span class="remember__switch"></span>
-                Recordarme
-            </label>
 
             <button type="submit" class="btn login-submit">Iniciar sesión</button>
         </form>

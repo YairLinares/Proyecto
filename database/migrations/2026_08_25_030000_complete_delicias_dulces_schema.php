@@ -11,16 +11,38 @@ return new class extends Migration
         Schema::table('clientes', function (Blueprint $table) {
             if (! Schema::hasColumn('clientes', 'nombre_completo')) {
                 $table->string('nombre_completo')->after('id');
-                $table->string('tipo_documento', 30)->after('nombre_completo');
-                $table->string('numero_documento')->unique()->after('tipo_documento');
+            }
+            if (! Schema::hasColumn('clientes', 'tipo_documento')) {
+                $table->string('tipo_documento', 30)->nullable()->after('nombre_completo');
+            }
+            if (! Schema::hasColumn('clientes', 'numero_documento')) {
+                $table->string('numero_documento')->nullable()->unique()->after('tipo_documento');
+            }
+            if (! Schema::hasColumn('clientes', 'telefono_principal')) {
                 $table->string('telefono_principal')->after('numero_documento');
+            }
+            if (! Schema::hasColumn('clientes', 'telefono_alternativo')) {
                 $table->string('telefono_alternativo')->nullable()->after('telefono_principal');
-                $table->string('email')->after('telefono_alternativo');
-                $table->string('ciudad')->after('email');
+            }
+            if (! Schema::hasColumn('clientes', 'email')) {
+                $table->string('email')->nullable()->after('telefono_alternativo');
+            }
+            if (! Schema::hasColumn('clientes', 'ciudad')) {
+                $table->string('ciudad')->nullable()->after('email');
+            }
+            if (! Schema::hasColumn('clientes', 'direccion')) {
                 $table->text('direccion')->after('ciudad');
+            }
+            if (! Schema::hasColumn('clientes', 'tipo_cliente')) {
                 $table->enum('tipo_cliente', ['Regular', 'Corporativo'])->default('Regular')->after('direccion');
+            }
+            if (! Schema::hasColumn('clientes', 'notas_preferencias')) {
                 $table->text('notas_preferencias')->nullable()->after('tipo_cliente');
+            }
+            if (! Schema::hasColumn('clientes', 'estado')) {
                 $table->enum('estado', ['activo', 'inactivo'])->default('activo')->after('notas_preferencias');
+            }
+            if (! Schema::hasColumn('clientes', 'total_compras')) {
                 $table->decimal('total_compras', 10, 2)->default(0)->after('estado');
             }
         });

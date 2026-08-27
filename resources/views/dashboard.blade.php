@@ -82,15 +82,19 @@
     </div>
 </div>
 
-<!-- Ventas de la Semana y Alertas -->
+<!-- Productos más vendidos y Alertas -->
 <div class="row mt-4">
     <div class="col-lg-8">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Ventas de la Semana</h5>
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Productos más vendidos</h5>
             </div>
             <div class="card-body">
-                <canvas id="chartVentasSemana"></canvas>
+                @if($productosMasVendidos->isEmpty())
+                    <p class="text-muted mb-0">Aún no hay productos vendidos en pedidos completados.</p>
+                @else
+                    <canvas id="chartProductosMasVendidos"></canvas>
+                @endif
             </div>
         </div>
     </div>
@@ -101,37 +105,27 @@
                 <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Alertas</h5>
             </div>
             <div class="card-body">
+                @if($stockCritico == 0 && $stockBajo == 0 && !$productoStockBajo)
+                    <p class="text-muted mb-0">No hay alertas de stock por el momento.</p>
+                @endif
+
+                @if($stockCritico > 0)
                 <div class="alert alert-danger mb-3">
                     <strong>Stock Crítico</strong>
                     <div class="small">{{ $stockCritico }} insumos por debajo del mínimo</div>
                 </div>
+                @endif
+                @if($stockBajo > 0)
                 <div class="alert alert-warning mb-3">
                     <strong>Stock Bajo</strong>
                     <div class="small">{{ $stockBajo }} insumos cerca del mínimo</div>
                 </div>
+                @endif
                 @if($productoStockBajo)
                 <div class="alert alert-info mb-0">
                     <strong>{{ $productoStockBajo->nombre }}</strong>
                     <div class="small">Solo quedan {{ $productoStockBajo->stock_disponible }} unidades</div>
                 </div>
-                @endif
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Gráficos y Tablas -->
-<div class="row mt-4">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Productos más vendidos</h5>
-            </div>
-            <div class="card-body">
-                @if($productosMasVendidos->isEmpty())
-                    <p class="text-muted mb-0">Aún no hay productos vendidos en pedidos completados.</p>
-                @else
-                    <canvas id="chartProductosMasVendidos"></canvas>
                 @endif
             </div>
         </div>
@@ -200,43 +194,6 @@
 
 @section('scripts')
 <script>
-    // Gráfico de Ventas de la Semana
-    const ctxVentasSemana = document.getElementById('chartVentasSemana').getContext('2d');
-    new Chart(ctxVentasSemana, {
-        type: 'bar',
-        data: {
-            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-            datasets: [{
-                label: 'Ventas',
-                data: @json($ventasSemana),
-                backgroundColor: '#c7436f',
-                borderRadius: 6,
-                maxBarThickness: 40
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        drawBorder: false
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            }
-        }
-    });
-
     const chartProductos = document.getElementById('chartProductosMasVendidos');
     if (chartProductos) {
         new Chart(chartProductos, {

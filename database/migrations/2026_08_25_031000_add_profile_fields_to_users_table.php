@@ -15,7 +15,7 @@ return new class extends Migration
                 $table->string('apellido')->nullable()->after('nombre');
                 $table->string('telefono')->nullable()->after('apellido');
                 $table->string('ciudad')->nullable()->after('telefono');
-                $table->string('cargo')->default('Usuario')->after('ciudad');
+                $table->string('cargo')->default('Empleado')->after('ciudad');
             }
         });
 
@@ -23,7 +23,7 @@ return new class extends Migration
             ->whereNull('nombre')
             ->update([
                 'nombre' => DB::raw('name'),
-                'cargo' => 'Usuario',
+                'cargo' => 'Empleado',
             ]);
     }
 

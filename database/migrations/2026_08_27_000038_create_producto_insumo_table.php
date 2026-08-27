@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('producto_insumo', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('producto_id')->constrained('productos')->cascadeOnDelete();
-            $table->foreignId('insumo_id')->constrained('insumos')->cascadeOnDelete();
-            $table->decimal('cantidad_necesaria', 10, 2);
-            $table->timestamps();
-            $table->unique(['producto_id', 'insumo_id']);
-        });
+        if (! Schema::hasTable('insumo_producto')) {
+            Schema::create('insumo_producto', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('producto_id')->constrained('productos')->cascadeOnDelete();
+                $table->foreignId('insumo_id')->constrained('insumos')->restrictOnDelete();
+                $table->decimal('cantidad_necesaria', 10, 2)->default(0);
+                $table->timestamps();
+                $table->unique(['producto_id', 'insumo_id']);
+            });
+        }
     }
 
     /**
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('producto_insumo');
+        // The insumo_producto table is shared with the initial migration.
     }
 };

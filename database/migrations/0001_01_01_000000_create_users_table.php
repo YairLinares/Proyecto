@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('apellido')->nullable();
             $table->string('telefono')->nullable();
             $table->string('ciudad')->nullable();
-            $table->string('cargo')->default('Usuario');
+            $table->string('cargo')->default('Empleado');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

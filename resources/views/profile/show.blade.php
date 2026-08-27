@@ -14,7 +14,6 @@
     .pill-btn { border-radius: 999px; padding: 8px 18px; font-weight: 600; }
     .info-label { color: #8e9bb0; font-size: .78rem; text-transform: uppercase; letter-spacing: .02em; margin-bottom: 4px; }
     .info-value { color: #16233d; font-weight: 700; }
-    .info-readonly { color: #b7c0cf; font-weight: 400; font-size: .82rem; }
     .perfil-card-header { background: #f3d9c9 !important; border-bottom: 1px solid #ecc9b4; }
 </style>
 
@@ -77,7 +76,6 @@
                 @php
                     $tieneErroresPerfil = $errors->hasAny(['nombre', 'apellido', 'email']);
                 @endphp
-                <!-- Vista de solo lectura -->
                 <div id="vistaPerfil" style="{{ $tieneErroresPerfil ? 'display: none;' : '' }}">
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -86,7 +84,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="info-label">Rol</div>
-                            <div class="info-value">{{ $user->cargo }} <span class="info-readonly">(solo lectura)</span></div>
+                            <div class="info-value">{{ $user->cargo }}</div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="info-label">Correo Electrónico</div>
@@ -102,7 +100,7 @@
                         </div>
                         <div class="col-12">
                             <div class="info-label">Emprendimiento</div>
-                            <div class="info-value">Delicias Dulces <span class="info-readonly">(solo lectura)</span></div>
+                            <div class="info-value">Delicias Dulces</div>
                         </div>
                     </div>
                 </div>
@@ -156,19 +154,10 @@
 
                         <div class="mb-3">
                             <label class="form-label">Cargo</label>
-                            <select class="form-select" name="cargo">
-                                <option value="Administradora" {{ $user->cargo == 'Administradora' ? 'selected' : '' }}>Administradora</option>
-                                <option value="Administrador" {{ $user->cargo == 'Administrador' ? 'selected' : '' }}>Administrador</option>
-                                <option value="Vendedor" {{ $user->cargo == 'Vendedor' ? 'selected' : '' }}>Vendedor</option>
-                                <option value="Repostero" {{ $user->cargo == 'Repostero' ? 'selected' : '' }}>Repostero</option>
-                                <option value="Usuario" {{ $user->cargo == 'Usuario' ? 'selected' : '' }}>Usuario</option>
+                            <select class="form-select" name="cargo" required>
+                                <option value="Administrador" {{ old('cargo', $user->cargo) == 'Administrador' ? 'selected' : '' }}>Administrador</option>
+                                <option value="Empleado" {{ old('cargo', $user->cargo) == 'Empleado' ? 'selected' : '' }}>Empleado</option>
                             </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Biografía</label>
-                            <textarea class="form-control" name="biografia" rows="3"
-                                      placeholder="Cuéntanos sobre ti y tu rol en la pastelería...">{{ old('biografia', $user->biografia) }}</textarea>
                         </div>
 
                         <div class="d-flex gap-2">

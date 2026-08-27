@@ -6,8 +6,11 @@ use App\Models\Pedido;
 use App\Models\Cliente;
 use App\Models\Producto;
 use App\Models\DetallePedido;
+use App\Models\Insumo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class PedidoController extends Controller
 {
@@ -86,6 +89,7 @@ class PedidoController extends Controller
         $cliente = Cliente::findOrFail($validated['cliente_id']);
         $productos = Producto::whereIn('id', array_keys($validated['productos']))
             ->where('estado', 'activo')
+            ->with('insumos')
             ->get()
             ->keyBy('id');
 
@@ -106,24 +110,70 @@ class PedidoController extends Controller
         $validated['usuario_id'] = Auth::id();
         $validated['estado'] = 'Pendiente';
 
-        $pedido = Pedido::create($validated);
-
-        $subtotal = 0;
+        $consumoPorInsumo = [];
         foreach ($validated['productos'] as $productoId => $datos) {
             $producto = $productos->get((int) $productoId);
-            $detalle = new DetallePedido([
-                'producto_id' => $producto->id,
-                'cantidad' => $datos['cantidad'],
-                'precio_unitario' => $producto->precio_venta,
-            ]);
-            $detalle->calcularSubtotal();
-            $pedido->detalles()->save($detalle);
-            $subtotal += $detalle->subtotal;
+
+            foreach ($producto->insumos as $insumo) {
+                $cantidadNecesaria = (float) $insumo->pivot->cantidad_necesaria;
+
+                if ($cantidadNecesaria <= 0) {
+                    continue;
+                }
+
+                $consumoPorInsumo[$insumo->id] = ($consumoPorInsumo[$insumo->id] ?? 0)
+                    + ($cantidadNecesaria * (int) $datos['cantidad']);
+            }
         }
 
-        $pedido->subtotal = $subtotal;
-        $pedido->calcularTotal();
-        $pedido->save();
+        $pedido = DB::transaction(function () use ($validated, $productos, $consumoPorInsumo) {
+            $insumos = Insumo::whereIn('id', array_keys($consumoPorInsumo))
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            foreach ($consumoPorInsumo as $insumoId => $cantidadAUsar) {
+                $insumo = $insumos->get($insumoId);
+
+                if (! $insumo || (float) $insumo->stock_actual < $cantidadAUsar) {
+                    $nombre = $insumo?->nombre ?? 'un insumo requerido';
+                    $unidad = $insumo?->unidad ?? '';
+                    $disponible = $insumo ? number_format((float) $insumo->stock_actual, 2, ',', '.') : '0';
+                    $requerido = number_format($cantidadAUsar, 2, ',', '.');
+
+                    throw ValidationException::withMessages([
+                        'productos' => "No hay suficiente stock de {$nombre}. Se requieren {$requerido} {$unidad} y solo hay {$disponible}.",
+                    ]);
+                }
+            }
+
+            $pedido = Pedido::create($validated);
+            $subtotal = 0;
+
+            foreach ($validated['productos'] as $productoId => $datos) {
+                $producto = $productos->get((int) $productoId);
+                $detalle = new DetallePedido([
+                    'producto_id' => $producto->id,
+                    'cantidad' => $datos['cantidad'],
+                    'precio_unitario' => $producto->precio_venta,
+                ]);
+                $detalle->calcularSubtotal();
+                $pedido->detalles()->save($detalle);
+                $subtotal += $detalle->subtotal;
+            }
+
+            foreach ($consumoPorInsumo as $insumoId => $cantidadAUsar) {
+                $insumo = $insumos->get($insumoId);
+                $insumo->stock_actual = round((float) $insumo->stock_actual - $cantidadAUsar, 2);
+                $insumo->actualizarEstado();
+            }
+
+            $pedido->subtotal = $subtotal;
+            $pedido->calcularTotal();
+            $pedido->save();
+
+            return $pedido;
+        });
 
         return redirect()->route('pedidos.show', $pedido)->with('success', 'Pedido creado correctamente.');
     }

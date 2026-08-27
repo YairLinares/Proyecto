@@ -26,7 +26,7 @@ class Producto extends Model
 
     public function insumos()
     {
-        return $this->belongsToMany(Insumo::class, 'producto_insumo')
+        return $this->belongsToMany(Insumo::class, 'insumo_producto')
             ->withPivot('cantidad_necesaria')
             ->withTimestamps();
     }
