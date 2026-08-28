@@ -6,6 +6,7 @@ use App\Models\Producto;
 use App\Models\Categoria;
 use App\Models\Insumo;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ProductoController extends Controller
 {
@@ -17,7 +18,7 @@ class ProductoController extends Controller
         $search = $request->get('search');
         $categoria = $request->get('categoria');
 
-        $query = Producto::with('categoria');
+        $query = Producto::with('categoria')->withCount('insumos');
 
         if ($search) {
             $query->where('nombre', 'like', "%$search%");
@@ -53,12 +54,17 @@ class ProductoController extends Controller
             'nombre' => 'required|unique:productos|string|max:255',
             'descripcion' => 'nullable|string',
             'precio_venta' => 'required|numeric|min:0',
-            'costo_produccion' => 'required|numeric|min:0',
-            'stock_disponible' => 'required|integer|min:0',
-            'stock_minimo' => 'required|integer|min:0',
             'tiempo_preparacion_dias' => 'required|integer|min:1',
-            'unidad_medida' => 'required|in:Unidad,Kg,Gramos,Litros,Mililitros',
+            'insumos' => 'nullable|array',
+            'insumos.*' => 'nullable|numeric|min:0',
         ]);
+
+        [, $costoProduccion] = $this->prepararReceta($validated['insumos'] ?? []);
+        unset($validated['insumos']);
+        $validated['costo_produccion'] = $costoProduccion;
+        $validated['stock_disponible'] = 0;
+        $validated['stock_minimo'] = 0;
+        $validated['unidad_medida'] = 'Unidad';
 
         $producto = Producto::create($validated);
 
@@ -90,6 +96,7 @@ class ProductoController extends Controller
     {
         $categorias = Categoria::all();
         $insumos = Insumo::all();
+        $producto->load('insumos');
         return view('productos.edit', compact('producto', 'categorias', 'insumos'));
     }
 
@@ -103,13 +110,16 @@ class ProductoController extends Controller
             'nombre' => 'required|unique:productos,nombre,' . $producto->id . '|string|max:255',
             'descripcion' => 'nullable|string',
             'precio_venta' => 'required|numeric|min:0',
-            'costo_produccion' => 'required|numeric|min:0',
-            'stock_disponible' => 'required|integer|min:0',
-            'stock_minimo' => 'required|integer|min:0',
             'tiempo_preparacion_dias' => 'required|integer|min:1',
-            'unidad_medida' => 'required|in:Unidad,Kg,Gramos,Litros,Mililitros',
             'estado' => 'required|in:activo,inactivo',
+            'insumos' => 'nullable|array',
+            'insumos.*' => 'nullable|numeric|min:0',
         ]);
+
+        [, $costoProduccion] = $this->prepararReceta($validated['insumos'] ?? []);
+        unset($validated['insumos']);
+        $validated['costo_produccion'] = $costoProduccion;
+        $validated['unidad_medida'] = 'Unidad';
 
         $producto->update($validated);
 
@@ -133,5 +143,36 @@ class ProductoController extends Controller
     {
         $producto->delete();
         return redirect()->route('productos.index')->with('success', 'Producto eliminado correctamente.');
+    }
+
+    private function prepararReceta(array $cantidades): array
+    {
+        $cantidades = collect($cantidades)->filter(fn ($cantidad) => (float) $cantidad > 0);
+
+        if ($cantidades->isEmpty()) {
+            throw ValidationException::withMessages([
+                'insumos' => 'Agrega al menos un insumo y su cantidad para la receta.',
+            ]);
+        }
+
+        $insumos = Insumo::whereIn('id', $cantidades->keys())->get()->keyBy('id');
+
+        if ($insumos->count() !== $cantidades->count()) {
+            throw ValidationException::withMessages([
+                'insumos' => 'Uno de los insumos seleccionados ya no existe.',
+            ]);
+        }
+
+        $receta = [];
+        $costoProduccion = 0;
+
+        foreach ($cantidades as $insumoId => $cantidad) {
+            $insumo = $insumos->get((int) $insumoId);
+            $cantidad = (float) $cantidad;
+            $receta[$insumo->id] = ['cantidad_necesaria' => $cantidad];
+            $costoProduccion += (float) $insumo->precio_unitario * $cantidad;
+        }
+
+        return [$receta, round($costoProduccion, 2)];
     }
 }

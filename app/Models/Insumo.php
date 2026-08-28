@@ -13,7 +13,6 @@ class Insumo extends Model
         'stock_actual',
         'stock_minimo',
         'precio_unitario',
-        'proveedor',
         'estado',
     ];
 

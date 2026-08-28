@@ -78,7 +78,7 @@ return new class extends Migration
                 $table->decimal('stock_actual', 10, 2)->default(0)->after('unidad');
                 $table->decimal('stock_minimo', 10, 2)->default(0)->after('stock_actual');
                 $table->decimal('precio_unitario', 10, 2)->default(0)->after('stock_minimo');
-                $table->string('proveedor')->after('precio_unitario');
+                $table->string('proveedor')->nullable()->after('precio_unitario');
                 $table->enum('estado', ['Normal', 'Stock bajo', 'Agotado'])->default('Normal')->after('proveedor');
             }
         });

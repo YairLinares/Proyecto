@@ -61,11 +61,6 @@
                         </div>
                     </div>
  
-                    <div class="mb-3">
-                        <label class="form-label">Proveedor *</label>
-                        <input type="text" class="form-control" name="proveedor" value="{{ $insumo->proveedor }}" required>
-                    </div>
- 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
                         <a href="{{ route('insumos.show', $insumo) }}" class="btn btn-secondary">Cancelar</a>

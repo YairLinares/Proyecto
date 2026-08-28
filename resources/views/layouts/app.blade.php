@@ -25,52 +25,90 @@
         }
 
         .sidebar {
-            background-color: var(--dark-color);
+            background-color: #5a3d4f;
             color: white;
             min-height: 100vh;
-            padding: 20px;
+            padding: 18px 14px;
             position: sticky;
             top: 0;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .sidebar-logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 30px;
-            font-weight: bold;
-            font-size: 18px;
+            gap: 9px;
+            margin-bottom: 26px;
+            padding: 4px 8px;
+            font-weight: 700;
+            font-size: 17px;
+            letter-spacing: 0;
         }
 
         .sidebar-logo i {
-            font-size: 24px;
+            display: grid;
+            width: 30px;
+            height: 30px;
+            place-items: center;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffd7a8;
+            font-size: 15px;
         }
 
         .sidebar-menu a {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 12px 15px;
-            color: rgba(255, 255, 255, 0.8);
+            gap: 11px;
+            min-height: 42px;
+            padding: 9px 11px;
+            color: rgba(255, 255, 255, 0.82);
             text-decoration: none;
-            border-radius: 5px;
-            margin-bottom: 5px;
-            transition: all 0.3s;
+            border-radius: 6px;
+            margin-bottom: 3px;
+            font-size: .9rem;
+            transition: background-color .16s ease, color .16s ease;
+        }
+
+        .sidebar-menu a i {
+            width: 17px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.72);
         }
 
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
             background-color: var(--primary-color);
             color: white;
+            box-shadow: inset 3px 0 0 #ffd7a8;
+        }
+
+        .sidebar-menu a:hover i,
+        .sidebar-menu a.active i {
+            color: white;
         }
 
         .sidebar-section-title {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.55);
             text-transform: uppercase;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-weight: bold;
+            letter-spacing: .35px;
+            margin: 22px 8px 8px;
+            font-weight: 700;
+        }
+
+        .sidebar-logout {
+            min-height: 42px;
+            padding: 9px 11px !important;
+            border: 0 !important;
+            border-radius: 6px !important;
+            color: rgba(255, 255, 255, 0.82) !important;
+            font-size: .9rem !important;
+        }
+
+        .sidebar-logout:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
         }
 
         .topbar {
@@ -198,7 +236,7 @@
         <!-- Sidebar -->
         <div class="sidebar" style="width: 250px;">
             <div class="sidebar-logo">
-                <i class="fas fa-cupcake"></i>
+                <i class="fas fa-cookie-bite"></i>
                 <span>Delicias Dulces</span>
             </div>
 
@@ -238,7 +276,7 @@
                 </a>
                 <a href="{{ route('categorias.index') }}" class="@if(request()->routeIs('categorias.*')) active @endif">
                     <i class="fas fa-tags"></i>
-                    <span>Categorías</span>
+                    <span>Sabores</span>
                 </a>
             </div>
 
@@ -250,7 +288,7 @@
 </a>
                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                     @csrf
-                    <button type="submit" class="btn btn-link text-white text-start w-100 d-flex align-items-center gap-2" style="text-decoration: none;">
+                    <button type="submit" class="btn btn-link text-white text-start w-100 d-flex align-items-center gap-2 sidebar-logout" style="text-decoration: none;">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Cerrar Sesión</span>
                     </button>

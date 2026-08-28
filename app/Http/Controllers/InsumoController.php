@@ -15,11 +15,10 @@ class InsumoController extends Controller
         $search = $request->get('search');
         $filter = $request->get('filter', 'todos');
 
-        $query = Insumo::query();
+        $query = Insumo::query()->withCount('productos');
 
         if ($search) {
-            $query->where('nombre', 'like', "%$search%")
-                  ->orWhere('proveedor', 'like', "%$search%");
+            $query->where('nombre', 'like', "%$search%");
         }
 
         if ($filter === 'critico') {
@@ -32,8 +31,10 @@ class InsumoController extends Controller
         $totalInsumos = Insumo::count();
         $stockBajo = Insumo::where('estado', 'Stock bajo')->count();
         $agotados = Insumo::where('estado', 'Agotado')->count();
+        $valorInventario = (float) Insumo::selectRaw('COALESCE(SUM(stock_actual * precio_unitario), 0) as total')
+            ->value('total');
 
-        return view('insumos.index', compact('insumos', 'totalInsumos', 'stockBajo', 'agotados', 'search', 'filter'));
+        return view('insumos.index', compact('insumos', 'totalInsumos', 'stockBajo', 'agotados', 'valorInventario', 'search', 'filter'));
     }
 
     /**
@@ -56,7 +57,6 @@ class InsumoController extends Controller
             'stock_actual' => 'required|numeric|min:0',
             'stock_minimo' => 'required|numeric|min:0',
             'precio_unitario' => 'required|numeric|min:0',
-            'proveedor' => 'required|string|max:255',
         ]);
 
         $insumo = Insumo::create($validated);
@@ -94,7 +94,6 @@ class InsumoController extends Controller
             'stock_actual' => 'required|numeric|min:0',
             'stock_minimo' => 'required|numeric|min:0',
             'precio_unitario' => 'required|numeric|min:0',
-            'proveedor' => 'required|string|max:255',
         ]);
 
         $insumo->update($validated);

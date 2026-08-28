@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('stock_actual', 10, 2)->default(0);
             $table->decimal('stock_minimo', 10, 2)->default(0);
             $table->decimal('precio_unitario', 10, 2)->default(0);
-            $table->string('proveedor');
+            $table->string('proveedor')->nullable();
             $table->enum('estado', ['Normal', 'Stock bajo', 'Agotado'])->default('Normal');
             $table->timestamps();
         });

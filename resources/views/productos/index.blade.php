@@ -28,13 +28,15 @@
     .producto-stock-badge--critico { background: #fee2e2; color: #b91c1c; }
     .producto-stock-row { display: flex; justify-content: space-between; align-items: center; font-size: .82rem; color: #8e9bb0; border-top: 1px solid #f0f2f5; padding-top: 10px; }
     .producto-stock-row strong { color: #394861; }
+    .producto-receta-row { display: flex; align-items: center; gap: 6px; margin-top: 10px; color: #71809a; font-size: .78rem; }
+    .producto-receta-row--empty { color: #b06a00; }
     @media (max-width: 575.98px) { .productos-heading { align-items: flex-start; flex-direction: column; } }
 </style>
 
 <div class="productos-page">
     <div class="productos-heading">
         <div>
-            <h1><i class="fas fa-birthday-cake me-2"></i>Productos</h1>
+            <h1><i class="fas fa-cookie-bite me-2"></i>Productos</h1>
             <p>Catálogo de productos elaborados por Delicias Dulces</p>
         </div>
         <a href="{{ route('productos.create') }}" class="btn btn-primary productos-new-btn"><i class="fas fa-plus me-1"></i> Registrar Producto</a>
@@ -59,13 +61,6 @@
                     default => '🧁',
                 };
 
-                if ($producto->stock_disponible <= $producto->stock_minimo) {
-                    [$estadoTexto, $estadoClase] = ['Crítico', 'critico'];
-                } elseif ($producto->stock_minimo > 0 && $producto->stock_disponible <= $producto->stock_minimo * 1.2) {
-                    [$estadoTexto, $estadoClase] = ['Bajo', 'bajo'];
-                } else {
-                    [$estadoTexto, $estadoClase] = ['Óptimo', 'optimo'];
-                }
             @endphp
             <a href="{{ route('productos.show', $producto) }}" class="producto-card">
                 <div class="producto-imagen">{{ $emoji }}</div>
@@ -73,11 +68,15 @@
                     <h3>{{ $producto->nombre }}</h3>
                     <div class="producto-precio-row">
                         <span class="producto-precio">Bs {{ number_format($producto->precio_venta, 0, ',', '.') }}</span>
-                        <span class="producto-stock-badge producto-stock-badge--{{ $estadoClase }}"><i class="fas fa-circle"></i> {{ $estadoTexto }}</span>
+                        <span class="producto-stock-badge {{ $producto->insumos_count ? 'producto-stock-badge--optimo' : 'producto-stock-badge--bajo' }}"><i class="fas fa-circle"></i> {{ $producto->insumos_count ? 'Receta lista' : 'Sin receta' }}</span>
                     </div>
                     <div class="producto-stock-row">
-                        <span>Stock disponible</span>
-                        <strong>{{ $producto->stock_disponible }} ud</strong>
+                        <span>Preparaci&oacute;n</span>
+                        <strong>{{ $producto->tiempo_preparacion_dias }} d&iacute;a(s)</strong>
+                    </div>
+                    <div class="producto-receta-row {{ $producto->insumos_count ? '' : 'producto-receta-row--empty' }}">
+                        <i class="fas {{ $producto->insumos_count ? 'fa-list-check' : 'fa-triangle-exclamation' }}"></i>
+                        {{ $producto->insumos_count ? $producto->insumos_count . ' insumo(s) en la receta' : 'Receta sin configurar' }}
                     </div>
                 </div>
             </a>

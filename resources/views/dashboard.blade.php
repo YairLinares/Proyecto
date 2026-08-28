@@ -2,80 +2,146 @@
 
 @section('title', 'Dashboard - Delicias Dulces')
 
+@section('styles')
+<style>
+    .stat-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .stat-card {
+        border-top: 3px solid var(--accent, #c7436f);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        font-size: 18px;
+    }
+
+    .stat-value {
+        margin: 12px 0 2px;
+        font-weight: 700;
+        font-size: 26px;
+    }
+
+    .stat-label {
+        color: #8a8a8a;
+        font-size: 13px;
+        margin-bottom: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .section-card .card-header {
+        font-weight: 600;
+    }
+
+    .section-card .card-header i {
+        color: var(--primary-color);
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="page-header">
     <h1 class="page-title">Dashboard</h1>
 </div>
 
 <!-- Estadísticas Principales -->
-<div class="row">
+<div class="row g-3 stat-row">
     <div class="col-md-2">
-        <a href="{{ route('pedidos.index', ['fecha' => 'hoy']) }}" style="text-decoration: none; color: inherit;">
-            <div class="card">
+        <a href="{{ route('pedidos.index', ['fecha' => 'hoy']) }}" class="stat-card-link">
+            <div class="card stat-card" style="--accent: #c7436f;">
                 <div class="card-body text-center">
-                    <i class="fas fa-receipt" style="font-size: 22px; color: #c7436f;"></i>
-                    <h3 style="color: #c7436f; margin: 8px 0 0;">{{ $pedidosHoy }}</h3>
-                    <p class="text-muted mb-0">Pedidos Hoy</p>
+                    <div class="stat-icon" style="background: rgba(199,67,111,0.12); color: #c7436f;">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h3 class="stat-value" style="color: #c7436f;">{{ $pedidosHoy }}</h3>
+                    <p class="stat-label">Pedidos Hoy</p>
                 </div>
             </div>
         </a>
     </div>
 
     <div class="col-md-2">
-        <a href="{{ route('clientes.index') }}" style="text-decoration: none; color: inherit;">
-            <div class="card">
+        <a href="{{ route('clientes.index') }}" class="stat-card-link">
+            <div class="card stat-card" style="--accent: #6c757d;">
                 <div class="card-body text-center">
-                    <i class="fas fa-users" style="font-size: 22px; color: #6c757d;"></i>
-                    <h3 style="color: #6c757d; margin: 8px 0 0;">{{ $clientesTotal }}</h3>
-                    <p class="text-muted mb-0">Clientes</p>
+                    <div class="stat-icon" style="background: rgba(108,117,125,0.12); color: #6c757d;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="stat-value" style="color: #6c757d;">{{ $clientesTotal }}</h3>
+                    <p class="stat-label">Clientes</p>
                 </div>
             </div>
         </a>
     </div>
 
     <div class="col-md-2">
-        <a href="{{ route('pedidos.index', ['fecha' => 'hoy', 'estado' => 'Completado']) }}" style="text-decoration: none; color: inherit;">
-            <div class="card">
+        <a href="{{ route('pedidos.index', ['fecha' => 'hoy', 'estado' => 'Completado']) }}" class="stat-card-link">
+            <div class="card stat-card" style="--accent: #d4a300;">
                 <div class="card-body text-center">
-                    <i class="fas fa-coins" style="font-size: 22px; color: #d4a300;"></i>
-                    <h3 style="color: #d4a300; margin: 8px 0 0;">$ {{ number_format($ventasHoy, 0, ',', '.') }}</h3>
-                    <p class="text-muted mb-0">Ventas del Día</p>
+                    <div class="stat-icon" style="background: rgba(212,163,0,0.14); color: #d4a300;">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3 class="stat-value" style="color: #d4a300;">$ {{ number_format($ventasHoy, 0, ',', '.') }}</h3>
+                    <p class="stat-label">Ventas del Día</p>
                 </div>
             </div>
         </a>
     </div>
 
     <div class="col-md-2">
-        <a href="{{ route('insumos.index', ['filter' => 'critico']) }}" style="text-decoration: none; color: inherit;">
-            <div class="card">
+        <a href="{{ route('insumos.index', ['filter' => 'critico']) }}" class="stat-card-link">
+            <div class="card stat-card" style="--accent: #dc3545;">
                 <div class="card-body text-center">
-                    <i class="fas fa-circle" style="font-size: 22px; color: #dc3545;"></i>
-                    <h3 style="color: #dc3545; margin: 8px 0 0;">{{ $stockCritico }}</h3>
-                    <p class="text-muted mb-0">Stock Crítico</p>
+                    <div class="stat-icon" style="background: rgba(220,53,69,0.12); color: #dc3545;">
+                        <i class="fas fa-circle"></i>
+                    </div>
+                    <h3 class="stat-value" style="color: #dc3545;">{{ $stockCritico }}</h3>
+                    <p class="stat-label">Stock Crítico</p>
                 </div>
             </div>
         </a>
     </div>
 
     <div class="col-md-2">
-        <a href="{{ route('pedidos.index', ['entrega' => 'hoy']) }}" style="text-decoration: none; color: inherit;">
-            <div class="card">
+        <a href="{{ route('pedidos.index', ['entrega' => 'hoy']) }}" class="stat-card-link">
+            <div class="card stat-card" style="--accent: #c7436f;">
                 <div class="card-body text-center">
-                    <i class="fas fa-birthday-cake" style="font-size: 22px; color: #c7436f;"></i>
-                    <h3 style="color: #c7436f; margin: 8px 0 0;">{{ $produccionHoy }}</h3>
-                    <p class="text-muted mb-0">Producción Hoy</p>
+                    <div class="stat-icon" style="background: rgba(199,67,111,0.12); color: #c7436f;">
+                        <i class="fas fa-birthday-cake"></i>
+                    </div>
+                    <h3 class="stat-value" style="color: #c7436f;">{{ $produccionHoy }}</h3>
+                    <p class="stat-label">Producción Hoy</p>
                 </div>
             </div>
         </a>
     </div>
 
     <div class="col-md-2">
-        <a href="{{ route('pedidos.index', ['fecha' => 'semana']) }}" style="text-decoration: none; color: inherit;">
-            <div class="card">
+        <a href="{{ route('pedidos.index', ['fecha' => 'semana']) }}" class="stat-card-link">
+            <div class="card stat-card" style="--accent: #198754;">
                 <div class="card-body text-center">
-                    <i class="fas fa-calendar-week" style="font-size: 22px; color: #198754;"></i>
-                    <h3 style="color: #198754; margin: 8px 0 0;">{{ $pedidosSemana }}</h3>
-                    <p class="text-muted mb-0">Pedidos Semana</p>
+                    <div class="stat-icon" style="background: rgba(25,135,84,0.12); color: #198754;">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <h3 class="stat-value" style="color: #198754;">{{ $pedidosSemana }}</h3>
+                    <p class="stat-label">Pedidos Semana</p>
                 </div>
             </div>
         </a>
@@ -85,7 +151,7 @@
 <!-- Productos más vendidos y Alertas -->
 <div class="row mt-4">
     <div class="col-lg-8">
-        <div class="card">
+        <div class="card section-card">
             <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Productos más vendidos</h5>
             </div>
@@ -100,7 +166,7 @@
     </div>
 
     <div class="col-lg-4">
-        <div class="card">
+        <div class="card section-card">
             <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Alertas</h5>
             </div>
@@ -135,10 +201,10 @@
 <!-- Pedidos Recientes -->
 <div class="row mt-4">
     <div class="col-12">
-        <div class="card">
+        <div class="card section-card">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Pedidos Recientes</h5>
-                <a href="{{ route('pedidos.index') }}" style="color: #c7436f; font-size: 14px; text-decoration: none;">
+                <a href="{{ route('pedidos.index') }}" class="fw-semibold" style="color: #c7436f; font-size: 14px; text-decoration: none;">
                     Ver todos <i class="fas fa-chevron-right"></i>
                 </a>
             </div>

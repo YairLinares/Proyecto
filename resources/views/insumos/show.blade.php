@@ -19,7 +19,6 @@
                 <p><strong>Stock Actual:</strong> {{ $insumo->stock_actual }} {{ $insumo->unidad }}</p>
                 <p><strong>Stock Mínimo:</strong> {{ $insumo->stock_minimo }}</p>
                 <p><strong>Precio Unitario:</strong> ${{ number_format($insumo->precio_unitario, 0, ',', '.') }}</p>
-                <p><strong>Proveedor:</strong> {{ $insumo->proveedor }}</p>
                 <p><strong>Estado:</strong> <span class="badge badge-{{ $insumo->estado == 'Normal' ? 'completed' : 'pending' }}">{{ $insumo->estado }}</span></p>
             </div>
         </div>

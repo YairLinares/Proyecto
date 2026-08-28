@@ -33,19 +33,12 @@
         default => '🧁',
     };
 
-    if ($producto->stock_disponible <= $producto->stock_minimo) {
-        [$estadoTexto, $estadoClase] = ['Crítico', 'critico'];
-    } elseif ($producto->stock_minimo > 0 && $producto->stock_disponible <= $producto->stock_minimo * 1.2) {
-        [$estadoTexto, $estadoClase] = ['Bajo', 'bajo'];
-    } else {
-        [$estadoTexto, $estadoClase] = ['Óptimo', 'optimo'];
-    }
 @endphp
 
 <div class="producto-detalle-page">
     <div class="producto-detalle-card">
         <div class="producto-detalle-header">
-            <h4><i class="fas fa-birthday-cake"></i> Detalle del Producto</h4>
+            <h4><i class="fas fa-cookie-bite"></i> Detalle del Producto</h4>
             <a href="{{ route('productos.index') }}" class="producto-detalle-close"><i class="fas fa-times"></i></a>
         </div>
 
@@ -57,14 +50,14 @@
                 <strong>Bs {{ number_format($producto->precio_venta, 0, ',', '.') }}</strong>
             </div>
             <div class="producto-detalle-tile">
-                <span>Stock Disponible</span>
-                <strong>{{ $producto->stock_disponible }} unidades</strong>
+                <span>Tiempo de preparaci&oacute;n</span>
+                <strong>{{ $producto->tiempo_preparacion_dias }} d&iacute;a(s)</strong>
             </div>
         </div>
 
         <div class="producto-detalle-estado">
-            Estado de Stock:
-            <span class="producto-stock-badge producto-stock-badge--{{ $estadoClase }}"><i class="fas fa-circle"></i> {{ $estadoTexto }}</span>
+            Receta:
+            <span class="producto-stock-badge {{ $producto->insumos->isNotEmpty() ? 'producto-stock-badge--optimo' : 'producto-stock-badge--bajo' }}"><i class="fas fa-circle"></i> {{ $producto->insumos->isNotEmpty() ? 'Configurada' : 'Pendiente' }}</span>
         </div>
     </div>
 
@@ -73,12 +66,11 @@
             <div class="card">
                 <div class="card-header"><h5 class="mb-0">Información</h5></div>
                 <div class="card-body">
-                    <p><strong>Categoría:</strong> {{ $producto->categoria->nombre }}</p>
+                    <p><strong>Sabor:</strong> {{ $producto->categoria->nombre }}</p>
                     <p><strong>Descripción:</strong> {{ $producto->descripcion ?? 'N/A' }}</p>
                     <p><strong>Costo Producción:</strong> Bs {{ number_format($producto->costo_produccion, 0, ',', '.') }}</p>
                     <p><strong>Ganancia:</strong> Bs {{ number_format($producto->calcularGanancia(), 0, ',', '.') }}</p>
-                    <p><strong>Stock Mínimo:</strong> {{ $producto->stock_minimo }}</p>
-                    <p class="mb-0"><strong>Tiempo Preparación:</strong> {{ $producto->tiempo_preparacion_dias }} días</p>
+                    <p class="mb-0"><strong>Costo de receta:</strong> Bs {{ number_format($producto->costo_produccion, 2, ',', '.') }}</p>
                 </div>
             </div>
         </div>
@@ -90,10 +82,15 @@
                     @forelse($producto->insumos as $insumo)
                     <div class="mb-2 pb-2" style="border-bottom: 1px solid #eee;">
                         <strong>{{ $insumo->nombre }}</strong><br>
-                        <small class="text-muted">Cantidad: {{ $insumo->pivot->cantidad_necesaria }} {{ $insumo->unidad }}</small>
+                        <small class="text-muted">Usa: {{ $insumo->pivot->cantidad_necesaria }} {{ $insumo->unidad }}</small><br>
+                        <small class="text-muted">Disponible: {{ $insumo->stock_actual }} {{ $insumo->unidad }}</small>
+                        @if($insumo->pivot->cantidad_necesaria > 0)
+                            <br><small class="text-success">Alcanza para {{ (int) floor($insumo->stock_actual / $insumo->pivot->cantidad_necesaria) }} producto(s)</small>
+                        @endif
                     </div>
                     @empty
-                    <p class="text-muted mb-0">No hay insumos asociados</p>
+                    <p class="text-muted mb-2">No hay insumos asociados a este producto.</p>
+                    <a href="{{ route('productos.edit', $producto) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-list-check"></i> Configurar receta</a>
                     @endforelse
                 </div>
             </div>
