@@ -264,6 +264,13 @@
                 </a>
             </div>
 
+            <div class="sidebar-menu">
+                <a href="{{ route('ventas.index') }}" class="@if(request()->routeIs('ventas.*')) active @endif">
+                    <i class="fas fa-coins"></i>
+                    <span>Ventas</span>
+                </a>
+            </div>
+
             <div class="sidebar-section-title">Inventario</div>
             <div class="sidebar-menu">
                 <a href="{{ route('productos.index') }}" class="@if(request()->routeIs('productos.*')) active @endif">

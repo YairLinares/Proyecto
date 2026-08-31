@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use App\Models\Producto;
 use App\Models\DetallePedido;
 use App\Models\Insumo;
+use App\Models\MovimientoInsumo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -164,8 +165,14 @@ class PedidoController extends Controller
 
             foreach ($consumoPorInsumo as $insumoId => $cantidadAUsar) {
                 $insumo = $insumos->get($insumoId);
-                $insumo->stock_actual = round((float) $insumo->stock_actual - $cantidadAUsar, 2);
-                $insumo->actualizarEstado();
+                MovimientoInsumo::registrar(
+                    $insumo,
+                    'Salida',
+                    $cantidadAUsar,
+                    "Consumo automatico para {$pedido->numero_pedido}",
+                    Auth::id(),
+                    $pedido->id,
+                );
             }
 
             $pedido->subtotal = $subtotal;
@@ -217,6 +224,16 @@ class PedidoController extends Controller
             'estado' => 'required|in:Pendiente,En proceso,Completado,Cancelado',
         ]);
 
+        if ($pedido->estado === 'Cancelado' && $validated['estado'] !== 'Cancelado') {
+            return back()->withInput()->with('error', 'Un pedido cancelado no puede reactivarse porque su stock ya fue devuelto.');
+        }
+
+        if ($pedido->estado !== 'Cancelado' && $validated['estado'] === 'Cancelado') {
+            DB::transaction(function () use ($pedido) {
+                $this->restaurarConsumosPedido($pedido, 'Devolucion por cancelacion del pedido');
+            });
+        }
+
         $pedido->update($validated);
 
         // Los productos solo se reemplazan cuando el formulario los envía.
@@ -254,7 +271,10 @@ class PedidoController extends Controller
             return back()->with('error', 'Solo puedes eliminar pedidos en estado Pendiente.');
         }
 
-        $pedido->delete();
+        DB::transaction(function () use ($pedido) {
+            $this->restaurarConsumosPedido($pedido, 'Devolucion por eliminacion del pedido');
+            $pedido->delete();
+        });
         return redirect()->route('pedidos.index')->with('success', 'Pedido eliminado correctamente.');
     }
 
@@ -263,7 +283,74 @@ class PedidoController extends Controller
      */
     public function cambiarEstado(Request $request, Pedido $pedido)
     {
-        $pedido->update(['estado' => $request->estado]);
+        $validated = $request->validate([
+            'estado' => 'required|in:Pendiente,En proceso,Completado,Cancelado',
+        ]);
+
+        if ($pedido->estado === 'Cancelado' && $validated['estado'] !== 'Cancelado') {
+            return back()->with('error', 'Un pedido cancelado no puede reactivarse porque su stock ya fue devuelto.');
+        }
+
+        DB::transaction(function () use ($pedido, $validated) {
+            if ($pedido->estado !== 'Cancelado' && $validated['estado'] === 'Cancelado') {
+                $this->restaurarConsumosPedido($pedido, 'Devolucion por cancelacion del pedido');
+            }
+
+            $pedido->update(['estado' => $validated['estado']]);
+        });
+
         return back()->with('success', 'Estado del pedido actualizado.');
+    }
+
+    private function restaurarConsumosPedido(Pedido $pedido, string $motivo): void
+    {
+        $salidas = MovimientoInsumo::where('pedido_id', $pedido->id)
+            ->where('tipo', 'Salida')
+            ->whereNull('revertido_at')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($salidas as $salida) {
+            $insumo = Insumo::whereKey($salida->insumo_id)->lockForUpdate()->firstOrFail();
+
+            MovimientoInsumo::registrar(
+                $insumo,
+                'Entrada',
+                (float) $salida->cantidad,
+                "{$motivo}: {$pedido->numero_pedido}",
+                Auth::id(),
+                $pedido->id,
+                $salida->id,
+            );
+
+            $salida->update(['revertido_at' => now()]);
+        }
+
+        // Los pedidos creados antes de este historial ya descontaron stock,
+        // pero no tienen movimientos guardados. Se devuelve su receta actual.
+        if ($salidas->isEmpty()) {
+            $pedido->loadMissing('detalles.producto.insumos');
+            $cantidades = [];
+
+            foreach ($pedido->detalles as $detalle) {
+                foreach ($detalle->producto->insumos as $insumo) {
+                    $cantidades[$insumo->id] = ($cantidades[$insumo->id] ?? 0)
+                        + ((float) $insumo->pivot->cantidad_necesaria * (int) $detalle->cantidad);
+                }
+            }
+
+            foreach ($cantidades as $insumoId => $cantidad) {
+                $insumo = Insumo::whereKey($insumoId)->lockForUpdate()->firstOrFail();
+
+                MovimientoInsumo::registrar(
+                    $insumo,
+                    'Entrada',
+                    $cantidad,
+                    "{$motivo}: {$pedido->numero_pedido} (pedido anterior)",
+                    Auth::id(),
+                    $pedido->id,
+                );
+            }
+        }
     }
 }

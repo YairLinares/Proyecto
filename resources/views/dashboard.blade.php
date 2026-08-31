@@ -92,13 +92,13 @@
     </div>
 
     <div class="col-md-2">
-        <a href="{{ route('pedidos.index', ['fecha' => 'hoy', 'estado' => 'Completado']) }}" class="stat-card-link">
+        <a href="{{ route('ventas.index', ['desde' => now()->toDateString(), 'hasta' => now()->toDateString()]) }}" class="stat-card-link">
             <div class="card stat-card" style="--accent: #d4a300;">
                 <div class="card-body text-center">
                     <div class="stat-icon" style="background: rgba(212,163,0,0.14); color: #d4a300;">
                         <i class="fas fa-coins"></i>
                     </div>
-                    <h3 class="stat-value" style="color: #d4a300;">$ {{ number_format($ventasHoy, 0, ',', '.') }}</h3>
+                    <h3 class="stat-value" style="color: #d4a300;">Bs {{ number_format($ventasHoy, 0, ',', '.') }}</h3>
                     <p class="stat-label">Ventas del Día</p>
                 </div>
             </div>
@@ -124,7 +124,7 @@
             <div class="card stat-card" style="--accent: #c7436f;">
                 <div class="card-body text-center">
                     <div class="stat-icon" style="background: rgba(199,67,111,0.12); color: #c7436f;">
-                        <i class="fas fa-birthday-cake"></i>
+                        <i class="fas fa-cookie-bite"></i>
                     </div>
                     <h3 class="stat-value" style="color: #c7436f;">{{ $produccionHoy }}</h3>
                     <p class="stat-label">Producción Hoy</p>
@@ -171,7 +171,7 @@
                 <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Alertas</h5>
             </div>
             <div class="card-body">
-                @if($stockCritico == 0 && $stockBajo == 0 && !$productoStockBajo)
+                @if($stockCritico == 0 && $stockBajo == 0)
                     <p class="text-muted mb-0">No hay alertas de stock por el momento.</p>
                 @endif
 
@@ -185,12 +185,6 @@
                 <div class="alert alert-warning mb-3">
                     <strong>Stock Bajo</strong>
                     <div class="small">{{ $stockBajo }} insumos cerca del mínimo</div>
-                </div>
-                @endif
-                @if($productoStockBajo)
-                <div class="alert alert-info mb-0">
-                    <strong>{{ $productoStockBajo->nombre }}</strong>
-                    <div class="small">Solo quedan {{ $productoStockBajo->stock_disponible }} unidades</div>
                 </div>
                 @endif
             </div>
@@ -231,7 +225,7 @@
                                 @endif
                             </td>
                             <td>{{ $pedido->fecha_entrega->format('d/m/Y') }}</td>
-                            <td>${{ number_format($pedido->total, 0, ',', '.') }}</td>
+                            <td>Bs {{ number_format($pedido->total, 0, ',', '.') }}</td>
                             <td>
                                 @if($pedido->estado == 'Pendiente')
                                     <span class="badge badge-pending"><i class="fas fa-hourglass-half"></i> Pendiente</span>

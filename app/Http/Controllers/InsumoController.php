@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Insumo;
+use App\Models\MovimientoInsumo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class InsumoController extends Controller
 {
@@ -59,8 +62,26 @@ class InsumoController extends Controller
             'precio_unitario' => 'required|numeric|min:0',
         ]);
 
-        $insumo = Insumo::create($validated);
-        $insumo->actualizarEstado();
+        $stockInicial = (float) $validated['stock_actual'];
+        $validated['stock_actual'] = 0;
+
+        $insumo = DB::transaction(function () use ($validated, $stockInicial) {
+            $insumo = Insumo::create($validated);
+
+            if ($stockInicial > 0) {
+                MovimientoInsumo::registrar(
+                    $insumo,
+                    'Entrada',
+                    $stockInicial,
+                    'Stock inicial del insumo',
+                    Auth::id(),
+                );
+            } else {
+                $insumo->actualizarEstado();
+            }
+
+            return $insumo;
+        });
 
         return redirect()->route('insumos.show', $insumo)->with('success', 'Insumo registrado correctamente.');
     }
@@ -71,7 +92,12 @@ class InsumoController extends Controller
     public function show(Insumo $insumo)
     {
         $productos = $insumo->productos()->paginate(10);
-        return view('insumos.show', compact('insumo', 'productos'));
+        $movimientos = $insumo->movimientos()
+            ->with(['usuario', 'pedido'])
+            ->latest()
+            ->paginate(10, ['*'], 'movimientos_page');
+
+        return view('insumos.show', compact('insumo', 'productos', 'movimientos'));
     }
 
     /**
@@ -96,8 +122,30 @@ class InsumoController extends Controller
             'precio_unitario' => 'required|numeric|min:0',
         ]);
 
-        $insumo->update($validated);
-        $insumo->actualizarEstado();
+        $stockNuevo = (float) $validated['stock_actual'];
+
+        DB::transaction(function () use ($insumo, $validated, $stockNuevo) {
+            $insumo = Insumo::whereKey($insumo->id)->lockForUpdate()->firstOrFail();
+            $stockAnterior = (float) $insumo->stock_actual;
+            $datos = $validated;
+            unset($datos['stock_actual']);
+            $insumo->update($datos);
+
+            if ($stockAnterior !== $stockNuevo) {
+                MovimientoInsumo::registrar(
+                    $insumo,
+                    'Ajuste',
+                    $stockNuevo,
+                    'Ajuste desde la edicion del insumo',
+                    Auth::id(),
+                    null,
+                    null,
+                    $stockNuevo,
+                );
+            } else {
+                $insumo->actualizarEstado();
+            }
+        });
 
         return redirect()->route('insumos.show', $insumo)->with('success', 'Insumo actualizado correctamente.');
     }

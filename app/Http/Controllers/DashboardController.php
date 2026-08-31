@@ -28,8 +28,6 @@ class DashboardController extends Controller
             ->whereMonth('created_at', now()->month)
             ->count();
 
-        $alertasStock = Producto::whereRaw('stock_disponible <= stock_minimo')->count();
-
         // Tarjetas rápidas del día
         $pedidosHoy = Pedido::whereDate('created_at', today())->count();
 
@@ -56,10 +54,6 @@ class DashboardController extends Controller
         ])->count();
 
         // Producto con stock más crítico
-        $productoStockBajo = Producto::whereRaw('stock_disponible <= stock_minimo')
-            ->orderBy('stock_disponible', 'asc')
-            ->first();
-
         // Ventas por día de la semana actual (Lun a Dom)
         $inicioSemana = now()->startOfWeek();
         $ventasSemanaRaw = Pedido::where('estado', 'Completado')
@@ -98,7 +92,6 @@ class DashboardController extends Controller
             'ventasDelMes',
             'pedidosActivos',
             'clientesNuevos',
-            'alertasStock',
             'pedidosHoy',
             'clientesTotal',
             'ventasHoy',
@@ -106,7 +99,6 @@ class DashboardController extends Controller
             'stockBajo',
             'produccionHoy',
             'pedidosSemana',
-            'productoStockBajo',
             'ventasSemana',
             'pedidosRecientes',
             'productosMasVendidos',

@@ -9,6 +9,8 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\InsumoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\MovimientoInsumoController;
+use App\Http\Controllers\VentaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -42,10 +44,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('productos', ProductoController::class);
 
     // Insumos
+    Route::get('/insumos/{insumo}/movimientos/nuevo', [MovimientoInsumoController::class, 'create'])->name('insumos.movimientos.create');
+    Route::post('/insumos/{insumo}/movimientos', [MovimientoInsumoController::class, 'store'])->name('insumos.movimientos.store');
     Route::resource('insumos', InsumoController::class);
 
     // Pedidos
     Route::resource('pedidos', PedidoController::class);
     Route::patch('/pedidos/{pedido}/cambiar-estado', [PedidoController::class, 'cambiarEstado'])->name('pedidos.cambiarEstado');
+
+    Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
 
 });

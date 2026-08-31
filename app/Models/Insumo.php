@@ -23,6 +23,11 @@ class Insumo extends Model
             ->withTimestamps();
     }
 
+    public function movimientos()
+    {
+        return $this->hasMany(MovimientoInsumo::class);
+    }
+
     public function isStockBajo()
     {
         return $this->stock_actual <= $this->stock_minimo;
