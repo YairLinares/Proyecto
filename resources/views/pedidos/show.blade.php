@@ -62,6 +62,13 @@
                     <p>{{ $pedido->descripcion_especificaciones }}</p>
                 </div>
             @endif
+            @if(in_array($pedido->estado, ['Pendiente', 'Cancelado'], true))
+                <form method="POST" action="{{ route('pedidos.destroy', $pedido) }}" onsubmit="return confirm('¿Eliminar este pedido? Esta acción no se puede deshacer.')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i> Eliminar</button>
+                </form>
+            @endif
         </div>
 
         <div class="pedido-detail__actions">

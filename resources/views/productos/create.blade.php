@@ -12,7 +12,7 @@
     <div class="col-lg-8 offset-lg-2">
         <div class="card">
             <div class="card-body">
-                <form method="POST" action="{{ route('productos.store') }}">
+                <form method="POST" action="{{ route('productos.store') }}" enctype="multipart/form-data">
                     @csrf
 
                     <div class="row">
@@ -36,6 +36,12 @@
                     <div class="mb-3">
                         <label class="form-label" for="descripcion">Descripci&oacute;n <span class="text-muted">(opcional)</span></label>
                         <textarea id="descripcion" class="form-control" name="descripcion" rows="3" placeholder="Ej.: Queque casero de zanahoria, ideal para porciones familiares.">{{ old('descripcion') }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="imagen">Imagen del producto <span class="text-muted">(opcional)</span></label>
+                        <input id="imagen" type="file" class="form-control @error('imagen') is-invalid @enderror" name="imagen" accept="image/jpeg,image/png,image/webp">
+                        @error('imagen')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="row">

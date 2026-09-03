@@ -16,7 +16,8 @@
     .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 20px; }
     .producto-card { display: block; border-radius: 14px; background: #fff; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 3px 14px rgba(33, 45, 70, .06); border: 1px solid #eef0f4; transition: transform .15s ease, box-shadow .15s ease; }
     .producto-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(33, 45, 70, .12); color: inherit; }
-    .producto-imagen { height: 150px; display: flex; align-items: center; justify-content: center; font-size: 64px; background: linear-gradient(135deg, #fbd6c7, #fdeec2); }
+    .producto-imagen { height: 150px; display: flex; align-items: center; justify-content: center; font-size: 64px; background: linear-gradient(135deg, #fbd6c7, #fdeec2); overflow: hidden; }
+    .producto-imagen img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .producto-body { padding: 16px; }
     .producto-body h3 { font-size: 1.02rem; font-weight: 700; color: #15233d; margin: 0 0 8px; }
     .producto-precio-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -63,7 +64,13 @@
 
             @endphp
             <a href="{{ route('productos.show', $producto) }}" class="producto-card">
-                <div class="producto-imagen">{{ $emoji }}</div>
+                <div class="producto-imagen">
+                    @if($producto->imagen)
+                        <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}">
+                    @else
+                        {{ $emoji }}
+                    @endif
+                </div>
                 <div class="producto-body">
                     <h3>{{ $producto->nombre }}</h3>
                     <div class="producto-precio-row">

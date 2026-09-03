@@ -12,6 +12,7 @@ class Producto extends Model
         'descripcion',
         'precio_venta',
         'costo_produccion',
+        'imagen',
         'stock_disponible',
         'stock_minimo',
         'tiempo_preparacion_dias',

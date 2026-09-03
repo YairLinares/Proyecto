@@ -99,7 +99,7 @@
                             <div class="pedido-actions">
                                 <a href="{{ route('pedidos.show', $pedido) }}" class="btn btn-sm btn-outline-info" title="Ver pedido"><i class="fas fa-eye"></i></a>
                                 <a href="{{ route('pedidos.edit', $pedido) }}" class="btn btn-sm btn-light" title="Editar pedido"><i class="fas fa-pen"></i></a>
-                                @if($pedido->estado === 'Pendiente')
+                                @if(in_array($pedido->estado, ['Pendiente', 'Cancelado'], true))
                                     <form method="POST" action="{{ route('pedidos.destroy', $pedido) }}" onsubmit="return confirm('¿Eliminar este pedido? Esta acción no se puede deshacer.')">
                                         @csrf
                                         @method('DELETE')

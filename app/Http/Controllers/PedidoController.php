@@ -267,8 +267,8 @@ class PedidoController extends Controller
      */
     public function destroy(Pedido $pedido)
     {
-        if ($pedido->estado != 'Pendiente') {
-            return back()->with('error', 'Solo puedes eliminar pedidos en estado Pendiente.');
+        if (! in_array($pedido->estado, ['Pendiente', 'Cancelado'], true)) {
+            return back()->with('error', 'Solo puedes eliminar pedidos en estado Pendiente o Cancelado.');
         }
 
         DB::transaction(function () use ($pedido) {

@@ -10,7 +10,8 @@
     .producto-detalle-header h4 { margin: 0; font-weight: 700; color: #15233d; }
     .producto-detalle-close { color: #8e9bb0; font-size: 20px; text-decoration: none; }
     .producto-detalle-close:hover { color: #15233d; }
-    .producto-detalle-imagen { height: 170px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 80px; background: linear-gradient(135deg, #fbd6c7, #fdeec2); margin-bottom: 18px; }
+    .producto-detalle-imagen { height: 220px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 80px; background: linear-gradient(135deg, #fbd6c7, #fdeec2); margin-bottom: 18px; overflow: hidden; }
+    .producto-detalle-imagen img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .producto-detalle-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
     .producto-detalle-tile { background: #f8f9fb; border-radius: 10px; padding: 14px; }
     .producto-detalle-tile span { display: block; color: #8e9bb0; font-size: .78rem; margin-bottom: 4px; }
@@ -42,7 +43,13 @@
             <a href="{{ route('productos.index') }}" class="producto-detalle-close"><i class="fas fa-times"></i></a>
         </div>
 
-        <div class="producto-detalle-imagen">{{ $emoji }}</div>
+        <div class="producto-detalle-imagen">
+            @if($producto->imagen)
+                <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}">
+            @else
+                {{ $emoji }}
+            @endif
+        </div>
 
         <div class="producto-detalle-tiles">
             <div class="producto-detalle-tile">
@@ -99,6 +106,11 @@
 
     <div class="mt-3 d-flex gap-2">
         <a href="{{ route('productos.edit', $producto) }}" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
+        <form method="POST" action="{{ route('productos.destroy', $producto) }}" onsubmit="return confirm('¿Eliminar este producto? Esta acción no se puede deshacer.')">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-outline-danger"><i class="fas fa-trash"></i> Eliminar</button>
+        </form>
     </div>
 </div>
 @endsection

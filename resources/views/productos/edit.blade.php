@@ -11,7 +11,7 @@
     <div class="col-lg-8 offset-lg-2">
         <div class="card">
             <div class="card-body">
-                <form method="POST" action="{{ route('productos.update', $producto) }}">
+                <form method="POST" action="{{ route('productos.update', $producto) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -35,6 +35,17 @@
                     <div class="mb-3">
                         <label class="form-label" for="descripcion">Descripci&oacute;n <span class="text-muted">(opcional)</span></label>
                         <textarea id="descripcion" class="form-control" name="descripcion" rows="3">{{ old('descripcion', $producto->descripcion) }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="imagen">Imagen del producto <span class="text-muted">(opcional)</span></label>
+                        @if($producto->imagen)
+                            <div class="mb-2">
+                                <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" style="width: 180px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #edf0f3;">
+                            </div>
+                        @endif
+                        <input id="imagen" type="file" class="form-control @error('imagen') is-invalid @enderror" name="imagen" accept="image/jpeg,image/png,image/webp">
+                        @error('imagen')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="row">

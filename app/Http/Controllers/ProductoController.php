@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Producto;
 use App\Models\Categoria;
+use App\Models\DetallePedido;
 use App\Models\Insumo;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ProductoController extends Controller
@@ -55,6 +59,7 @@ class ProductoController extends Controller
             'descripcion' => 'nullable|string',
             'precio_venta' => 'required|numeric|min:0',
             'tiempo_preparacion_dias' => 'required|integer|min:1',
+            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'insumos' => 'nullable|array',
             'insumos.*' => 'nullable|numeric|min:0',
         ]);
@@ -65,6 +70,10 @@ class ProductoController extends Controller
         $validated['stock_disponible'] = 0;
         $validated['stock_minimo'] = 0;
         $validated['unidad_medida'] = 'Unidad';
+
+        if ($request->hasFile('imagen')) {
+            $validated['imagen'] = $request->file('imagen')->store('productos', 'public');
+        }
 
         $producto = Producto::create($validated);
 
@@ -112,6 +121,7 @@ class ProductoController extends Controller
             'precio_venta' => 'required|numeric|min:0',
             'tiempo_preparacion_dias' => 'required|integer|min:1',
             'estado' => 'required|in:activo,inactivo',
+            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'insumos' => 'nullable|array',
             'insumos.*' => 'nullable|numeric|min:0',
         ]);
@@ -120,6 +130,14 @@ class ProductoController extends Controller
         unset($validated['insumos']);
         $validated['costo_produccion'] = $costoProduccion;
         $validated['unidad_medida'] = 'Unidad';
+
+        if ($request->hasFile('imagen')) {
+            if ($producto->imagen) {
+                Storage::disk('public')->delete($producto->imagen);
+            }
+
+            $validated['imagen'] = $request->file('imagen')->store('productos', 'public');
+        }
 
         $producto->update($validated);
 
@@ -141,7 +159,51 @@ class ProductoController extends Controller
      */
     public function destroy(Producto $producto)
     {
-        $producto->delete();
+        try {
+            DB::transaction(function () use ($producto) {
+                $pedidosActivos = DetallePedido::where('producto_id', $producto->id)
+                    ->whereHas('pedido', function ($query) {
+                        $query->where('estado', '!=', 'Cancelado');
+                    })
+                    ->exists();
+
+                if ($pedidosActivos) {
+                    throw new \RuntimeException('producto_en_pedidos_activos');
+                }
+
+                $detallesCancelados = DetallePedido::with('pedido')
+                    ->where('producto_id', $producto->id)
+                    ->whereHas('pedido', function ($query) {
+                        $query->where('estado', 'Cancelado');
+                    })
+                    ->get();
+
+                foreach ($detallesCancelados as $detalle) {
+                    $pedido = $detalle->pedido;
+                    $detalle->delete();
+
+                    $pedido->subtotal = $pedido->detalles()->sum('subtotal');
+                    $pedido->calcularTotal();
+                    $pedido->save();
+                }
+
+                $producto->insumos()->detach();
+                $producto->delete();
+            });
+
+            if ($producto->imagen) {
+                Storage::disk('public')->delete($producto->imagen);
+            }
+        } catch (\RuntimeException $exception) {
+            if ($exception->getMessage() === 'producto_en_pedidos_activos') {
+                return back()->with('error', 'No se puede eliminar este producto porque esta relacionado con pedidos activos o completados. Puedes cambiarlo a inactivo desde Editar.');
+            }
+
+            throw $exception;
+        } catch (QueryException $exception) {
+            return back()->with('error', 'No se pudo eliminar este producto por una relacion existente. Puedes cambiarlo a inactivo desde Editar.');
+        }
+
         return redirect()->route('productos.index')->with('success', 'Producto eliminado correctamente.');
     }
 
