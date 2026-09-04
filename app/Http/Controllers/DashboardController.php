@@ -23,6 +23,8 @@ class DashboardController extends Controller
             ->sum('total');
 
         $pedidosActivos = Pedido::whereIn('estado', ['Pendiente', 'En proceso'])->count();
+        $pedidosPendientes = Pedido::where('estado', 'Pendiente')->count();
+        $pedidosEnProceso = Pedido::where('estado', 'En proceso')->count();
 
         $clientesNuevos = Cliente::whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
@@ -70,7 +72,7 @@ class DashboardController extends Controller
         }
 
         // Pedidos recientes
-        $pedidosRecientes = Pedido::with('cliente')
+        $pedidosRecientes = Pedido::with(['cliente', 'detalles.producto'])
             ->latest()
             ->take(5)
             ->get();
@@ -91,6 +93,8 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'ventasDelMes',
             'pedidosActivos',
+            'pedidosPendientes',
+            'pedidosEnProceso',
             'clientesNuevos',
             'pedidosHoy',
             'clientesTotal',

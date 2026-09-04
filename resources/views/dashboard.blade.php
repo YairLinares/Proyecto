@@ -57,6 +57,10 @@
 @endsection
 
 @section('content')
+@php
+    $esAdministrador = Auth::user()->esAdministrador();
+@endphp
+
 <div class="page-header">
     <h1 class="page-title">Dashboard</h1>
 </div>
@@ -105,19 +109,35 @@
         </a>
     </div>
 
-    <div class="col-md-2">
-        <a href="{{ route('insumos.index', ['filter' => 'critico']) }}" class="stat-card-link">
-            <div class="card stat-card" style="--accent: #dc3545;">
-                <div class="card-body text-center">
-                    <div class="stat-icon" style="background: rgba(220,53,69,0.12); color: #dc3545;">
-                        <i class="fas fa-circle"></i>
+    @if($esAdministrador)
+        <div class="col-md-2">
+            <a href="{{ route('insumos.index', ['filter' => 'critico']) }}" class="stat-card-link">
+                <div class="card stat-card" style="--accent: #dc3545;">
+                    <div class="card-body text-center">
+                        <div class="stat-icon" style="background: rgba(220,53,69,0.12); color: #dc3545;">
+                            <i class="fas fa-circle"></i>
+                        </div>
+                        <h3 class="stat-value" style="color: #dc3545;">{{ $stockCritico }}</h3>
+                        <p class="stat-label">Stock Crítico</p>
                     </div>
-                    <h3 class="stat-value" style="color: #dc3545;">{{ $stockCritico }}</h3>
-                    <p class="stat-label">Stock Crítico</p>
                 </div>
-            </div>
-        </a>
-    </div>
+            </a>
+        </div>
+    @else
+        <div class="col-md-2">
+            <a href="{{ route('pedidos.index', ['estado' => 'Pendiente']) }}" class="stat-card-link">
+                <div class="card stat-card" style="--accent: #ffc107;">
+                    <div class="card-body text-center">
+                        <div class="stat-icon" style="background: rgba(255,193,7,0.16); color: #b77900;">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <h3 class="stat-value" style="color: #b77900;">{{ $pedidosPendientes }}</h3>
+                        <p class="stat-label">Pendientes</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    @endif
 
     <div class="col-md-2">
         <a href="{{ route('pedidos.index', ['entrega' => 'hoy']) }}" class="stat-card-link">
@@ -148,6 +168,34 @@
     </div>
 </div>
 
+@unless($esAdministrador)
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card section-card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-clipboard-check"></i> Trabajo del día</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="{{ route('pedidos.create') }}" class="btn btn-primary w-100"><i class="fas fa-plus"></i> Nuevo pedido</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('clientes.create') }}" class="btn btn-outline-secondary w-100"><i class="fas fa-user-plus"></i> Nuevo cliente</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('pedidos.index', ['estado' => 'En proceso']) }}" class="btn btn-outline-secondary w-100"><i class="fas fa-sync-alt"></i> En proceso: {{ $pedidosEnProceso }}</a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('ventas.index') }}" class="btn btn-outline-secondary w-100"><i class="fas fa-coins"></i> Ver ventas</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endunless
+
 <!-- Productos más vendidos y Alertas -->
 <div class="row mt-4">
     <div class="col-lg-8">
@@ -166,29 +214,47 @@
     </div>
 
     <div class="col-lg-4">
-        <div class="card section-card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Alertas</h5>
-            </div>
-            <div class="card-body">
-                @if($stockCritico == 0 && $stockBajo == 0)
-                    <p class="text-muted mb-0">No hay alertas de stock por el momento.</p>
-                @endif
+        @if($esAdministrador)
+            <div class="card section-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Alertas</h5>
+                </div>
+                <div class="card-body">
+                    @if($stockCritico == 0 && $stockBajo == 0)
+                        <p class="text-muted mb-0">No hay alertas de stock por el momento.</p>
+                    @endif
 
-                @if($stockCritico > 0)
-                <div class="alert alert-danger mb-3">
-                    <strong>Stock Crítico</strong>
-                    <div class="small">{{ $stockCritico }} insumos por debajo del mínimo</div>
+                    @if($stockCritico > 0)
+                    <div class="alert alert-danger mb-3">
+                        <strong>Stock Crítico</strong>
+                        <div class="small">{{ $stockCritico }} insumos por debajo del mínimo</div>
+                    </div>
+                    @endif
+                    @if($stockBajo > 0)
+                    <div class="alert alert-warning mb-3">
+                        <strong>Stock Bajo</strong>
+                        <div class="small">{{ $stockBajo }} insumos cerca del mínimo</div>
+                    </div>
+                    @endif
                 </div>
-                @endif
-                @if($stockBajo > 0)
-                <div class="alert alert-warning mb-3">
-                    <strong>Stock Bajo</strong>
-                    <div class="small">{{ $stockBajo }} insumos cerca del mínimo</div>
-                </div>
-                @endif
             </div>
-        </div>
+        @else
+            <div class="card section-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list-check"></i> Resumen de pedidos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning mb-3">
+                        <strong>Pendientes</strong>
+                        <div class="small">{{ $pedidosPendientes }} pedido(s) esperando atención</div>
+                    </div>
+                    <div class="alert alert-info mb-0">
+                        <strong>En proceso</strong>
+                        <div class="small">{{ $pedidosEnProceso }} pedido(s) en preparación</div>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 
