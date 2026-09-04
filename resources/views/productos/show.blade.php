@@ -89,8 +89,10 @@
                     </div>
                     @empty
                     <p class="text-muted mb-2">No hay insumos asociados a este producto.</p>
-                    <a href="{{ route('productos.edit', $producto) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-list-check"></i> Configurar receta</a>
                     @endforelse
+                    @if($producto->insumos->isEmpty())
+                        <a href="{{ route('productos.edit', $producto) }}" class="btn btn-sm btn-outline-primary mt-2"><i class="fas fa-list-check"></i> Configurar receta</a>
+                    @endif
                 </div>
             </div>
         </div>
