@@ -12,7 +12,7 @@
     .producto-detalle-close:hover { color: #15233d; }
     .producto-detalle-imagen { height: 220px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 80px; background: linear-gradient(135deg, #fbd6c7, #fdeec2); margin-bottom: 18px; overflow: hidden; }
     .producto-detalle-imagen img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .producto-detalle-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .producto-detalle-tiles { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 16px; }
     .producto-detalle-tile { background: #f8f9fb; border-radius: 10px; padding: 14px; }
     .producto-detalle-tile span { display: block; color: #8e9bb0; font-size: .78rem; margin-bottom: 4px; }
     .producto-detalle-tile strong { color: #15233d; font-size: 1.15rem; font-weight: 800; }
@@ -56,10 +56,6 @@
                 <span>Precio Unitario</span>
                 <strong>Bs {{ number_format($producto->precio_venta, 0, ',', '.') }}</strong>
             </div>
-            <div class="producto-detalle-tile">
-                <span>Tiempo de preparaci&oacute;n</span>
-                <strong>{{ $producto->tiempo_preparacion_dias }} d&iacute;a(s)</strong>
-            </div>
         </div>
 
         <div class="producto-detalle-estado">
@@ -89,11 +85,7 @@
                     @forelse($producto->insumos as $insumo)
                     <div class="mb-2 pb-2" style="border-bottom: 1px solid #eee;">
                         <strong>{{ $insumo->nombre }}</strong><br>
-                        <small class="text-muted">Usa: {{ $insumo->pivot->cantidad_necesaria }} {{ $insumo->unidad }}</small><br>
-                        <small class="text-muted">Disponible: {{ $insumo->stock_actual }} {{ $insumo->unidad }}</small>
-                        @if($insumo->pivot->cantidad_necesaria > 0)
-                            <br><small class="text-success">Alcanza para {{ (int) floor($insumo->stock_actual / $insumo->pivot->cantidad_necesaria) }} producto(s)</small>
-                        @endif
+                        <small class="text-muted">Usa: {{ $insumo->pivot->cantidad_necesaria }} {{ $insumo->unidad }}</small>
                     </div>
                     @empty
                     <p class="text-muted mb-2">No hay insumos asociados a este producto.</p>

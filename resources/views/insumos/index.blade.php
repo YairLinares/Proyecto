@@ -117,6 +117,45 @@
         margin-bottom: 0;
     }
 
+    .insumos-pagination {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .insumos-pagination__item {
+        display: inline-grid;
+        min-width: 34px;
+        height: 34px;
+        place-items: center;
+        padding: 0 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fff;
+        color: #c7436f;
+        font-size: .9rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .insumos-pagination__item:hover {
+        border-color: #c7436f;
+        color: #c7436f;
+    }
+
+    .insumos-pagination__item--active {
+        background: #c7436f;
+        border-color: #c7436f;
+        color: #fff;
+    }
+
+    .insumos-pagination__item--disabled {
+        color: #a8b1c0;
+        background: #f4f6f9;
+        pointer-events: none;
+    }
+
     .insumos-footer .page-link {
         color: #c7436f;
         border-color: #e2e8f0;
@@ -248,7 +287,29 @@
             <div class="insumo-muted">
                 Mostrando {{ $insumos->firstItem() ?? 0 }} a {{ $insumos->lastItem() ?? 0 }} de {{ $insumos->total() }} insumos
             </div>
-            {{ $insumos->onEachSide(1)->links('pagination::bootstrap-5') }}
+            @if($insumos->hasPages())
+                <nav class="insumos-pagination" aria-label="Paginacion de insumos">
+                    @if($insumos->onFirstPage())
+                        <span class="insumos-pagination__item insumos-pagination__item--disabled">Anterior</span>
+                    @else
+                        <a class="insumos-pagination__item" href="{{ $insumos->previousPageUrl() }}">Anterior</a>
+                    @endif
+
+                    @for($pagina = 1; $pagina <= $insumos->lastPage(); $pagina++)
+                        @if($pagina === $insumos->currentPage())
+                            <span class="insumos-pagination__item insumos-pagination__item--active">{{ $pagina }}</span>
+                        @else
+                            <a class="insumos-pagination__item" href="{{ $insumos->url($pagina) }}">{{ $pagina }}</a>
+                        @endif
+                    @endfor
+
+                    @if($insumos->hasMorePages())
+                        <a class="insumos-pagination__item" href="{{ $insumos->nextPageUrl() }}">Siguiente</a>
+                    @else
+                        <span class="insumos-pagination__item insumos-pagination__item--disabled">Siguiente</span>
+                    @endif
+                </nav>
+            @endif
         </div>
     </div>
 </div>
