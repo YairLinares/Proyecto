@@ -51,4 +51,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function esAdministrador(): bool
+    {
+        return $this->cargo === 'Administrador';
+    }
 }

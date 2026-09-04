@@ -22,7 +22,9 @@
         .input-wrap { position: relative; }
         .input-wrap > i { position: absolute; top: 50%; left: 15px; color: #9aa6b8; transform: translateY(-50%); }
         .form-control { min-height: 47px; padding-left: 42px; border-color: var(--line); border-radius: 999px; }
+        .form-select { min-height: 47px; padding-left: 42px; border-color: var(--line); border-radius: 999px; }
         .form-control:focus { border-color: var(--pink); box-shadow: 0 0 0 .2rem rgba(233, 30, 99, .12); }
+        .form-select:focus { border-color: var(--pink); box-shadow: 0 0 0 .2rem rgba(233, 30, 99, .12); }
         .register-submit { width: 100%; min-height: 48px; margin-top: 26px; border: 0; border-radius: 999px; background: var(--pink); box-shadow: 0 5px 12px rgba(233, 30, 99, .22); color: #fff; font-weight: 700; }
         .register-submit:hover { background: #c91853; color: #fff; }
         .register-footer { padding: 18px 32px; border-top: 1px solid #eef0f4; color: var(--muted); font-size: .88rem; text-align: center; }
@@ -111,6 +113,27 @@
                             <input id="ciudad" type="text" class="form-control" name="ciudad" value="{{ old('ciudad') }}" autocomplete="address-level2">
                         </div>
                     </div>
+
+                    <div>
+                        <label class="form-label" for="cargo"><i class="fas fa-user-shield me-1"></i>Rol</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-user-shield"></i>
+                            <select id="cargo" class="form-select @error('cargo') is-invalid @enderror" name="cargo" required>
+                                <option value="Empleado" {{ old('cargo', 'Empleado') == 'Empleado' ? 'selected' : '' }}>Empleado</option>
+                                <option value="Administrador" {{ old('cargo') == 'Administrador' ? 'selected' : '' }}>Administrador</option>
+                            </select>
+                        </div>
+                        @error('cargo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+
+                    <div id="campoCodigoAdministrador" style="display: none;">
+                        <label class="form-label" for="codigo_administrador"><i class="fas fa-key me-1"></i>C&oacute;digo de autorizaci&oacute;n</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-key"></i>
+                            <input id="codigo_administrador" type="text" class="form-control @error('codigo_administrador') is-invalid @enderror" name="codigo_administrador" value="{{ old('codigo_administrador') }}" autocomplete="off" placeholder="C&oacute;digo para crear administrador">
+                        </div>
+                        @error('codigo_administrador')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
                 </div>
 
                 <button type="submit" class="btn register-submit">Crear cuenta</button>
@@ -119,5 +142,22 @@
 
         <footer class="register-footer">&iquest;Ya tienes cuenta? <a href="{{ route('login') }}">Inicia sesi&oacute;n</a></footer>
     </main>
+    <script>
+        const selectorCargo = document.getElementById('cargo');
+        const campoCodigoAdministrador = document.getElementById('campoCodigoAdministrador');
+        const codigoAdministrador = document.getElementById('codigo_administrador');
+
+        function actualizarCampoAdministrador() {
+            const esAdministrador = selectorCargo.value === 'Administrador';
+            campoCodigoAdministrador.style.display = esAdministrador ? 'block' : 'none';
+            codigoAdministrador.required = esAdministrador;
+            if (!esAdministrador) {
+                codigoAdministrador.value = '';
+            }
+        }
+
+        selectorCargo.addEventListener('change', actualizarCampoAdministrador);
+        actualizarCampoAdministrador();
+    </script>
 </body>
 </html>

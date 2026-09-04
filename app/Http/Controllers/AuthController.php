@@ -68,11 +68,19 @@ class AuthController extends Controller
             'password' => 'required|min:8|confirmed',
             'telefono' => 'nullable|string',
             'ciudad' => 'nullable|string',
+            'cargo' => 'required|in:Administrador,Empleado',
+            'codigo_administrador' => 'required_if:cargo,Administrador|nullable|string',
         ]);
 
+        if ($validated['cargo'] === 'Administrador' && $validated['codigo_administrador'] !== env('ADMIN_REGISTRATION_CODE')) {
+            return back()
+                ->withInput($request->except(['password', 'password_confirmation', 'codigo_administrador']))
+                ->withErrors(['codigo_administrador' => 'El codigo de autorizacion no es correcto.']);
+        }
+
         $validated['password'] = Hash::make($validated['password']);
-        $validated['cargo'] = 'Empleado';
         $validated['name'] = trim($validated['nombre'] . ' ' . $validated['apellido']);
+        unset($validated['codigo_administrador']);
 
         User::create($validated);
 

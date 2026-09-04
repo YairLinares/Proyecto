@@ -3,6 +3,138 @@
 @section('title', 'Insumos - Delicias Dulces')
 
 @section('content')
+<style>
+    .insumos-panel {
+        border: 1px solid #edf0f4;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(26, 35, 57, .08);
+        overflow: hidden;
+    }
+
+    .insumos-table-wrap {
+        overflow-x: auto;
+    }
+
+    .insumos-table {
+        margin-bottom: 0;
+        min-width: 900px;
+        vertical-align: middle;
+    }
+
+    .insumos-table thead th {
+        padding: 16px 18px;
+        border-bottom: 1px solid #dde4ee;
+        color: #52617a;
+        font-size: .78rem;
+        letter-spacing: .02em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .insumos-table tbody td {
+        padding: 14px 18px;
+        color: #2d3748;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .insumos-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .insumo-name {
+        color: #17233d;
+        font-weight: 700;
+    }
+
+    .insumo-muted {
+        color: #7a879b;
+        font-size: .84rem;
+    }
+
+    .insumo-actions {
+        display: flex;
+        gap: 7px;
+        align-items: center;
+        justify-content: flex-start;
+        min-width: 112px;
+    }
+
+    .insumo-action {
+        display: inline-grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        text-decoration: none;
+        transition: transform .15s ease, opacity .15s ease;
+    }
+
+    .insumo-action:hover {
+        color: #fff;
+        opacity: .9;
+        transform: translateY(-1px);
+    }
+
+    .insumo-action--view { background: #0dcaf0; }
+    .insumo-action--edit { background: #ffc107; color: #17233d; }
+    .insumo-action--edit:hover { color: #17233d; }
+    .insumo-action--delete { background: #dc3545; }
+
+    .insumos-table td:last-child {
+        white-space: nowrap;
+    }
+
+    .insumos-table td:last-child .btn-sm {
+        display: inline-grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        padding: 0;
+        border: 0;
+        border-radius: 8px;
+        vertical-align: middle;
+    }
+
+    .insumos-table td:last-child form {
+        display: inline-block !important;
+        margin: 0;
+        vertical-align: middle;
+    }
+
+    .insumos-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 18px;
+        border-top: 1px solid #edf0f4;
+        background: #fbfcfe;
+    }
+
+    .insumos-footer .pagination {
+        margin-bottom: 0;
+    }
+
+    .insumos-footer .page-link {
+        color: #c7436f;
+        border-color: #e2e8f0;
+    }
+
+    .insumos-footer .page-item.active .page-link {
+        background: #c7436f;
+        border-color: #c7436f;
+        color: #fff;
+    }
+
+    @media (max-width: 767.98px) {
+        .insumos-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
 <div class="page-header">
     <h1 class="page-title">Gestión de Insumos</h1>
     <a href="{{ route('insumos.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Nuevo Insumo</a>
@@ -64,9 +196,10 @@
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <table class="table table-hover">
+<div class="card insumos-panel">
+    <div class="card-body p-0">
+        <div class="insumos-table-wrap">
+        <table class="table table-hover insumos-table">
             <thead>
                 <tr>
                     <th>Nombre</th>
@@ -81,7 +214,12 @@
             <tbody>
                 @forelse($insumos as $insumo)
                 <tr>
-                    <td><strong>{{ $insumo->nombre }}</strong></td>
+                    <td>
+                        <div class="insumo-name">{{ $insumo->nombre }}</div>
+                        @if($insumo->descripcion)
+                            <div class="insumo-muted">{{ Str::limit($insumo->descripcion, 55) }}</div>
+                        @endif
+                    </td>
                     <td>{{ number_format($insumo->stock_actual, 2, ',', '.') }}</td>
                     <td>{{ $insumo->unidad }}</td>
                     <td>Bs {{ number_format($insumo->precio_unitario, 2, ',', '.') }}</td>
@@ -105,7 +243,13 @@
                 @endforelse
             </tbody>
         </table>
-        {{ $insumos->links() }}
+        </div>
+        <div class="insumos-footer">
+            <div class="insumo-muted">
+                Mostrando {{ $insumos->firstItem() ?? 0 }} a {{ $insumos->lastItem() ?? 0 }} de {{ $insumos->total() }} insumos
+            </div>
+            {{ $insumos->onEachSide(1)->links('pagination::bootstrap-5') }}
+        </div>
     </div>
 </div>
 @endsection

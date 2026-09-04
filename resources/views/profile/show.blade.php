@@ -152,13 +152,15 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Cargo</label>
-                            <select class="form-select" name="cargo" required>
-                                <option value="Administrador" {{ old('cargo', $user->cargo) == 'Administrador' ? 'selected' : '' }}>Administrador</option>
-                                <option value="Empleado" {{ old('cargo', $user->cargo) == 'Empleado' ? 'selected' : '' }}>Empleado</option>
-                            </select>
-                        </div>
+                        @if($user->esAdministrador())
+                            <div class="mb-3">
+                                <label class="form-label">Cargo</label>
+                                <select class="form-select" name="cargo" required>
+                                    <option value="Administrador" {{ old('cargo', $user->cargo) == 'Administrador' ? 'selected' : '' }}>Administrador</option>
+                                    <option value="Empleado" {{ old('cargo', $user->cargo) == 'Empleado' ? 'selected' : '' }}>Empleado</option>
+                                </select>
+                            </div>
+                        @endif
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Cambios</button>

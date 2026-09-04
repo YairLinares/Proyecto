@@ -37,16 +37,18 @@ Route::middleware('auth')->group(function () {
     // Clientes
     Route::resource('clientes', ClienteController::class);
 
-    // Categorías
-    Route::resource('categorias', CategoriaController::class);
+    Route::middleware('admin')->group(function () {
+        // Categorías
+        Route::resource('categorias', CategoriaController::class);
 
-    // Productos
-    Route::resource('productos', ProductoController::class);
+        // Productos
+        Route::resource('productos', ProductoController::class);
 
-    // Insumos
-    Route::get('/insumos/{insumo}/movimientos/nuevo', [MovimientoInsumoController::class, 'create'])->name('insumos.movimientos.create');
-    Route::post('/insumos/{insumo}/movimientos', [MovimientoInsumoController::class, 'store'])->name('insumos.movimientos.store');
-    Route::resource('insumos', InsumoController::class);
+        // Insumos
+        Route::get('/insumos/{insumo}/movimientos/nuevo', [MovimientoInsumoController::class, 'create'])->name('insumos.movimientos.create');
+        Route::post('/insumos/{insumo}/movimientos', [MovimientoInsumoController::class, 'store'])->name('insumos.movimientos.store');
+        Route::resource('insumos', InsumoController::class);
+    });
 
     // Pedidos
     Route::resource('pedidos', PedidoController::class);

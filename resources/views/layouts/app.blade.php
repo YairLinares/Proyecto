@@ -271,21 +271,23 @@
                 </a>
             </div>
 
-            <div class="sidebar-section-title">Inventario</div>
-            <div class="sidebar-menu">
-                <a href="{{ route('productos.index') }}" class="@if(request()->routeIs('productos.*')) active @endif">
-                    <i class="fas fa-box"></i>
-                    <span>Productos</span>
-                </a>
-                <a href="{{ route('insumos.index') }}" class="@if(request()->routeIs('insumos.*')) active @endif">
-                    <i class="fas fa-flask"></i>
-                    <span>Insumos</span>
-                </a>
-                <a href="{{ route('categorias.index') }}" class="@if(request()->routeIs('categorias.*')) active @endif">
-                    <i class="fas fa-tags"></i>
-                    <span>Sabores</span>
-                </a>
-            </div>
+            @if(Auth::user()->esAdministrador())
+                <div class="sidebar-section-title">Inventario</div>
+                <div class="sidebar-menu">
+                    <a href="{{ route('productos.index') }}" class="@if(request()->routeIs('productos.*')) active @endif">
+                        <i class="fas fa-box"></i>
+                        <span>Productos</span>
+                    </a>
+                    <a href="{{ route('insumos.index') }}" class="@if(request()->routeIs('insumos.*')) active @endif">
+                        <i class="fas fa-flask"></i>
+                        <span>Insumos</span>
+                    </a>
+                    <a href="{{ route('categorias.index') }}" class="@if(request()->routeIs('categorias.*')) active @endif">
+                        <i class="fas fa-tags"></i>
+                        <span>Sabores</span>
+                    </a>
+                </div>
+            @endif
 
             <div class="sidebar-section-title">Cuenta</div>
             <div class="sidebar-menu">
@@ -323,13 +325,16 @@
                                 <strong><i class="fas fa-bell" style="color: #d4a300;"></i> Notificaciones</strong>
                             </div>
                             @forelse($notificaciones as $notificacion)
-                                <div class="p-3 d-flex" style="gap: 10px; border-bottom: 1px solid #f0e8e4;">
+                                <a href="{{ $notificacion['url'] ?? '#' }}" class="p-3 d-flex text-decoration-none text-reset" style="gap: 10px; border-bottom: 1px solid #f0e8e4;">
                                     <i class="fas {{ $notificacion['icono'] }}" style="color: {{ $notificacion['color'] }}; font-size: 12px; margin-top: 5px;"></i>
                                     <div>
                                         <div style="font-size: 14px;">{{ $notificacion['titulo'] }}</div>
+                                        @if(!empty($notificacion['detalle']))
+                                            <div class="text-muted" style="font-size: 12px;">{{ $notificacion['detalle'] }}</div>
+                                        @endif
                                         <small class="text-muted">{{ $notificacion['fecha']->diffForHumans() }}</small>
                                     </div>
-                                </div>
+                                </a>
                             @empty
                                 <div class="p-3 text-center text-muted">Sin notificaciones</div>
                             @endforelse
