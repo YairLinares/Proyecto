@@ -6,7 +6,7 @@
 <div class="page-header">
     <div>
         <h1 class="page-title mb-1"><i class="fas fa-coins me-2"></i>Ventas</h1>
-        <p class="text-muted mb-0">Pedidos completados y cobrados en efectivo.</p>
+        <p class="text-muted mb-0">Pedidos completados registrados en el sistema.</p>
     </div>
 </div>
 
@@ -31,7 +31,7 @@
         @forelse($ventas as $venta)
             <tr>
                 <td class="fw-semibold">{{ $venta->codigo_pedido }}</td><td>{{ $venta->cliente->nombre_completo }}</td><td>{{ $venta->fecha_pedido->format('d/m/Y') }}</td>
-                <td>{{ $venta->detalles->pluck('producto.nombre')->filter()->implode(', ') }}</td><td><span class="badge text-bg-success">Efectivo</span></td>
+                <td>{{ $venta->detalles->pluck('producto.nombre')->filter()->implode(', ') }}</td><td><span class="badge text-bg-success">{{ $venta->metodo_pago }}</span></td>
                 <td class="text-end fw-semibold">Bs {{ number_format($venta->total, 2, ',', '.') }}</td><td class="text-end"><a href="{{ route('pedidos.show', $venta) }}" class="btn btn-sm btn-outline-primary" title="Ver pedido"><i class="fas fa-eye"></i></a></td>
             </tr>
         @empty
@@ -39,6 +39,6 @@
         @endforelse
     </tbody>
 </table></div></div>
-@if($ventas->hasPages())<div class="card-footer">{{ $ventas->links() }}</div>@endif
+@if($ventas->hasPages())<div class="card-footer">@include('components.pagination', ['paginator' => $ventas->withQueryString()])</div>@endif
 </div>
 @endsection

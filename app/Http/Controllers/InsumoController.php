@@ -30,7 +30,7 @@ class InsumoController extends Controller
             $query->where('estado', $filter);
         }
 
-        $insumos = $query->paginate(10);
+        $insumos = $query->paginate(10)->withQueryString();
         $totalInsumos = Insumo::count();
         $stockBajo = Insumo::where('estado', 'Stock bajo')->count();
         $agotados = Insumo::where('estado', 'Agotado')->count();

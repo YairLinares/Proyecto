@@ -217,6 +217,42 @@
             border-radius: 10px;
         }
 
+        .app-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 16px 0 2px;
+            border-top: 1px solid #edf0f4;
+            margin-top: 12px;
+        }
+
+        .app-pagination__summary { color: #71809a; font-size: .86rem; }
+        .app-pagination__summary strong { color: #394861; }
+        .app-pagination__links { display: flex; align-items: center; gap: 6px; list-style: none; margin: 0; padding: 0; }
+        .app-pagination__link, .app-pagination__ellipsis {
+            min-width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            padding: 0 10px;
+            font-size: .84rem;
+            font-weight: 700;
+        }
+        .app-pagination__link { color: #52617a; background: #f5f7fa; border: 1px solid #e4e9f0; text-decoration: none; transition: .15s ease; }
+        .app-pagination__link:hover { color: #fff; background: #c7436f; border-color: #c7436f; }
+        .app-pagination__link--active { color: #fff; background: #c7436f; border-color: #c7436f; }
+        .app-pagination__link--disabled { color: #b5bfcd; background: #fafbfc; border-color: #edf0f4; cursor: not-allowed; }
+        .app-pagination__ellipsis { color: #8e9bb0; }
+
+        @media (max-width: 575.98px) {
+            .app-pagination { align-items: flex-start; flex-direction: column; }
+            .app-pagination__links { gap: 4px; }
+        }
+
         .form-control,
         .form-select {
             border-radius: 8px;

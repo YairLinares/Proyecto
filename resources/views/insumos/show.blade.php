@@ -35,7 +35,7 @@
                 @empty
                 <p class="text-muted">No hay productos asociados</p>
                 @endforelse
-                {{ $productos->links() }}
+                @include('components.pagination', ['paginator' => $productos])
             </div>
         </div>
     </div>
@@ -81,7 +81,7 @@
         </div>
     </div>
     @if($movimientos->hasPages())
-        <div class="card-footer">{{ $movimientos->links() }}</div>
+        <div class="card-footer">@include('components.pagination', ['paginator' => $movimientos])</div>
     @endif
 </div>
 @endsection

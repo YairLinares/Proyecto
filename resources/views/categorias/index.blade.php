@@ -41,7 +41,7 @@
                 @endforelse
             </tbody>
         </table>
-        {{ $categorias->links() }}
+        @include('components.pagination', ['paginator' => $categorias])
     </div>
 </div>
 @endsection

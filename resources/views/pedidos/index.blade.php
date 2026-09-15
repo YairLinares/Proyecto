@@ -114,7 +114,7 @@
                 @endforelse
             </tbody>
         </table>
-        <div class="px-3 pt-3">{{ $pedidos->withQueryString()->links() }}</div>
+        <div class="px-3 pt-3">@include('components.pagination', ['paginator' => $pedidos->withQueryString()])</div>
     </div>
 </div>
 @endsection

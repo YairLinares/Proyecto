@@ -48,7 +48,7 @@
         @empty
         <p class="text-muted mb-0">Todavía no hay queques de este sabor</p>
         @endforelse
-        {{ $productos->links() }}
+        @include('components.pagination', ['paginator' => $productos])
     </div>
 </div>
 @endsection

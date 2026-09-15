@@ -92,6 +92,6 @@
         @endforelse
     </div>
 
-    <div class="mt-4">{{ $productos->withQueryString()->links() }}</div>
+    <div class="mt-4">@include('components.pagination', ['paginator' => $productos->withQueryString()])</div>
 </div>
 @endsection

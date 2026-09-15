@@ -64,25 +64,33 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <div>
                                 <label class="form-label mb-0">Insumos requeridos para una unidad *</label>
-                                <div class="text-muted small">Estos valores se descuentan del inventario al guardar un pedido.</div>
+                                <div class="text-muted small">Selecciona cada insumo y la cantidad necesaria para una unidad.</div>
                             </div>
                             <strong class="text-primary">Costo estimado: <span id="costo_receta">Bs 0,00</span></strong>
                         </div>
                         @error('insumos')<div class="text-danger small mb-2">{{ $message }}</div>@enderror
 
                         @if($insumos->isNotEmpty())
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <select id="selector_insumo" class="form-select">
+                                        <option value="">Selecciona un insumo</option>
+                                        @foreach($insumos as $insumo)
+                                            <option value="{{ $insumo->id }}">{{ $insumo->nombre }} ({{ $insumo->unidad }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input id="cantidad_insumo" type="number" min="0.01" step="0.01" class="form-control" placeholder="Cantidad">
+                                </div>
+                                <div class="col-md-3 d-grid">
+                                    <button id="agregar_insumo" type="button" class="btn btn-outline-primary"><i class="fas fa-plus"></i> Agregar insumo</button>
+                                </div>
+                            </div>
                             <div class="table-responsive border rounded">
                                 <table class="table table-sm align-middle mb-0">
-                                    <thead><tr><th>Insumo</th><th>Unidad</th><th>Cantidad necesaria</th></tr></thead>
-                                    <tbody>
-                                        @foreach($insumos as $insumo)
-                                            <tr>
-                                                <td>{{ $insumo->nombre }}</td>
-                                                <td>{{ $insumo->unidad }}</td>
-                                                <td><input type="number" min="0" step="0.01" class="form-control form-control-sm cantidad-insumo" data-precio="{{ $insumo->precio_unitario }}" name="insumos[{{ $insumo->id }}]" value="{{ old('insumos.' . $insumo->id) }}"></td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
+                                    <thead><tr><th>Insumo</th><th>Unidad</th><th>Cantidad necesaria</th><th></th></tr></thead>
+                                    <tbody id="lista_insumos"></tbody>
                                 </table>
                             </div>
                         @else
@@ -102,18 +110,52 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const cantidades = document.querySelectorAll('.cantidad-insumo');
     const costo = document.getElementById('costo_receta');
+    const selector = document.getElementById('selector_insumo');
+    const cantidadInput = document.getElementById('cantidad_insumo');
+    const lista = document.getElementById('lista_insumos');
+    const insumos = @json($insumos->map(fn ($insumo) => ['id' => $insumo->id, 'nombre' => $insumo->nombre, 'unidad' => $insumo->unidad, 'precio' => (float) $insumo->precio_unitario])->values());
+    const cantidadesPrevias = @json(old('insumos', []));
 
     function actualizarCosto() {
         let total = 0;
-        cantidades.forEach(function (input) {
+        lista.querySelectorAll('.cantidad-insumo').forEach(function (input) {
             total += (parseFloat(input.value) || 0) * (parseFloat(input.dataset.precio) || 0);
         });
         costo.textContent = 'Bs ' + total.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    cantidades.forEach(function (input) { input.addEventListener('input', actualizarCosto); });
+    function agregarFila(insumo, cantidad) {
+        if (lista.querySelector(`[data-insumo-id="${insumo.id}"]`)) {
+            alert('Este insumo ya fue agregado a la receta.');
+            return;
+        }
+
+        const fila = document.createElement('tr');
+        fila.dataset.insumoId = insumo.id;
+        fila.innerHTML = `<td>${insumo.nombre}</td><td>${insumo.unidad}</td><td><input type="number" min="0.01" step="0.01" class="form-control form-control-sm cantidad-insumo" data-precio="${insumo.precio}" name="insumos[${insumo.id}]" value="${cantidad}" required></td><td class="text-end"><button type="button" class="btn btn-sm btn-outline-danger" title="Quitar insumo"><i class="fas fa-times"></i></button></td>`;
+        fila.querySelector('.cantidad-insumo').addEventListener('input', actualizarCosto);
+        fila.querySelector('button').addEventListener('click', function () { fila.remove(); actualizarCosto(); });
+        lista.appendChild(fila);
+        actualizarCosto();
+    }
+
+    document.getElementById('agregar_insumo').addEventListener('click', function () {
+        const insumo = insumos.find(item => item.id === Number(selector.value));
+        const cantidad = parseFloat(cantidadInput.value);
+        if (!insumo || !cantidad || cantidad <= 0) {
+            alert('Selecciona un insumo e ingresa una cantidad mayor que cero.');
+            return;
+        }
+        agregarFila(insumo, cantidad);
+        selector.value = '';
+        cantidadInput.value = '';
+    });
+
+    Object.entries(cantidadesPrevias).forEach(([id, cantidad]) => {
+        const insumo = insumos.find(item => item.id === Number(id));
+        if (insumo && Number(cantidad) > 0) agregarFila(insumo, cantidad);
+    });
     actualizarCosto();
 });
 </script>

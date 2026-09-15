@@ -99,7 +99,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mt-3">{{ $pedidos->links() }}</div>
+            <div class="mt-3">@include('components.pagination', ['paginator' => $pedidos])</div>
         </div>
     </div>
 </div>
