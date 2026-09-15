@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/insumos/{insumo}/movimientos/nuevo', [MovimientoInsumoController::class, 'create'])->name('insumos.movimientos.create');
         Route::post('/insumos/{insumo}/movimientos', [MovimientoInsumoController::class, 'store'])->name('insumos.movimientos.store');
         Route::resource('insumos', InsumoController::class);
+        Route::patch('/insumos/{insumo}/lotes/{lote}', [InsumoController::class, 'actualizarLote'])->name('insumos.lotes.update');
     });
 
     // Pedidos

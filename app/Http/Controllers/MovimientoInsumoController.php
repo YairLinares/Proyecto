@@ -22,6 +22,9 @@ class MovimientoInsumoController extends Controller
             'tipo' => 'required|in:Entrada,Salida,Ajuste',
             'cantidad' => 'required|numeric|min:0',
             'motivo' => 'required|string|max:255',
+            'codigo_lote' => 'nullable|string|max:100',
+            'fecha_vencimiento' => 'nullable|date_format:Y-m-d',
+            'lote_id' => 'nullable|integer|exists:lotes_insumo,id',
         ]);
 
         try {
@@ -37,6 +40,9 @@ class MovimientoInsumoController extends Controller
                     null,
                     null,
                     $validated['tipo'] === 'Ajuste' ? (float) $validated['cantidad'] : null,
+                    $validated['codigo_lote'] ?? null,
+                    $validated['fecha_vencimiento'] ?? null,
+                    $validated['lote_id'] ?? null,
                 );
             });
         } catch (\InvalidArgumentException $exception) {

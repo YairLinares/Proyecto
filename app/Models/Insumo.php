@@ -6,6 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Insumo extends Model
 {
+    protected static function booted(): void
+    {
+        static::created(function (Insumo $insumo) {
+            if ($insumo->stock_actual > 0) {
+                $insumo->lotes()->create(['codigo' => 'INICIAL-'.$insumo->id, 'cantidad' => $insumo->stock_actual]);
+            }
+        });
+    }
+
     protected $fillable = [
         'nombre',
         'descripcion',
@@ -15,6 +24,16 @@ class Insumo extends Model
         'precio_unitario',
         'estado',
     ];
+
+    public function lotes()
+    {
+        return $this->hasMany(LoteInsumo::class);
+    }
+
+    public function stockUtilizable(): float
+    {
+        return (float) $this->lotes()->utilizables()->sum('cantidad');
+    }
 
     public function productos()
     {

@@ -35,6 +35,7 @@
 
     <form method="POST" action="{{ route('insumos.store') }}" class="insumo-form">
         @csrf
+        @include('insumos.lote-campos')
 
         <h2 class="insumo-section-title"><i class="fas fa-flask"></i> Informacion del insumo</h2>
 

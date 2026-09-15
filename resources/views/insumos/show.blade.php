@@ -3,6 +3,7 @@
 @section('title', $insumo->nombre)
  
 @section('content')
+@include('insumos.lotes')
 <div class="page-header">
     <h1 class="page-title">{{ $insumo->nombre }}</h1>
     <div>
@@ -70,7 +71,11 @@
                             </td>
                             <td>{{ $movimiento->stock_posterior < $movimiento->stock_anterior ? '-' : '+' }}{{ number_format($movimiento->cantidad, 2, ',', '.') }} {{ $insumo->unidad }}</td>
                             <td>{{ number_format($movimiento->stock_anterior, 2, ',', '.') }} a {{ number_format($movimiento->stock_posterior, 2, ',', '.') }}</td>
-                            <td>{{ $movimiento->motivo }}</td>
+                            <td>{{ $movimiento->motivo }}
+                                @foreach($movimiento->lotes as $lote)
+                                    <div class="text-muted small">Lote {{ $lote->codigo }}: {{ $lote->pivot->cantidad }} {{ $insumo->unidad }}</div>
+                                @endforeach
+                            </td>
                             <td>{{ $movimiento->usuario?->nombre ?? 'Sistema' }}</td>
                         </tr>
                     @empty

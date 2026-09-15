@@ -136,10 +136,10 @@ class PedidoController extends Controller
             foreach ($consumoPorInsumo as $insumoId => $cantidadAUsar) {
                 $insumo = $insumos->get($insumoId);
 
-                if (! $insumo || (float) $insumo->stock_actual < $cantidadAUsar) {
+                if (! $insumo || $insumo->stockUtilizable() < round($cantidadAUsar, 2)) {
                     $nombre = $insumo?->nombre ?? 'un insumo requerido';
                     $unidad = $insumo?->unidad ?? '';
-                    $disponible = $insumo ? number_format((float) $insumo->stock_actual, 2, ',', '.') : '0';
+                    $disponible = $insumo ? number_format($insumo->stockUtilizable(), 2, ',', '.') : '0';
                     $requerido = number_format($cantidadAUsar, 2, ',', '.');
 
                     throw ValidationException::withMessages([

@@ -18,7 +18,10 @@ class InsumoController extends Controller
         $search = $request->get('search');
         $filter = $request->get('filter', 'todos');
 
-        $query = Insumo::query()->withCount('productos');
+        $query = Insumo::query()->withCount('productos')->withCount([
+            'lotes as lotes_vencidos' => fn ($q) => $q->where('cantidad', '>', 0)->whereDate('fecha_vencimiento', '<', today()),
+            'lotes as lotes_por_vencer' => fn ($q) => $q->where('cantidad', '>', 0)->whereBetween('fecha_vencimiento', [today()->toDateString(), today()->addDays(7)->toDateString()]),
+        ]);
 
         if ($search) {
             $query->where('nombre', 'like', "%$search%");
@@ -55,6 +58,8 @@ class InsumoController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|unique:insumos|string|max:255',
+            'codigo_lote' => 'nullable|string|max:100',
+            'fecha_vencimiento' => 'nullable|date_format:Y-m-d',
             'descripcion' => 'nullable|string',
             'unidad' => 'required|in:Kg,Gramos,Litros,Mililitros,Unidad',
             'stock_actual' => 'required|numeric|min:0',
@@ -75,6 +80,8 @@ class InsumoController extends Controller
                     $stockInicial,
                     'Stock inicial del insumo',
                     Auth::id(),
+                    codigoLote: $validated['codigo_lote'] ?? null,
+                    fechaVencimiento: $validated['fecha_vencimiento'] ?? null,
                 );
             } else {
                 $insumo->actualizarEstado();
@@ -93,7 +100,7 @@ class InsumoController extends Controller
     {
         $productos = $insumo->productos()->paginate(10);
         $movimientos = $insumo->movimientos()
-            ->with(['usuario', 'pedido'])
+            ->with(['usuario', 'pedido', 'lotes'])
             ->latest()
             ->paginate(10, ['*'], 'movimientos_page');
 
@@ -155,11 +162,24 @@ class InsumoController extends Controller
      */
     public function destroy(Insumo $insumo)
     {
+        if ($insumo->movimientos()->exists() || $insumo->lotes()->exists()) {
+            return back()->with('error', 'No puedes eliminar un insumo con lotes o movimientos registrados.');
+        }
         if ($insumo->productos()->count() > 0) {
             return back()->with('error', 'No puedes eliminar un insumo que está siendo usado en productos.');
         }
 
         $insumo->delete();
         return redirect()->route('insumos.index')->with('success', 'Insumo eliminado correctamente.');
+    }
+
+    public function actualizarLote(Request $request, Insumo $insumo, int $lote)
+    {
+        $datos = $request->validate(['fecha_vencimiento' => 'nullable|date_format:Y-m-d']);
+        DB::transaction(function () use ($insumo, $lote, $datos) {
+            $insumo = Insumo::whereKey($insumo->id)->lockForUpdate()->firstOrFail();
+            $insumo->lotes()->whereKey($lote)->firstOrFail()->update($datos);
+        });
+        return back()->with('success', 'Vencimiento del lote actualizado.');
     }
 }

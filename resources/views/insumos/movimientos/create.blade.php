@@ -16,6 +16,18 @@
         <div class="card-body p-4">
             <form method="POST" action="{{ route('insumos.movimientos.store', $insumo) }}">
                 @csrf
+                @include('insumos.lote-campos')
+                <div class="mb-3">
+                    <label for="lote_id" class="form-label">Lote para salida o ajuste a la baja</label>
+                    <select id="lote_id" name="lote_id" class="form-select">
+                        <option value="">Automático: primero el que vence antes</option>
+                        @foreach($insumo->lotes()->where('cantidad', '>', 0)->get() as $lote)
+                            <option value="{{ $lote->id }}" @selected(old('lote_id') == $lote->id)>{{ $lote->codigo }} — {{ $lote->cantidad }} {{ $insumo->unidad }} — {{ $lote->fecha_vencimiento?->format('d/m/Y') ?? 'Sin vencimiento registrado' }}</option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">Selecciona un lote vencido únicamente para retirarlo por caducidad. En un ajuste, la cantidad indica el stock total final del insumo.</small>
+                    @error('lote_id')<div class="text-danger">{{ $message }}</div>@enderror
+                </div>
 
                 <div class="mb-3">
                     <label for="tipo" class="form-label">Tipo de movimiento *</label>

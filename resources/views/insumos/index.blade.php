@@ -255,6 +255,8 @@
                 <tr>
                     <td>
                         <div class="insumo-name">{{ $insumo->nombre }}</div>
+                        @if($insumo->lotes_vencidos)<div class="text-danger">{{ $insumo->lotes_vencidos }} lote(s) vencido(s)</div>@endif
+                        @if($insumo->lotes_por_vencer)<div class="text-warning">{{ $insumo->lotes_por_vencer }} lote(s) por vencer en 7 días</div>@endif
                         @if($insumo->descripcion)
                             <div class="insumo-muted">{{ Str::limit($insumo->descripcion, 55) }}</div>
                         @endif

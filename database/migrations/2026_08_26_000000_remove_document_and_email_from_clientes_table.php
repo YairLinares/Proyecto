@@ -8,6 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasIndex('clientes', 'clientes_numero_documento_unique')) {
+            Schema::table('clientes', fn (Blueprint $table) => $table->dropUnique('clientes_numero_documento_unique'));
+        }
         foreach (['tipo_documento', 'numero_documento', 'email'] as $column) {
             if (Schema::hasColumn('clientes', $column)) {
                 Schema::table('clientes', function (Blueprint $table) use ($column) {
