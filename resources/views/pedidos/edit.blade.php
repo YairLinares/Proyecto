@@ -34,10 +34,16 @@
                             <div class="mb-3">
                                 <label class="form-label">Estado *</label>
                                 <select class="form-select" name="estado" required>
-                                    <option value="Pendiente" {{ $pedido->estado == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
-                                    <option value="En proceso" {{ $pedido->estado == 'En proceso' ? 'selected' : '' }}>En proceso</option>
-                                    <option value="Completado" {{ $pedido->estado == 'Completado' ? 'selected' : '' }}>Completado</option>
-                                    <option value="Cancelado" {{ $pedido->estado == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
+                                    <option value="{{ $pedido->estado }}" selected>{{ $pedido->estado }}</option>
+                                    @if($pedido->estado === 'Pendiente')
+                                        <option value="En proceso">En proceso (inicia producción)</option>
+                                        <option value="Cancelado">Cancelado (libera la reserva)</option>
+                                    @elseif($pedido->estado === 'En proceso')
+                                        <option value="Completado">Completado</option>
+                                        <option value="Cancelado">Cancelado (los insumos ya fueron consumidos)</option>
+                                    @elseif($pedido->estado === 'Completado')
+                                        <option value="Cancelado">Cancelado (los insumos ya fueron consumidos)</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>

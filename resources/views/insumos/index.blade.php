@@ -242,7 +242,7 @@
             <thead>
                 <tr>
                     <th>Nombre</th>
-                    <th>Stock Actual</th>
+                    <th>Stock físico / libre</th>
                     <th>Unidad</th>
                     <th>Precio Unitario</th>
                     <th>Usado en</th>
@@ -261,7 +261,7 @@
                             <div class="insumo-muted">{{ Str::limit($insumo->descripcion, 55) }}</div>
                         @endif
                     </td>
-                    <td>{{ number_format($insumo->stock_actual, 2, ',', '.') }}</td>
+                    <td>{{ number_format($insumo->stock_actual, 2, ',', '.') }} / {{ number_format(max(0, $insumo->stockLibre()), 2, ',', '.') }}</td>
                     <td>{{ $insumo->unidad }}</td>
                     <td>Bs {{ number_format($insumo->precio_unitario, 2, ',', '.') }}</td>
                     <td>{{ $insumo->productos_count }} producto(s)</td>

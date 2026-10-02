@@ -55,6 +55,18 @@
             </div>
 
             <div class="mt-3"><span class="text-muted me-2">Estado:</span><span class="pedido-detail__status pedido-detail__status--{{ $claseEstado }}">{{ $pedido->estado }}</span></div>
+            @if($pedido->insumos_reservados_at && $pedido->estado === 'Pendiente')
+                <div class="alert alert-info mt-3 mb-0">
+                    <strong>Insumos apartados:</strong> el stock se descontará cuando inicie la preparación.
+                    @foreach($pedido->reservas as $reserva)
+                        <div>{{ $reserva->insumo->nombre }}: {{ $reserva->cantidad }} {{ $reserva->insumo->unidad }}</div>
+                    @endforeach
+                </div>
+            @elseif($pedido->produccion_iniciada_at)
+                <div class="alert alert-info mt-3 mb-0">Preparación iniciada el {{ $pedido->produccion_iniciada_at->format('d/m/Y H:i') }}. Los insumos ya se consumieron.</div>
+            @elseif(!$pedido->insumos_reservados_at)
+                <div class="alert alert-secondary mt-3 mb-0">Pedido anterior: los insumos se descontaron cuando se registró.</div>
+            @endif
 
             @if($pedido->descripcion_especificaciones)
                 <div class="pedido-detail__observations mt-3">
@@ -62,7 +74,7 @@
                     <p>{{ $pedido->descripcion_especificaciones }}</p>
                 </div>
             @endif
-            @if(in_array($pedido->estado, ['Pendiente', 'Cancelado'], true))
+            @if(in_array($pedido->estado, ['Pendiente', 'Cancelado'], true) && !$pedido->produccion_iniciada_at && !$pedido->movimientos_insumo_exists)
                 <form method="POST" action="{{ route('pedidos.destroy', $pedido) }}" onsubmit="return confirm('¿Eliminar este pedido? Esta acción no se puede deshacer.')">
                     @csrf
                     @method('DELETE')
@@ -73,6 +85,19 @@
 
         <div class="pedido-detail__actions">
             <a href="{{ route('pedidos.edit', $pedido) }}" class="btn btn-outline-secondary"><i class="fas fa-pen me-1"></i> Editar</a>
+            @if($pedido->estado === 'Pendiente')
+                <form method="POST" action="{{ route('pedidos.cambiarEstado', $pedido) }}" onsubmit="return confirm('¿Iniciar la preparación y consumir los insumos reservados?')">
+                    @csrf @method('PATCH')
+                    <input type="hidden" name="estado" value="En proceso">
+                    <button type="submit" class="btn btn-primary">Iniciar preparación</button>
+                </form>
+            @elseif($pedido->estado === 'En proceso')
+                <form method="POST" action="{{ route('pedidos.cambiarEstado', $pedido) }}">
+                    @csrf @method('PATCH')
+                    <input type="hidden" name="estado" value="Completado">
+                    <button type="submit" class="btn btn-success">Marcar terminado</button>
+                </form>
+            @endif
             @if($pedido->estado !== 'Cancelado')
                 <form method="POST" action="{{ route('pedidos.cambiarEstado', $pedido) }}" onsubmit="return confirm('¿Cancelar este pedido?')">
                     @csrf

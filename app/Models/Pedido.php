@@ -24,27 +24,33 @@ class Pedido extends Model
         'costo_envio',
         'total',
         'estado',
+        'insumos_reservados_at',
+        'produccion_iniciada_at',
     ];
 
     protected $casts = [
         'fecha_pedido' => 'date',
         'fecha_entrega' => 'date',
+        'insumos_reservados_at' => 'datetime',
+        'produccion_iniciada_at' => 'datetime',
     ];
 
     public static function generarNumeroPedido(): string
     {
-        $ultimoCodigo = self::where('numero_pedido', 'REGEXP', '^PED-[0-9]{3}$')
-            ->orderByRaw('CAST(SUBSTRING(numero_pedido, 5) AS UNSIGNED) DESC')
-            ->value('numero_pedido');
+        $ultimoNumero = self::where('numero_pedido', 'like', 'PED-%')
+            ->pluck('numero_pedido')
+            ->filter(fn ($codigo) => preg_match('/^PED-[0-9]+$/', $codigo))
+            ->map(fn ($codigo) => (int) substr($codigo, 4))
+            ->max();
 
-        $siguiente = $ultimoCodigo ? ((int) substr($ultimoCodigo, 4) + 1) : 1;
+        $siguiente = $ultimoNumero ? $ultimoNumero + 1 : 1;
 
-        return 'PED-' . str_pad((string) $siguiente, 3, '0', STR_PAD_LEFT);
+        return 'PED-'.str_pad((string) $siguiente, 3, '0', STR_PAD_LEFT);
     }
 
     public function getCodigoPedidoAttribute(): string
     {
-        return $this->numero_pedido ?: 'PED-' . str_pad((string) $this->id, 3, '0', STR_PAD_LEFT);
+        return $this->numero_pedido ?: 'PED-'.str_pad((string) $this->id, 3, '0', STR_PAD_LEFT);
     }
 
     public function calcularTotal(): void
@@ -70,5 +76,15 @@ class Pedido extends Model
     public function pagos()
     {
         return $this->hasMany(Pago::class);
+    }
+
+    public function reservas()
+    {
+        return $this->hasMany(ReservaInsumo::class);
+    }
+
+    public function movimientosInsumo()
+    {
+        return $this->hasMany(MovimientoInsumo::class);
     }
 }

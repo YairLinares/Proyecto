@@ -35,6 +35,16 @@ class Insumo extends Model
         return (float) $this->lotes()->utilizables()->sum('cantidad');
     }
 
+    public function reservas()
+    {
+        return $this->hasMany(ReservaInsumo::class);
+    }
+
+    public function stockLibre(): float
+    {
+        return round($this->stockUtilizable() - (float) $this->reservas()->sum('cantidad'), 2);
+    }
+
     public function productos()
     {
         return $this->belongsToMany(Producto::class, 'insumo_producto')

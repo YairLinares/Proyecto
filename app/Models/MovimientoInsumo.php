@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
 class MovimientoInsumo extends Model
@@ -70,6 +71,7 @@ class MovimientoInsumo extends Model
     ): self {
         return DB::transaction(function () use ($insumo, $tipo, $cantidad, $motivo, $usuarioId, $pedidoId, $movimientoOrigenId, $stockAjustado, $codigoLote, $fechaVencimiento, $loteId) {
             $insumo = Insumo::whereKey($insumo->id)->lockForUpdate()->firstOrFail();
+            $stockLibreAnterior = $insumo->stockLibre();
             $stockAnterior = (float) $insumo->stock_actual;
             $cantidad = round($cantidad, 2);
 
@@ -111,6 +113,13 @@ class MovimientoInsumo extends Model
                 'movimiento_origen_id' => $movimientoOrigenId,
             ]);
             GestorLotes::aplicar($movimiento, $codigoLote, $fechaVencimiento, $loteId);
+
+            $stockLibrePosterior = $insumo->stockLibre();
+            if ($stockLibrePosterior < -0.001 && $stockLibrePosterior < $stockLibreAnterior - 0.001) {
+                throw ValidationException::withMessages([
+                    'cantidad' => 'Este movimiento dejaría sin insumos a pedidos pendientes. Libera la reserva cancelando el pedido o registra primero una entrada.',
+                ]);
+            }
 
             return $movimiento;
         });
