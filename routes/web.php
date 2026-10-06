@@ -11,6 +11,7 @@ use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MovimientoInsumoController;
 use App\Http\Controllers\VentaController;
+use App\Http\Controllers\ReporteController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,6 +39,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('clientes', ClienteController::class);
 
     Route::middleware('admin')->group(function () {
+        Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
+        Route::get('/reportes/ventas.csv', [ReporteController::class, 'exportarVentas'])->name('reportes.ventas.csv');
         // Categorías
         Route::resource('categorias', CategoriaController::class);
 

@@ -308,6 +308,12 @@
             </div>
 
             @if(Auth::user()->esAdministrador())
+                <div class="sidebar-menu">
+                    <a href="{{ route('reportes.index') }}" class="@if(request()->routeIs('reportes.*')) active @endif">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reportes</span>
+                    </a>
+                </div>
                 <div class="sidebar-section-title">Inventario</div>
                 <div class="sidebar-menu">
                     <a href="{{ route('productos.index') }}" class="@if(request()->routeIs('productos.*')) active @endif">

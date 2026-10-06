@@ -2,77 +2,88 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Iniciar sesión - Delicias Dulces</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --pink: #e91e63; --ink: #15233d; --muted: #8794a9; }
+        :root { --rosa: #c72d68; --texto: #493743; --borde: #ead7dc; }
         * { box-sizing: border-box; }
-        body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; background: #fff8fc; color: var(--ink); font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
-        .login-card { width: min(100%, 450px); padding: 32px; border: 1px solid #eef0f4; border-radius: 8px; background: #fff; box-shadow: 0 12px 32px rgba(44, 55, 78, .11); }
-        .login-brand { text-align: center; margin-bottom: 30px; }
-        .login-brand__icon { display: inline-grid; width: 80px; height: 80px; place-items: center; border-radius: 22px; background: #fff0c7; color: #e91e63; font-size: 2rem; }
-        .login-brand h1 { margin: 18px 0 4px; color: var(--ink); font-size: 1.55rem; font-weight: 700; }
-        .login-brand p { margin: 0; color: var(--muted); font-size: .92rem; }
-        .form-label { margin-bottom: 7px; color: var(--ink); font-size: .92rem; font-weight: 600; }
-        .input-wrap { position: relative; }
-        .input-wrap i { position: absolute; top: 50%; left: 15px; color: #9aa6b8; transform: translateY(-50%); }
-        .form-control { min-height: 47px; padding-left: 42px; border-color: #dde2e9; border-radius: 999px; }
-        .form-control:focus { border-color: var(--pink); box-shadow: 0 0 0 .2rem rgba(233, 30, 99, .12); }
-        .login-submit { width: 100%; min-height: 47px; margin-top: 23px; border: 0; border-radius: 999px; background: var(--pink); box-shadow: 0 5px 12px rgba(233, 30, 99, .22); color: #fff; font-weight: 700; }
-        .login-submit:hover { background: #c91853; color: #fff; }
-        .login-footer { margin: 24px -32px -32px; padding: 18px 32px; border-top: 1px solid #eef0f4; color: var(--muted); font-size: .86rem; text-align: center; }
-        .login-footer a { color: var(--pink); font-weight: 700; text-decoration: none; }
-        .login-footer a:hover { text-decoration: underline; }
-        .alert { border-radius: 8px; font-size: .9rem; }
-        .invalid-feedback { margin-left: 12px; }
-        @media (max-width: 480px) { body { padding: 16px; } .login-card { padding: 26px 20px; } .login-footer { margin-right: -20px; margin-bottom: -26px; margin-left: -20px; padding-right: 20px; padding-left: 20px; } }
+        body { min-height: 100vh; margin: 0; padding: 24px 16px; display: grid; place-items: center; font-family: Arial, Helvetica, sans-serif; color: var(--texto); background: #fff4f2; background-image: radial-gradient(circle at 10% 15%, #ffe0d5 0 11%, transparent 11.2%), radial-gradient(circle at 92% 87%, #ffe5df 0 13%, transparent 13.2%); }
+        .login-card { width: min(100%, 440px); padding: 30px; border: 1px solid var(--borde); border-radius: 18px; background: #fff; box-shadow: 0 10px 28px rgba(119, 65, 84, .09); }
+        .brand { text-align: center; }
+        .brand-icon { width: 74px; height: 74px; margin: 0 auto 12px; display: grid; place-items: center; border: 2px solid #ffb9a8; border-radius: 50%; background: #fff1e8; font-size: 38px; }
+        h1 { margin: 0; color: #80334f; font-size: 27px; }
+        .brand p { margin: 6px 0 0; color: #846b79; font-size: 14px; }
+        h2 { margin: 28px 0 6px; text-align: center; font-size: 19px; }
+        .intro { margin: 0 0 25px; text-align: center; color: #796c75; font-size: 14px; line-height: 1.5; }
+        .field { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+        input { display: block; width: 100%; height: 46px; padding: 0 14px; border: 1px solid var(--borde); border-radius: 9px; outline: none; background: #fff; color: var(--texto); font: inherit; }
+        input::placeholder { color: #a7969e; }
+        input:focus { border-color: var(--rosa); box-shadow: 0 0 0 3px #fbe1e9; }
+        input[aria-invalid="true"] { border-color: #bb3048; }
+        .password-field { position: relative; }
+        .password-field input { padding-right: 80px; }
+        .show-password { position: absolute; top: 5px; right: 5px; min-width: 70px; height: 36px; border: 0; border-radius: 7px; background: #fff5f7; color: #a71e53; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .show-password:hover { background: #fce4ec; }
+        .submit { display: block; width: 100%; min-height: 46px; margin-top: 8px; border: 0; border-radius: 9px; background: var(--rosa); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+        .submit:hover { background: #a71e53; }
+        .message { margin: 18px 0; padding: 11px 13px; border-radius: 8px; font-size: 13px; line-height: 1.4; }
+        .message--error { border: 1px solid #f1bcc4; background: #fff0f2; color: #8d2638; }
+        .message--success { border: 1px solid #b9e4c0; background: #effaf0; color: #246a34; }
+        .field-error { margin: 6px 0 0; color: #a8243b; font-size: 13px; }
+        .register-link { margin: 24px 0 0; text-align: center; color: #786b74; font-size: 14px; }
+        .register-link a { color: #a71e53; font-weight: 700; text-decoration: none; }
+        .register-link a:hover { text-decoration: underline; }
+        @media (max-width: 480px) { .login-card { padding: 24px 20px; } h1 { font-size: 24px; } }
     </style>
 </head>
 <body>
     <main class="login-card">
-        <div class="login-brand">
-            <div class="login-brand__icon"><i class="fas fa-birthday-cake"></i></div>
+        <div class="brand">
+            <div class="brand-icon" aria-hidden="true">🍰</div>
             <h1>Delicias Dulces</h1>
             <p>Sistema de gestión</p>
         </div>
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+        <h2>¡Bienvenido de nuevo!</h2>
+        <p class="intro">Ingresa tus datos para continuar.</p>
 
+        @if(session('success'))
+            <div class="message message--success" role="status">{{ session('success') }}</div>
+        @endif
         @if($errors->any())
-            <div class="alert alert-danger">
-                @foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach
-            </div>
+            <div class="message message--error" role="alert">Revisa los datos e inténtalo de nuevo.</div>
         @endif
 
         <form method="POST" action="{{ route('login') }}">
             @csrf
-
-            <div class="mb-3">
-                <label class="form-label" for="email"><i class="fas fa-user me-1"></i>Correo electrónico</label>
-                <div class="input-wrap">
-                    <i class="fas fa-envelope"></i>
-                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" autocomplete="email" required autofocus>
-                </div>
-                @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            <div class="field">
+                <label for="email">Correo electrónico</label>
+                <input id="email" name="email" type="email" value="{{ old('email') }}" placeholder="tu@correo.com" autocomplete="email" aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}" required autofocus>
+                @error('email')<p class="field-error">{{ $message }}</p>@enderror
             </div>
-
-            <div class="mb-3">
-                <label class="form-label" for="password"><i class="fas fa-lock me-1"></i>Contraseña</label>
-                <div class="input-wrap">
-                    <i class="fas fa-key"></i>
-                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="current-password" required>
+            <div class="field">
+                <label for="password">Contraseña</label>
+                <div class="password-field">
+                    <input id="password" name="password" type="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}" required>
+                    <button class="show-password" type="button" aria-controls="password" aria-pressed="false">Mostrar</button>
                 </div>
-                @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                @error('password')<p class="field-error">{{ $message }}</p>@enderror
             </div>
-
-            <button type="submit" class="btn login-submit">Iniciar sesión</button>
+            <button class="submit" type="submit">Iniciar sesión</button>
         </form>
 
-        <div class="login-footer">¿No tienes cuenta? <a href="{{ route('register') }}">Regístrate aquí</a></div>
+        <p class="register-link">¿No tienes cuenta? <a href="{{ route('register') }}">Regístrate aquí</a></p>
     </main>
+    <script>
+        const toggle = document.querySelector('.show-password');
+        const password = document.getElementById('password');
+        toggle.addEventListener('click', () => {
+            const visible = password.type === 'password';
+            password.type = visible ? 'text' : 'password';
+            toggle.textContent = visible ? 'Ocultar' : 'Mostrar';
+            toggle.setAttribute('aria-pressed', String(visible));
+        });
+    </script>
 </body>
 </html>
