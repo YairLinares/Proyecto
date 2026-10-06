@@ -108,13 +108,21 @@
     </div>
 </div>
 
+@php
+    $insumosParaJs = $insumos->map(fn ($insumo) => [
+        'id' => $insumo->id,
+        'nombre' => $insumo->nombre,
+        'unidad' => $insumo->unidad,
+        'precio' => (float) $insumo->precio_unitario,
+    ])->values();
+@endphp
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const costo = document.getElementById('costo_receta');
     const selector = document.getElementById('selector_insumo');
     const cantidadInput = document.getElementById('cantidad_insumo');
     const lista = document.getElementById('lista_insumos');
-    const insumos = @json($insumos->map(fn ($insumo) => ['id' => $insumo->id, 'nombre' => $insumo->nombre, 'unidad' => $insumo->unidad, 'precio' => (float) $insumo->precio_unitario])->values());
+    const insumos = @json($insumosParaJs);
     const cantidadesPrevias = @json(old('insumos', []));
 
     function actualizarCosto() {
