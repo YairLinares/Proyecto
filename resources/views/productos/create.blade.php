@@ -141,24 +141,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const fila = document.createElement('tr');
         fila.dataset.insumoId = insumo.id;
-        fila.innerHTML = `<td>${insumo.nombre}</td><td>${insumo.unidad}</td><td><input type="number" min="0.01" step="0.01" class="form-control form-control-sm cantidad-insumo" data-precio="${insumo.precio}" name="insumos[${insumo.id}]" value="${cantidad}" required></td><td class="text-end"><button type="button" class="btn btn-sm btn-outline-danger" title="Quitar insumo"><i class="fas fa-times"></i></button></td>`;
-        fila.querySelector('.cantidad-insumo').addEventListener('input', actualizarCosto);
+        fila.innerHTML = '<td class="insumo-nombre"></td><td class="insumo-unidad"></td><td><input type="number" min="0.01" step="0.01" class="form-control form-control-sm cantidad-insumo" required></td><td class="text-end"><button type="button" class="btn btn-sm btn-outline-danger" title="Quitar insumo"><i class="fas fa-times"></i></button></td>';
+        fila.querySelector('.insumo-nombre').textContent = insumo.nombre;
+        fila.querySelector('.insumo-unidad').textContent = insumo.unidad;
+        const cantidadFila = fila.querySelector('.cantidad-insumo');
+        cantidadFila.dataset.precio = insumo.precio;
+        cantidadFila.name = `insumos[${insumo.id}]`;
+        cantidadFila.value = cantidad;
+        cantidadFila.addEventListener('input', actualizarCosto);
         fila.querySelector('button').addEventListener('click', function () { fila.remove(); actualizarCosto(); });
         lista.appendChild(fila);
         actualizarCosto();
     }
 
-    document.getElementById('agregar_insumo').addEventListener('click', function () {
-        const insumo = insumos.find(item => item.id === Number(selector.value));
-        const cantidad = parseFloat(cantidadInput.value);
-        if (!insumo || !cantidad || cantidad <= 0) {
-            alert('Selecciona un insumo e ingresa una cantidad mayor que cero.');
-            return;
-        }
-        agregarFila(insumo, cantidad);
-        selector.value = '';
-        cantidadInput.value = '';
-    });
+    if (selector) {
+        document.getElementById('agregar_insumo').addEventListener('click', function () {
+            const insumo = insumos.find(item => item.id === Number(selector.value));
+            const cantidad = parseFloat(cantidadInput.value);
+            if (!insumo || !cantidad || cantidad <= 0) {
+                alert('Selecciona un insumo e ingresa una cantidad mayor que cero.');
+                return;
+            }
+            agregarFila(insumo, cantidad);
+            selector.value = '';
+            cantidadInput.value = '';
+        });
+    }
 
     Object.entries(cantidadesPrevias).forEach(([id, cantidad]) => {
         const insumo = insumos.find(item => item.id === Number(id));
