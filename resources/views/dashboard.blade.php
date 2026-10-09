@@ -4,55 +4,39 @@
 
 @section('styles')
 <style>
-    .stat-card-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-    }
-
-    .stat-card {
-        border-top: 3px solid var(--accent, #c7436f);
-        transition: transform 0.18s ease, box-shadow 0.18s ease;
-        height: 100%;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    }
-
-    .stat-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-        font-size: 18px;
-    }
-
-    .stat-value {
-        margin: 12px 0 2px;
-        font-weight: 700;
-        font-size: 26px;
-    }
-
-    .stat-label {
-        color: #8a8a8a;
-        font-size: 13px;
-        margin-bottom: 0;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-    }
-
-    .section-card .card-header {
-        font-weight: 600;
-    }
-
-    .section-card .card-header i {
-        color: var(--primary-color);
-    }
+    .dashboard-header { align-items: flex-end; margin-bottom: 23px; }
+    .dashboard-header .page-title { position: relative; margin: 0; color: #550d25; font-size: 35px; font-weight: 800; }
+    .dashboard-header .page-title::after { content: ''; display: block; width: 96px; height: 4px; margin-top: 5px; border-radius: 4px; background: linear-gradient(90deg, #d31b48 0 62%, #ed7538 62%); }
+    .dashboard-motto { margin: 0 0 6px; color: #e2b49f; font-family: 'Lobster', cursive; font-size: clamp(22px, 2.2vw, 35px); white-space: nowrap; }
+    .stat-card-link { display: block; height: 100%; color: inherit; text-decoration: none; }
+    .stat-card { position: relative; overflow: hidden; height: 100%; min-height: 174px; margin-bottom: 0; border: 1px solid #f1e8e3; border-top: 3px solid var(--accent, #d62348); border-radius: 14px; box-shadow: 0 6px 16px rgba(91, 48, 40, .07); transition: transform .18s ease, box-shadow .18s ease; }
+    .stat-card::after { content: ''; position: absolute; right: -12%; bottom: -35px; left: -12%; height: 60px; border-radius: 50% 50% 0 0; transform: rotate(-4deg); background: var(--accent-wave, #fae2e5); opacity: .85; }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(83, 29, 34, .14); }
+    .stat-card .card-body { position: relative; z-index: 1; padding: 16px 8px 20px; }
+    .stat-icon { width: 59px; height: 59px; margin: 0 auto; display: grid; place-items: center; border-radius: 50%; font-size: 22px; }
+    .stat-value { margin: 12px 0 0; font-size: 29px; font-weight: 800; line-height: 1.1; }
+    .stat-label { margin: 4px 0 0; color: #67666f; font-size: 12px; text-transform: uppercase; letter-spacing: .3px; }
+    .section-card { overflow: hidden; height: 100%; margin-bottom: 0; border: 1px solid #f0e6df; border-radius: 13px; box-shadow: 0 5px 18px rgba(107, 60, 38, .06); }
+    .section-card .card-header { display: flex; align-items: center; min-height: 51px; padding: 11px 17px; border-bottom: 1px solid #f2ddd0; background: #fff0e7; color: #540b24; font-weight: 700; }
+    .section-card .card-header h5 { font-size: 19px; font-weight: 750; }
+    .section-card .card-header i { margin-right: 6px; color: #dc2544; }
+    .dashboard-panels .section-card .card-body { display: flex; align-items: center; justify-content: center; min-height: 146px; padding: 16px; }
+    .dashboard-panels .section-card .card-body:has(.alert) { display: block; }
+    .dashboard-panels canvas { width: 100% !important; max-height: 220px; }
+    .empty-state { width: 100%; text-align: center; color: #858995; font-size: 14px; }
+    .empty-state img { display: block; width: 136px; height: 77px; margin: 0 auto 5px; object-fit: contain; }
+    .empty-state i { display: block; margin-bottom: 13px; color: #d7ae97; font-size: 42px; }
+    .empty-state p { margin: 0; }
+    .recent-orders .card-body { padding: 0 18px 14px; }
+    .recent-orders .table { margin: 0; white-space: nowrap; }
+    .recent-orders th { padding: 15px 10px 12px; border-bottom-color: #e8e9ea; color: #243047; font-size: 13px; }
+    .recent-orders td { padding: 14px 10px; vertical-align: middle; }
+    .recent-orders .empty-state { padding: 25px 0; white-space: normal; }
+    .recent-orders .empty-state img { width: 95px; height: 55px; }
+    .view-all { color: #d31738; font-size: 14px; font-weight: 700; text-decoration: none; }
+    .view-all:hover { color: #9c1230; text-decoration: underline; }
+    @media (max-width: 991.98px) { .dashboard-motto { display: none; } }
+    @media (max-width: 575.98px) { .dashboard-header .page-title { font-size: 29px; } .stat-card { min-height: 155px; } .stat-icon { width: 48px; height: 48px; font-size: 19px; } .stat-value { font-size: 25px; } .section-card .card-header h5 { font-size: 17px; } }
 </style>
 @endsection
 
@@ -61,15 +45,16 @@
     $esAdministrador = Auth::user()->esAdministrador();
 @endphp
 
-<div class="page-header">
+<div class="page-header dashboard-header">
     <h1 class="page-title">Dashboard</h1>
+    <p class="dashboard-motto">Repostería que alegra tus días ♥</p>
 </div>
 
 <!-- Estadísticas Principales -->
 <div class="row g-3 stat-row">
-    <div class="col-md-2">
+    <div class="col-6 col-md-4 col-xl-2">
         <a href="{{ route('pedidos.index', ['fecha' => 'hoy']) }}" class="stat-card-link">
-            <div class="card stat-card" style="--accent: #c7436f;">
+            <div class="card stat-card" style="--accent: #d7234d; --accent-wave: #fce0e6;">
                 <div class="card-body text-center">
                     <div class="stat-icon" style="background: rgba(199,67,111,0.12); color: #c7436f;">
                         <i class="fas fa-receipt"></i>
@@ -81,9 +66,9 @@
         </a>
     </div>
 
-    <div class="col-md-2">
+    <div class="col-6 col-md-4 col-xl-2">
         <a href="{{ route('clientes.index') }}" class="stat-card-link">
-            <div class="card stat-card" style="--accent: #6c757d;">
+            <div class="card stat-card" style="--accent: #73716e; --accent-wave: #f6e9d8;">
                 <div class="card-body text-center">
                     <div class="stat-icon" style="background: rgba(108,117,125,0.12); color: #6c757d;">
                         <i class="fas fa-users"></i>
@@ -95,9 +80,9 @@
         </a>
     </div>
 
-    <div class="col-md-2">
+    <div class="col-6 col-md-4 col-xl-2">
         <a href="{{ route('ventas.index', ['desde' => now()->toDateString(), 'hasta' => now()->toDateString()]) }}" class="stat-card-link">
-            <div class="card stat-card" style="--accent: #d4a300;">
+            <div class="card stat-card" style="--accent: #ee9800; --accent-wave: #fff0cf;">
                 <div class="card-body text-center">
                     <div class="stat-icon" style="background: rgba(212,163,0,0.14); color: #d4a300;">
                         <i class="fas fa-coins"></i>
@@ -110,12 +95,12 @@
     </div>
 
     @if($esAdministrador)
-        <div class="col-md-2">
+        <div class="col-6 col-md-4 col-xl-2">
             <a href="{{ route('insumos.index', ['filter' => 'critico']) }}" class="stat-card-link">
-                <div class="card stat-card" style="--accent: #dc3545;">
+                <div class="card stat-card" style="--accent: #e22a41; --accent-wave: #ffe0e5;">
                     <div class="card-body text-center">
                         <div class="stat-icon" style="background: rgba(220,53,69,0.12); color: #dc3545;">
-                            <i class="fas fa-circle"></i>
+                        <i class="fas fa-circle-exclamation"></i>
                         </div>
                         <h3 class="stat-value" style="color: #dc3545;">{{ $stockCritico }}</h3>
                         <p class="stat-label">Stock Crítico</p>
@@ -124,9 +109,9 @@
             </a>
         </div>
     @else
-        <div class="col-md-2">
+        <div class="col-6 col-md-4 col-xl-2">
             <a href="{{ route('pedidos.index', ['estado' => 'Pendiente']) }}" class="stat-card-link">
-                <div class="card stat-card" style="--accent: #ffc107;">
+                <div class="card stat-card" style="--accent: #ffc107; --accent-wave: #fff3d9;">
                     <div class="card-body text-center">
                         <div class="stat-icon" style="background: rgba(255,193,7,0.16); color: #b77900;">
                             <i class="fas fa-hourglass-half"></i>
@@ -139,9 +124,9 @@
         </div>
     @endif
 
-    <div class="col-md-2">
+    <div class="col-6 col-md-4 col-xl-2">
         <a href="{{ route('pedidos.index', ['entrega' => 'hoy']) }}" class="stat-card-link">
-            <div class="card stat-card" style="--accent: #c7436f;">
+            <div class="card stat-card" style="--accent: #d93165; --accent-wave: #fce3eb;">
                 <div class="card-body text-center">
                     <div class="stat-icon" style="background: rgba(199,67,111,0.12); color: #c7436f;">
                         <i class="fas fa-cookie-bite"></i>
@@ -153,9 +138,9 @@
         </a>
     </div>
 
-    <div class="col-md-2">
+    <div class="col-6 col-md-4 col-xl-2">
         <a href="{{ route('pedidos.index', ['fecha' => 'semana']) }}" class="stat-card-link">
-            <div class="card stat-card" style="--accent: #198754;">
+            <div class="card stat-card" style="--accent: #1a9b67; --accent-wave: #d9f2e8;">
                 <div class="card-body text-center">
                     <div class="stat-icon" style="background: rgba(25,135,84,0.12); color: #198754;">
                         <i class="fas fa-calendar-week"></i>
@@ -197,15 +182,18 @@
 @endunless
 
 <!-- Productos más vendidos y Alertas -->
-<div class="row mt-4">
-    <div class="col-lg-8">
+<div class="row g-3 mt-1 dashboard-panels">
+    <div class="col-lg-7">
         <div class="card section-card">
             <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Productos más vendidos</h5>
             </div>
             <div class="card-body">
                 @if($productosMasVendidos->isEmpty())
-                    <p class="text-muted mb-0">Aún no hay productos vendidos en pedidos completados.</p>
+                    <div class="empty-state">
+                        <img src="{{ asset('images/queque-linea.svg') }}" alt="" aria-hidden="true">
+                        <p>Aún no hay productos vendidos en pedidos completados.</p>
+                    </div>
                 @else
                     <canvas id="chartProductosMasVendidos"></canvas>
                 @endif
@@ -213,7 +201,7 @@
         </div>
     </div>
 
-    <div class="col-lg-4">
+    <div class="col-lg-5">
         @if($esAdministrador)
             <div class="card section-card">
                 <div class="card-header">
@@ -221,7 +209,10 @@
                 </div>
                 <div class="card-body">
                     @if($stockCritico == 0 && $stockBajo == 0)
-                        <p class="text-muted mb-0">No hay alertas de stock por el momento.</p>
+                        <div class="empty-state">
+                            <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+                            <p>No hay alertas de stock por el momento.</p>
+                        </div>
                     @endif
 
                     @if($stockCritico > 0)
@@ -259,16 +250,17 @@
 </div>
 
 <!-- Pedidos Recientes -->
-<div class="row mt-4">
+<div class="row mt-3 recent-orders">
     <div class="col-12">
         <div class="card section-card">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="card-header" style="justify-content: space-between;">
                 <h5 class="mb-0"><i class="fas fa-clipboard-list"></i> Pedidos Recientes</h5>
-                <a href="{{ route('pedidos.index') }}" class="fw-semibold" style="color: #c7436f; font-size: 14px; text-decoration: none;">
+                <a href="{{ route('pedidos.index') }}" class="view-all">
                     Ver todos <i class="fas fa-chevron-right"></i>
                 </a>
             </div>
             <div class="card-body">
+                <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
@@ -306,11 +298,12 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted">No hay pedidos registrados</td>
+                            <td colspan="6"><div class="empty-state"><img src="{{ asset('images/queque-linea.svg') }}" alt="" aria-hidden="true"><p>No hay pedidos registrados.</p></div></td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>

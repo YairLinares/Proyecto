@@ -7,10 +7,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @font-face {
+            font-family: 'Lobster';
+            src: url('{{ asset('fonts/Lobster-Regular.ttf') }}') format('truetype');
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+        }
         :root {
-            --primary-color: #c7436f;
-            --secondary-color: #f5e6e0;
-            --dark-color: #5a3d4f;
+            --primary-color: #d51d3e;
+            --secondary-color: #fff0e6;
+            --dark-color: #571127;
         }
 
         * {
@@ -21,66 +28,67 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f6f4;
+            background-color: #fff9f3;
         }
 
+        .app-shell { display: flex; min-height: 100vh; }
+        .main-wrap { flex: 1; min-width: 0; }
+
         .sidebar {
-            background-color: #5a3d4f;
+            width: 268px;
+            flex: 0 0 268px;
+            background: linear-gradient(180deg, #4b0c20 0%, #591027 54%, #65182d 100%);
             color: white;
             min-height: 100vh;
-            padding: 18px 14px;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 18px 18px 26px;
             position: sticky;
             top: 0;
-            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-logo {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 9px;
-            margin-bottom: 26px;
-            padding: 4px 8px;
-            font-weight: 700;
-            font-size: 17px;
-            letter-spacing: 0;
+            gap: 0;
+            margin-bottom: 22px;
+            padding: 0 2px;
+            text-align: center;
         }
 
-        .sidebar-logo i {
-            display: grid;
-            width: 30px;
-            height: 30px;
-            place-items: center;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.12);
-            color: #ffd7a8;
-            font-size: 15px;
-        }
+        .sidebar-logo img { width: 132px; height: 132px; object-fit: contain; border-radius: 50%; }
+        .sidebar-logo-name { margin-top: -4px; color: #fff; font-family: 'Lobster', cursive; font-size: 31px; line-height: 1.1; white-space: nowrap; }
+        .sidebar-logo-tagline { margin-top: 5px; color: #ffe4dc; font-size: 11px; }
+        .sidebar-logo-tagline::before, .sidebar-logo-tagline::after { content: '—'; margin: 0 5px; color: #ef7d4f; }
+        .sidebar-toggle { display: none; }
 
         .sidebar-menu a {
             display: flex;
             align-items: center;
-            gap: 11px;
-            min-height: 42px;
-            padding: 9px 11px;
-            color: rgba(255, 255, 255, 0.82);
+            gap: 12px;
+            min-height: 43px;
+            padding: 10px 13px;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            border-radius: 6px;
-            margin-bottom: 3px;
-            font-size: .9rem;
+            border-radius: 10px;
+            margin-bottom: 2px;
+            font-size: .91rem;
             transition: background-color .16s ease, color .16s ease;
         }
 
         .sidebar-menu a i {
-            width: 17px;
+            width: 19px;
             text-align: center;
             color: rgba(255, 255, 255, 0.72);
         }
 
         .sidebar-menu a:hover,
         .sidebar-menu a.active {
-            background-color: var(--primary-color);
+            background: linear-gradient(100deg, #ed7233, #d53618);
             color: white;
-            box-shadow: inset 3px 0 0 #ffd7a8;
+            box-shadow: inset 3px 0 0 #ffd6a0, 0 5px 12px rgba(52, 0, 5, .14);
         }
 
         .sidebar-menu a:hover i,
@@ -89,11 +97,11 @@
         }
 
         .sidebar-section-title {
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.55);
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.64);
             text-transform: uppercase;
             letter-spacing: .35px;
-            margin: 22px 8px 8px;
+            margin: 22px 10px 8px;
             font-weight: 700;
         }
 
@@ -112,13 +120,21 @@
         }
 
         .topbar {
-            background-color: white;
-            padding: 15px 30px;
+            position: relative;
+            overflow: hidden;
+            min-height: 97px;
+            background: #fffdfa;
+            padding: 14px 26px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 12px rgba(120, 52, 39, 0.1);
         }
+        .topbar::after { content: ''; position: absolute; top: -20px; right: 170px; width: 250px; height: 145px; background: url('{{ asset('images/queque-linea.svg') }}') center/contain no-repeat; opacity: .38; pointer-events: none; }
+        .topbar > * { position: relative; z-index: 1; }
+        .topbar-brand { margin: 0; color: #570c25; font-family: 'Lobster', cursive; font-size: 38px; font-weight: 400; line-height: 1.05; }
+        .topbar-brand i { color: #e56824; font-size: 24px; margin-left: 6px; }
+        .topbar-date { display: block; margin-top: 3px; color: #87909e; font-size: 14px; }
 
         .topbar-right {
             display: flex;
@@ -136,7 +152,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, #b51e52, #dc4a71);
             color: white;
             display: flex;
             align-items: center;
@@ -145,8 +161,13 @@
         }
 
         .main-content {
-            padding: 30px;
+            min-height: calc(100vh - 97px);
+            padding: 23px 26px 40px;
+            background: #fffaf6;
         }
+        .main-content > .alert-success { display: flex; align-items: center; gap: 15px; min-height: 63px; border: 1px solid #aad5b8; background: #eaf5ec; color: #087249; box-shadow: 0 4px 14px rgba(71, 108, 70, .06); }
+        .main-content > .alert-success::before { content: '✓'; display: grid; flex: 0 0 27px; width: 27px; height: 27px; place-items: center; border-radius: 50%; background: #078454; color: white; font-weight: 700; }
+        .main-content > .alert-success .btn-close { margin-left: auto; }
 
         .page-header {
             margin-bottom: 30px;
@@ -264,16 +285,39 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(199, 67, 111, 0.25);
         }
+
+        @media (max-width: 991.98px) {
+            .app-shell { display: block; }
+            .sidebar { position: relative; width: 100%; height: auto; min-height: 0; padding: 12px 18px; overflow: visible; }
+            .sidebar-logo { flex-direction: row; justify-content: flex-start; gap: 10px; margin: 0; text-align: left; }
+            .sidebar-logo img { width: 54px; height: 54px; }
+            .sidebar-logo-name { margin: 0; font-size: 25px; }
+            .sidebar-logo-tagline { display: none; }
+            .sidebar-toggle { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-left: auto; border: 1px solid #bc7892; border-radius: 8px; background: transparent; color: white; }
+            .sidebar:not(.sidebar-open) > .sidebar-section-title, .sidebar:not(.sidebar-open) > .sidebar-menu { display: none; }
+            .topbar { min-height: 78px; }
+            .topbar::after { display: none; }
+        }
+        @media (max-width: 575.98px) {
+            .topbar { gap: 10px; padding: 12px 16px; }
+            .topbar-brand { font-size: 28px; }
+            .topbar-date { font-size: 11px; }
+            .topbar-right { gap: 11px; }
+            .user-info > div:last-child { display: none; }
+            .main-content { padding: 18px 14px 30px; }
+        }
     </style>
     @yield('styles')
 </head>
 <body>
-    <div class="d-flex">
+    <div class="app-shell">
         <!-- Sidebar -->
-        <div class="sidebar" style="width: 250px;">
+        <aside class="sidebar" id="appSidebar">
             <div class="sidebar-logo">
-                <i class="fas fa-cookie-bite"></i>
-                <span>Delicias Dulces</span>
+                <img src="{{ asset('images/logo-delicias-dulces.png') }}" alt="Logo de Delicias Dulces" width="132" height="132">
+                <span class="sidebar-logo-name">Delicias Dulces</span>
+                <span class="sidebar-logo-tagline">♥ Repostería con amor ♥</span>
+                <button class="sidebar-toggle" type="button" aria-controls="appSidebar" aria-expanded="false" aria-label="Abrir menú" onclick="const open = this.closest('.sidebar').classList.toggle('sidebar-open'); this.setAttribute('aria-expanded', String(open)); this.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');"><i class="fas fa-bars" aria-hidden="true"></i></button>
             </div>
 
             <div class="sidebar-section-title">Principal</div>
@@ -345,15 +389,15 @@
                     </button>
                 </form>
             </div>
-        </div>
+        </aside>
 
         <!-- Main Content -->
-        <div style="flex: 1;">
+        <div class="main-wrap">
             <!-- Topbar -->
             <div class="topbar">
                 <div>
-                    <h5 class="mb-0">Delicias Dulces 🧁</h5>
-                    <small class="text-muted">{{ ucfirst(now()->translatedFormat('l, d \d\e F \d\e Y')) }}</small>
+                    <h5 class="topbar-brand">Delicias Dulces <i class="fas fa-bread-slice" aria-hidden="true"></i></h5>
+                    <small class="topbar-date">{{ ucfirst(now()->translatedFormat('l, d \d\e F \d\e Y')) }}</small>
                 </div>
                 <div class="topbar-right">
                     <div class="dropdown">
