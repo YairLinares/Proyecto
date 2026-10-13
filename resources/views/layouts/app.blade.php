@@ -47,6 +47,18 @@
             top: 0;
             border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
+        .sidebar::after {
+            content: '';
+            position: absolute;
+            right: -27px;
+            bottom: -14px;
+            width: 270px;
+            height: 190px;
+            background: url('{{ asset('images/ilustraciones/queque-entero.png') }}') center/contain no-repeat;
+            opacity: .16;
+            pointer-events: none;
+        }
+        .sidebar-logo, .sidebar-section-title, .sidebar-menu { position: relative; z-index: 1; }
 
         .sidebar-logo {
             display: flex;
@@ -121,7 +133,7 @@
 
         .topbar {
             position: relative;
-            overflow: hidden;
+            z-index: 20;
             min-height: 97px;
             background: #fffdfa;
             padding: 14px 26px;
@@ -130,10 +142,10 @@
             align-items: center;
             box-shadow: 0 2px 12px rgba(120, 52, 39, 0.1);
         }
-        .topbar::after { content: ''; position: absolute; top: -20px; right: 170px; width: 250px; height: 145px; background: url('{{ asset('images/queque-linea.svg') }}') center/contain no-repeat; opacity: .38; pointer-events: none; }
+        .topbar::after { content: ''; position: absolute; top: 0; right: 180px; width: 310px; height: 100%; background: url('{{ asset('images/ilustraciones/queque-rebanado.png') }}') center 45%/280px auto no-repeat; opacity: .25; pointer-events: none; }
         .topbar > * { position: relative; z-index: 1; }
-        .topbar-brand { margin: 0; color: #570c25; font-family: 'Lobster', cursive; font-size: 38px; font-weight: 400; line-height: 1.05; }
-        .topbar-brand i { color: #e56824; font-size: 24px; margin-left: 6px; }
+        .topbar-brand { display: flex; align-items: center; margin: 0; color: #570c25; font-family: 'Lobster', cursive; font-size: 38px; font-weight: 400; line-height: 1.05; white-space: nowrap; }
+        .topbar-brand-cake { width: 112px; height: 43px; margin: -5px -12px -5px -5px; object-fit: contain; }
         .topbar-date { display: block; margin-top: 3px; color: #87909e; font-size: 14px; }
 
         .topbar-right {
@@ -165,8 +177,9 @@
             padding: 23px 26px 40px;
             background: #fffaf6;
         }
-        .main-content > .alert-success { display: flex; align-items: center; gap: 15px; min-height: 63px; border: 1px solid #aad5b8; background: #eaf5ec; color: #087249; box-shadow: 0 4px 14px rgba(71, 108, 70, .06); }
+        .main-content > .alert-success { display: flex; align-items: center; gap: 15px; min-height: 63px; border: 1px solid #aad5b8; background: #eaf5ec; color: #087249; box-shadow: 0 4px 14px rgba(71, 108, 70, .06); position: relative; overflow: hidden; }
         .main-content > .alert-success::before { content: '✓'; display: grid; flex: 0 0 27px; width: 27px; height: 27px; place-items: center; border-radius: 50%; background: #078454; color: white; font-weight: 700; }
+        .main-content > .alert-success::after { content: ''; position: absolute; right: 45px; top: -45px; width: 220px; height: 140px; background: url('{{ asset('images/ilustraciones/queque-entero.png') }}') center/contain no-repeat; opacity: .15; pointer-events: none; }
         .main-content > .alert-success .btn-close { margin-left: auto; }
 
         .page-header {
@@ -289,6 +302,7 @@
         @media (max-width: 991.98px) {
             .app-shell { display: block; }
             .sidebar { position: relative; width: 100%; height: auto; min-height: 0; padding: 12px 18px; overflow: visible; }
+            .sidebar::after { display: none; }
             .sidebar-logo { flex-direction: row; justify-content: flex-start; gap: 10px; margin: 0; text-align: left; }
             .sidebar-logo img { width: 54px; height: 54px; }
             .sidebar-logo-name { margin: 0; font-size: 25px; }
@@ -301,6 +315,7 @@
         @media (max-width: 575.98px) {
             .topbar { gap: 10px; padding: 12px 16px; }
             .topbar-brand { font-size: 28px; }
+            .topbar-brand-cake { width: 67px; height: 32px; margin-right: -8px; }
             .topbar-date { font-size: 11px; }
             .topbar-right { gap: 11px; }
             .user-info > div:last-child { display: none; }
@@ -396,7 +411,7 @@
             <!-- Topbar -->
             <div class="topbar">
                 <div>
-                    <h5 class="topbar-brand">Delicias Dulces <i class="fas fa-bread-slice" aria-hidden="true"></i></h5>
+                    <h5 class="topbar-brand">Delicias Dulces <img class="topbar-brand-cake" src="{{ asset('images/ilustraciones/queque-color.png') }}" alt="" aria-hidden="true"></h5>
                     <small class="topbar-date">{{ ucfirst(now()->translatedFormat('l, d \d\e F \d\e Y')) }}</small>
                 </div>
                 <div class="topbar-right">

@@ -4,6 +4,13 @@
 
 @section('styles')
 <style>
+    .dashboard-canvas { position: relative; isolation: isolate; }
+    .dashboard-canvas::before { content: ''; position: absolute; z-index: -1; inset: auto -26px -40px; height: 150px; background: radial-gradient(ellipse 52% 80% at 14% 100%, #fff0e2 0 58%, transparent 59%), radial-gradient(ellipse 48% 80% at 82% 100%, #fff0e2 0 58%, transparent 59%); pointer-events: none; }
+    .dashboard-corner-art { position: absolute; z-index: -1; right: -45px; bottom: -65px; width: 290px; max-width: 35vw; opacity: .28; pointer-events: none; }
+    .dashboard-welcome { position: relative; display: flex; align-items: center; gap: 15px; min-height: 66px; overflow: hidden; margin-bottom: 18px; border: 1px solid #aad5b8; background: #eaf5ec; color: #087249; box-shadow: 0 4px 14px rgba(71, 108, 70, .06); }
+    .dashboard-welcome::before { content: '✓'; display: grid; flex: 0 0 27px; width: 27px; height: 27px; place-items: center; border-radius: 50%; background: #078454; color: white; font-weight: 700; }
+    .dashboard-welcome::after { content: ''; position: absolute; right: 45px; top: -45px; width: 220px; height: 140px; background: url('{{ asset('images/ilustraciones/queque-entero.png') }}') center/contain no-repeat; opacity: .15; pointer-events: none; }
+    .dashboard-welcome .btn-close { margin-left: auto; }
     .dashboard-header { align-items: flex-end; margin-bottom: 23px; }
     .dashboard-header .page-title { position: relative; margin: 0; color: #550d25; font-size: 35px; font-weight: 800; }
     .dashboard-header .page-title::after { content: ''; display: block; width: 96px; height: 4px; margin-top: 5px; border-radius: 4px; background: linear-gradient(90deg, #d31b48 0 62%, #ed7538 62%); }
@@ -11,23 +18,28 @@
     .stat-card-link { display: block; height: 100%; color: inherit; text-decoration: none; }
     .stat-card { position: relative; overflow: hidden; height: 100%; min-height: 174px; margin-bottom: 0; border: 1px solid #f1e8e3; border-top: 3px solid var(--accent, #d62348); border-radius: 14px; box-shadow: 0 6px 16px rgba(91, 48, 40, .07); transition: transform .18s ease, box-shadow .18s ease; }
     .stat-card::after { content: ''; position: absolute; right: -12%; bottom: -35px; left: -12%; height: 60px; border-radius: 50% 50% 0 0; transform: rotate(-4deg); background: var(--accent-wave, #fae2e5); opacity: .85; }
+    .stat-card--pastry::before { content: ''; position: absolute; right: -8px; bottom: -6px; width: 82px; height: 62px; background: url('{{ asset('images/ilustraciones/queque-entero.png') }}') center/contain no-repeat; opacity: .32; pointer-events: none; }
     .stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(83, 29, 34, .14); }
     .stat-card .card-body { position: relative; z-index: 1; padding: 16px 8px 20px; }
-    .stat-icon { width: 59px; height: 59px; margin: 0 auto; display: grid; place-items: center; border-radius: 50%; font-size: 22px; }
+    .stat-icon { position: relative; width: 59px; height: 59px; margin: 0 auto; display: grid; place-items: center; border-radius: 50%; font-size: 22px; }
+    .stat-icon::after { content: ''; position: absolute; right: -22px; top: 13px; width: 19px; height: 3px; border-radius: 3px; background: currentColor; opacity: .35; transform: rotate(-34deg); }
     .stat-value { margin: 12px 0 0; font-size: 29px; font-weight: 800; line-height: 1.1; }
     .stat-label { margin: 4px 0 0; color: #67666f; font-size: 12px; text-transform: uppercase; letter-spacing: .3px; }
     .section-card { overflow: hidden; height: 100%; margin-bottom: 0; border: 1px solid #f0e6df; border-radius: 13px; box-shadow: 0 5px 18px rgba(107, 60, 38, .06); }
-    .section-card .card-header { display: flex; align-items: center; min-height: 51px; padding: 11px 17px; border-bottom: 1px solid #f2ddd0; background: #fff0e7; color: #540b24; font-weight: 700; }
+    .section-card .card-header { position: relative; display: flex; align-items: center; min-height: 51px; padding: 11px 17px; border-bottom: 1px solid #f2ddd0; background: #fff0e7; color: #540b24; font-weight: 700; }
+    .section-card .card-header::after { content: ''; position: absolute; right: 12px; top: -14px; width: 100px; height: 76px; background: url('{{ asset('images/ilustraciones/queque-rebanado.png') }}') center/contain no-repeat; opacity: .28; pointer-events: none; }
+    .section-card .card-header > * { position: relative; z-index: 1; }
     .section-card .card-header h5 { font-size: 19px; font-weight: 750; }
     .section-card .card-header i { margin-right: 6px; color: #dc2544; }
     .dashboard-panels .section-card .card-body { display: flex; align-items: center; justify-content: center; min-height: 146px; padding: 16px; }
     .dashboard-panels .section-card .card-body:has(.alert) { display: block; }
     .dashboard-panels canvas { width: 100% !important; max-height: 220px; }
     .empty-state { width: 100%; text-align: center; color: #858995; font-size: 14px; }
-    .empty-state img { display: block; width: 136px; height: 77px; margin: 0 auto 5px; object-fit: contain; }
+    .empty-state img { display: block; width: 180px; height: 100px; margin: -8px auto -5px; object-fit: contain; opacity: .68; }
     .empty-state i { display: block; margin-bottom: 13px; color: #d7ae97; font-size: 42px; }
     .empty-state p { margin: 0; }
     .recent-orders .card-body { padding: 0 18px 14px; }
+    .recent-orders .card-header::after { display: none; }
     .recent-orders .table { margin: 0; white-space: nowrap; }
     .recent-orders th { padding: 15px 10px 12px; border-bottom-color: #e8e9ea; color: #243047; font-size: 13px; }
     .recent-orders td { padding: 14px 10px; vertical-align: middle; }
@@ -36,7 +48,7 @@
     .view-all { color: #d31738; font-size: 14px; font-weight: 700; text-decoration: none; }
     .view-all:hover { color: #9c1230; text-decoration: underline; }
     @media (max-width: 991.98px) { .dashboard-motto { display: none; } }
-    @media (max-width: 575.98px) { .dashboard-header .page-title { font-size: 29px; } .stat-card { min-height: 155px; } .stat-icon { width: 48px; height: 48px; font-size: 19px; } .stat-value { font-size: 25px; } .section-card .card-header h5 { font-size: 17px; } }
+    @media (max-width: 575.98px) { .dashboard-header .page-title { font-size: 29px; } .stat-card { min-height: 155px; } .stat-icon { width: 48px; height: 48px; font-size: 19px; } .stat-value { font-size: 25px; } .section-card .card-header h5 { font-size: 17px; } .dashboard-corner-art { width: 180px; } }
 </style>
 @endsection
 
@@ -45,6 +57,13 @@
     $esAdministrador = Auth::user()->esAdministrador();
 @endphp
 
+<div class="dashboard-canvas">
+@unless(session('success'))
+    <div class="alert alert-success alert-dismissible fade show dashboard-welcome" role="status">
+        <strong>¡Bienvenido!</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+@endunless
 <div class="page-header dashboard-header">
     <h1 class="page-title">Dashboard</h1>
     <p class="dashboard-motto">Repostería que alegra tus días ♥</p>
@@ -54,7 +73,7 @@
 <div class="row g-3 stat-row">
     <div class="col-6 col-md-4 col-xl-2">
         <a href="{{ route('pedidos.index', ['fecha' => 'hoy']) }}" class="stat-card-link">
-            <div class="card stat-card" style="--accent: #d7234d; --accent-wave: #fce0e6;">
+            <div class="card stat-card stat-card--pastry" style="--accent: #d7234d; --accent-wave: #fce0e6;">
                 <div class="card-body text-center">
                     <div class="stat-icon" style="background: rgba(199,67,111,0.12); color: #c7436f;">
                         <i class="fas fa-receipt"></i>
@@ -126,7 +145,7 @@
 
     <div class="col-6 col-md-4 col-xl-2">
         <a href="{{ route('pedidos.index', ['entrega' => 'hoy']) }}" class="stat-card-link">
-            <div class="card stat-card" style="--accent: #d93165; --accent-wave: #fce3eb;">
+            <div class="card stat-card stat-card--pastry" style="--accent: #d93165; --accent-wave: #fce3eb;">
                 <div class="card-body text-center">
                     <div class="stat-icon" style="background: rgba(199,67,111,0.12); color: #c7436f;">
                         <i class="fas fa-cookie-bite"></i>
@@ -191,7 +210,7 @@
             <div class="card-body">
                 @if($productosMasVendidos->isEmpty())
                     <div class="empty-state">
-                        <img src="{{ asset('images/queque-linea.svg') }}" alt="" aria-hidden="true">
+                        <img src="{{ asset('images/ilustraciones/queque-entero.png') }}" alt="" aria-hidden="true">
                         <p>Aún no hay productos vendidos en pedidos completados.</p>
                     </div>
                 @else
@@ -298,7 +317,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6"><div class="empty-state"><img src="{{ asset('images/queque-linea.svg') }}" alt="" aria-hidden="true"><p>No hay pedidos registrados.</p></div></td>
+                            <td colspan="6"><div class="empty-state"><img src="{{ asset('images/ilustraciones/queque-entero.png') }}" alt="" aria-hidden="true"><p>No hay pedidos registrados.</p></div></td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -309,6 +328,8 @@
     </div>
 </div>
 
+<img class="dashboard-corner-art" src="{{ asset('images/ilustraciones/queque-rebanado.png') }}" alt="" aria-hidden="true">
+</div>
 @endsection
 
 @section('scripts')
