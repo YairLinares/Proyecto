@@ -14,8 +14,10 @@ use App\Http\Controllers\VentaController;
 use App\Http\Controllers\ReporteController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/login');
 });
+
+Route::view('/compartir', 'compartir')->name('compartir');
 
 // Rutas de Autenticación
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
