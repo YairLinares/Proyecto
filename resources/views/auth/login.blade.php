@@ -55,8 +55,8 @@
 <body>
     <main class="login-card">
         <div class="brand">
-            @if(is_file(public_path('images/logo-delicias-dulces.png')))
-                <img class="brand-logo" src="{{ asset('images/logo-delicias-dulces.png') }}" alt="Logo de Delicias Dulces" width="158" height="158">
+            @if(is_file(public_path('images/logo-delicias-dulces.webp')))
+                <img class="brand-logo" src="{{ asset('images/logo-delicias-dulces.webp') }}" alt="Logo de Delicias Dulces" width="158" height="158">
             @else
                 <div class="brand-placeholder" aria-hidden="true">DD</div>
             @endif

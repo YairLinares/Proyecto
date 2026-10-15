@@ -21,7 +21,7 @@ class PublicTunnelTest extends TestCase
         $this->get('http://localhost:8000/login')
             ->assertOk()
             ->assertSee('action="https://example.devtunnels.ms/login"', false)
-            ->assertSee('src="https://example.devtunnels.ms/images/logo-delicias-dulces.png"', false)
+            ->assertSee('src="https://example.devtunnels.ms/images/logo-delicias-dulces.webp"', false)
             ->assertDontSee('http://localhost:8000', false);
     }
 

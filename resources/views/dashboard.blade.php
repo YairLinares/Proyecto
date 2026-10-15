@@ -27,7 +27,7 @@
     .stat-label { margin: 4px 0 0; color: #67666f; font-size: 12px; text-transform: uppercase; letter-spacing: .3px; }
     .section-card { overflow: hidden; height: 100%; margin-bottom: 0; border: 1px solid #f0e6df; border-radius: 13px; box-shadow: 0 5px 18px rgba(107, 60, 38, .06); }
     .section-card .card-header { position: relative; display: flex; align-items: center; min-height: 51px; padding: 11px 17px; border-bottom: 1px solid #f2ddd0; background: #fff0e7; color: #540b24; font-weight: 700; }
-    .section-card .card-header::after { content: ''; position: absolute; right: 12px; top: -14px; width: 100px; height: 76px; background: url('{{ asset('images/ilustraciones/queque-rebanado.png') }}') center/contain no-repeat; opacity: .28; pointer-events: none; }
+    .section-card .card-header::after { content: ''; position: absolute; right: 12px; top: -14px; width: 100px; height: 76px; background: url('{{ asset('images/ilustraciones/queque-rebanado.webp') }}') center/contain no-repeat; opacity: .28; pointer-events: none; }
     .section-card .card-header > * { position: relative; z-index: 1; }
     .section-card .card-header h5 { font-size: 19px; font-weight: 750; }
     .section-card .card-header i { margin-right: 6px; color: #dc2544; }
@@ -328,7 +328,7 @@
     </div>
 </div>
 
-<img class="dashboard-corner-art" src="{{ asset('images/ilustraciones/queque-rebanado.png') }}" alt="" aria-hidden="true">
+<img class="dashboard-corner-art" src="{{ asset('images/ilustraciones/queque-rebanado.webp') }}" alt="" aria-hidden="true">
 </div>
 @endsection
 

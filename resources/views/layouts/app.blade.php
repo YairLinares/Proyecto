@@ -142,7 +142,7 @@
             align-items: center;
             box-shadow: 0 2px 12px rgba(120, 52, 39, 0.1);
         }
-        .topbar::after { content: ''; position: absolute; top: 0; right: 180px; width: 310px; height: 100%; background: url('{{ asset('images/ilustraciones/queque-rebanado.png') }}') center 45%/280px auto no-repeat; opacity: .25; pointer-events: none; }
+        .topbar::after { content: ''; position: absolute; top: 0; right: 180px; width: 310px; height: 100%; background: url('{{ asset('images/ilustraciones/queque-rebanado.webp') }}') center 45%/280px auto no-repeat; opacity: .25; pointer-events: none; }
         .topbar > * { position: relative; z-index: 1; }
         .topbar-brand { display: flex; align-items: center; margin: 0; color: #570c25; font-family: 'Lobster', cursive; font-size: 38px; font-weight: 400; line-height: 1.05; white-space: nowrap; }
         .topbar-brand-cake { width: 112px; height: 43px; margin: -5px -12px -5px -5px; object-fit: contain; }
@@ -329,7 +329,7 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="appSidebar">
             <div class="sidebar-logo">
-                <img src="{{ asset('images/logo-delicias-dulces.png') }}" alt="Logo de Delicias Dulces" width="132" height="132">
+                <img src="{{ asset('images/logo-delicias-dulces.webp') }}" alt="Logo de Delicias Dulces" width="132" height="132">
                 <span class="sidebar-logo-name">Delicias Dulces</span>
                 <span class="sidebar-logo-tagline">♥ Repostería con amor ♥</span>
                 <button class="sidebar-toggle" type="button" aria-controls="appSidebar" aria-expanded="false" aria-label="Abrir menú" onclick="const open = this.closest('.sidebar').classList.toggle('sidebar-open'); this.setAttribute('aria-expanded', String(open)); this.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');"><i class="fas fa-bars" aria-hidden="true"></i></button>
@@ -489,7 +489,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @if(request()->routeIs('dashboard', 'reportes.index'))
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @endif
     @yield('scripts')
 </body>
 </html>
