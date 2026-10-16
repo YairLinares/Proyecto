@@ -27,7 +27,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Rutas protegidas (requieren autenticación)
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\ExclusiveAdminSession::class])->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

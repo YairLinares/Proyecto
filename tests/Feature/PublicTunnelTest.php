@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\Providers\AppServiceProvider;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class PublicTunnelTest extends TestCase
 {
+    use RefreshDatabase;
     protected function setUp(): void
     {
         parent::setUp();
@@ -27,11 +29,11 @@ class PublicTunnelTest extends TestCase
 
     public function test_successful_login_redirects_to_public_dashboard(): void
     {
-        Auth::shouldReceive('attempt')->once()->andReturn(true);
+        $user = User::factory()->create(['cargo' => 'Empleado']);
 
         $this->post('http://localhost:8000/login', [
-            'email' => 'test@example.com',
-            'password' => 'test-password',
+            'email' => $user->email,
+            'password' => 'password',
         ])->assertRedirect('https://example.devtunnels.ms/dashboard');
     }
 }

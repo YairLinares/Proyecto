@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\AdminSessionLock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -29,6 +30,14 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            if ($request->user()->esAdministrador()
+                && ! app(AdminSessionLock::class)->acquire($request)) {
+                Auth::guard()->logoutCurrentDevice();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect()->route('login')
+                    ->withErrors(['email' => AdminSessionLock::MESSAGE]);
+            }
             return redirect()->route('dashboard')->with('success', '¡Bienvenido!');
         }
 
@@ -42,6 +51,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        app(AdminSessionLock::class)->release($request);
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
