@@ -63,4 +63,19 @@ class PermisosUsuariosTest extends TestCase
             $this->get('/'.$ruta)->assertRedirect(route('login'));
         }
     }
+
+    public function test_solo_administrador_ve_total_de_empleados_registrados(): void
+    {
+        $admin = User::factory()->create(['cargo' => 'Administrador']);
+        User::factory()->create(['cargo' => 'Administrador']);
+        $empleados = User::factory()->count(3)->create(['cargo' => 'Empleado']);
+
+        $this->actingAs($admin)->get('/dashboard')->assertOk()
+            ->assertViewHas('empleadosTotal', 3)
+            ->assertSee('Empleados registrados');
+
+        $this->actingAs($empleados->first())->get('/dashboard')->assertOk()
+            ->assertViewHas('empleadosTotal', null)
+            ->assertDontSee('Empleados registrados');
+    }
 }

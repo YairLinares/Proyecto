@@ -172,6 +172,22 @@
     </div>
 </div>
 
+@if($esAdministrador)
+<div class="row mt-4">
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="card section-card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-group" aria-hidden="true"></i> Empleados registrados</h5>
+            </div>
+            <div class="card-body">
+                <p class="stat-value" style="color: #c7436f;">{{ $empleadosTotal }}</p>
+                <p class="text-muted mb-0 mt-2">Total de cuentas con el cargo Empleado, estén conectadas o no.</p>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 @unless($esAdministrador)
 <div class="row mt-4">
     <div class="col-12">

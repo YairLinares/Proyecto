@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\Pedido;
 use App\Models\Insumo;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -22,6 +23,9 @@ class DashboardController extends Controller
         $pedidosHoy = Pedido::whereDate('created_at', today())->count();
 
         $clientesTotal = Cliente::count();
+        $empleadosTotal = auth()->user()->esAdministrador()
+            ? User::where('cargo', 'Empleado')->count()
+            : null;
 
         $ventasHoy = Pedido::whereDate('created_at', today())
             ->where('estado', 'Completado')
@@ -64,6 +68,7 @@ class DashboardController extends Controller
             'pedidosEnProceso',
             'pedidosHoy',
             'clientesTotal',
+            'empleadosTotal',
             'ventasHoy',
             'stockCritico',
             'stockBajo',
