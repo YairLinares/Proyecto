@@ -49,11 +49,8 @@ class PedidoController extends Controller
         }
 
         $pedidos = $query->latest()->paginate(10);
-        $totalPedidos = Pedido::count();
-        $pedidosActivos = Pedido::whereIn('estado', ['Pendiente', 'En proceso'])->count();
-        $clientesNuevos = Cliente::whereMonth('created_at', now()->month)->count();
 
-        return view('pedidos.index', compact('pedidos', 'totalPedidos', 'pedidosActivos', 'clientesNuevos', 'search', 'estado'));
+        return view('pedidos.index', compact('pedidos', 'search', 'estado'));
     }
 
     /**

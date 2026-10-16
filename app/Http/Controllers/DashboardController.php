@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use App\Models\Pedido;
-use App\Models\Producto;
 use App\Models\Insumo;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -17,18 +15,8 @@ class DashboardController extends Controller
     public function index()
     {
         // Estadísticas generales
-        $ventasDelMes = Pedido::whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->where('estado', 'Completado')
-            ->sum('total');
-
-        $pedidosActivos = Pedido::whereIn('estado', ['Pendiente', 'En proceso'])->count();
         $pedidosPendientes = Pedido::where('estado', 'Pendiente')->count();
         $pedidosEnProceso = Pedido::where('estado', 'En proceso')->count();
-
-        $clientesNuevos = Cliente::whereYear('created_at', now()->year)
-            ->whereMonth('created_at', now()->month)
-            ->count();
 
         // Tarjetas rápidas del día
         $pedidosHoy = Pedido::whereDate('created_at', today())->count();
@@ -55,22 +43,6 @@ class DashboardController extends Controller
             now()->endOfWeek(),
         ])->count();
 
-        // Producto con stock más crítico
-        // Ventas por día de la semana actual (Lun a Dom)
-        $inicioSemana = now()->startOfWeek();
-        $ventasSemanaRaw = Pedido::where('estado', 'Completado')
-            ->whereBetween('fecha_pedido', [$inicioSemana, now()->endOfWeek()])
-            ->selectRaw('DAYOFWEEK(fecha_pedido) as dia, SUM(total) as total')
-            ->groupBy('dia')
-            ->pluck('total', 'dia');
-
-        // DAYOFWEEK: 1=Domingo ... 7=Sábado, reordenamos Lun-Dom
-        $ventasSemana = [];
-        foreach (range(1, 7) as $i) {
-            $diaSql = $i === 7 ? 1 : $i + 1; // Lun(1)->2 ... Dom(7)->1
-            $ventasSemana[] = (float) ($ventasSemanaRaw[$diaSql] ?? 0);
-        }
-
         // Pedidos recientes
         $pedidosRecientes = Pedido::with(['cliente', 'detalles.producto'])
             ->latest()
@@ -87,15 +59,9 @@ class DashboardController extends Controller
             ->orderByDesc('cantidad')
             ->limit(5)
             ->get();
-
-        $insumosBajos = Insumo::where('estado', '!=', 'Normal')->count();
-
         return view('dashboard', compact(
-            'ventasDelMes',
-            'pedidosActivos',
             'pedidosPendientes',
             'pedidosEnProceso',
-            'clientesNuevos',
             'pedidosHoy',
             'clientesTotal',
             'ventasHoy',
@@ -103,10 +69,8 @@ class DashboardController extends Controller
             'stockBajo',
             'produccionHoy',
             'pedidosSemana',
-            'ventasSemana',
             'pedidosRecientes',
             'productosMasVendidos',
-            'insumosBajos'
         ));
     }
 }

@@ -28,7 +28,7 @@ class PermisosUsuariosTest extends TestCase
     {
         $this->actingAs(User::factory()->create(['cargo' => 'Administrador']));
 
-        foreach (['reportes', 'productos', 'insumos', 'categorias'] as $ruta) {
+        foreach (['dashboard', 'reportes', 'productos', 'insumos', 'categorias'] as $ruta) {
             $this->get('/'.$ruta)->assertOk();
         }
     }
@@ -37,7 +37,7 @@ class PermisosUsuariosTest extends TestCase
     {
         $this->actingAs(User::factory()->create(['cargo' => 'Empleado']));
 
-        foreach (['clientes', 'pedidos', 'ventas', 'perfil'] as $ruta) {
+        foreach (['dashboard', 'clientes', 'pedidos', 'ventas', 'perfil'] as $ruta) {
             $this->get('/'.$ruta)->assertOk()
                 ->assertDontSee('href="'.route('reportes.index').'"', false)
                 ->assertDontSee('href="'.route('insumos.index').'"', false);
