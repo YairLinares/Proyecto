@@ -8,13 +8,15 @@ use Illuminate\Support\Str;
 
 class AdminSessionLock
 {
+    protected const SLOT = 1;
+    protected const SESSION_KEY = 'admin_access_token';
     public const MESSAGE = 'El sistema ya está siendo utilizado por un administrador. Intenta nuevamente cuando cierre su sesión.';
 
     public function acquire(Request $request): bool
     {
-        $token = $request->session()->get('admin_access_token') ?? Str::random(64);
+        $token = $request->session()->get(static::SESSION_KEY) ?? Str::random(64);
         $accepted = DB::transaction(function () use ($request, $token) {
-            $lock = DB::table('admin_session_lock')->where('id', 1)->lockForUpdate()->first();
+            $lock = DB::table('admin_session_lock')->where('id', static::SLOT)->lockForUpdate()->first();
             $cutoff = now()->timestamp - (int) config('session.lifetime') * 60;
             $ownsLock = $lock->token === $token && $lock->user_id === $request->user()->id;
 
@@ -22,7 +24,7 @@ class AdminSessionLock
                 return false;
             }
 
-            DB::table('admin_session_lock')->where('id', 1)->update([
+            DB::table('admin_session_lock')->where('id', static::SLOT)->update([
                 'user_id' => $request->user()->id,
                 'token' => $token,
                 'last_activity' => now()->timestamp,
@@ -31,17 +33,17 @@ class AdminSessionLock
         });
 
         if ($accepted) {
-            $request->session()->put('admin_access_token', $token);
+            $request->session()->put(static::SESSION_KEY, $token);
         }
         return $accepted;
     }
 
     public function release(Request $request): void
     {
-        if ($token = $request->session()->get('admin_access_token')) {
-            DB::table('admin_session_lock')->where('id', 1)->where('token', $token)
+        if ($token = $request->session()->get(static::SESSION_KEY)) {
+            DB::table('admin_session_lock')->where('id', static::SLOT)->where('token', $token)
                 ->update(['user_id' => null, 'token' => null, 'last_activity' => 0]);
-            $request->session()->forget('admin_access_token');
+            $request->session()->forget(static::SESSION_KEY);
         }
     }
 }
