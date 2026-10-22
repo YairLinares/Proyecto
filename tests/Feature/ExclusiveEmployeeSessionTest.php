@@ -31,6 +31,36 @@ class ExclusiveEmployeeSessionTest extends TestCase
         $this->assertDatabaseHas('admin_session_lock', ['id' => 2, 'token' => null]);
     }
 
+    public function test_abandoned_slot_expires_after_five_minutes(): void
+    {
+        $employee = User::factory()->create(['cargo' => 'Empleado']);
+        $this->occupy($employee, 301);
+        $this->post('/login', ['email' => $employee->email, 'password' => 'password'])
+            ->assertRedirect(route('dashboard'));
+        $this->assertAuthenticatedAs($employee);
+    }
+
+    public function test_missing_database_session_does_not_block_login(): void
+    {
+        config(['session.driver' => 'database']);
+        $employee = User::factory()->create(['cargo' => 'Empleado']);
+        $this->occupy($employee, 60);
+        DB::table('admin_session_lock')->where('id', 2)->update(['session_id' => 'deleted-session']);
+        $this->post('/login', ['email' => $employee->email, 'password' => 'password'])
+            ->assertRedirect(route('dashboard'));
+    }
+
+    public function test_login_in_progress_keeps_its_slot_before_session_is_saved(): void
+    {
+        config(['session.driver' => 'database']);
+        $employee = User::factory()->create(['cargo' => 'Empleado']);
+        $this->occupy($employee, 10);
+        DB::table('admin_session_lock')->where('id', 2)->update(['session_id' => 'pending-session']);
+        $this->post('/login', ['email' => $employee->email, 'password' => 'password'])
+            ->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }
+
     public function test_second_employee_is_blocked_without_displacing_first(): void
     {
         $first = User::factory()->create(['cargo' => 'Empleado']);
