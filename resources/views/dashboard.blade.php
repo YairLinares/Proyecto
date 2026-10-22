@@ -350,6 +350,16 @@
 
 @section('scripts')
 <script>
+    window.setTimeout(() => {
+        document.querySelectorAll('.dashboard-welcome, .main-content > .alert-success').forEach((message) => {
+            if (window.bootstrap?.Alert) {
+                bootstrap.Alert.getOrCreateInstance(message).close();
+            } else {
+                message.remove();
+            }
+        });
+    }, 6000);
+
     const chartProductos = document.getElementById('chartProductosMasVendidos');
     if (chartProductos) {
         new Chart(chartProductos, {
