@@ -61,7 +61,6 @@
                 <div class="brand-placeholder" aria-hidden="true">DD</div>
             @endif
             <h1>Delicias Dulces</h1>
-            <p>Sistema de gestión</p>
         </div>
 
         <h2>¡Bienvenido nuevamente!</h2>
