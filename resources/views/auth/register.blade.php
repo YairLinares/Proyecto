@@ -118,19 +118,21 @@
                     </div>
 
                     <div>
-                        <label class="form-label" for="telefono"><i class="fas fa-phone me-1"></i>Tel&eacute;fono</label>
+                        <label class="form-label" for="telefono"><i class="fas fa-mobile-screen-button me-1"></i>Celular del empleado <span class="text-danger">*</span></label>
                         <div class="input-wrap">
-                            <i class="fas fa-phone"></i>
-                            <input id="telefono" type="tel" class="form-control" name="telefono" value="{{ old('telefono') }}" autocomplete="tel">
+                            <i class="fas fa-mobile-screen-button"></i>
+                            <input id="telefono" type="tel" class="form-control @error('telefono') is-invalid @enderror" name="telefono" value="{{ old('telefono') }}" autocomplete="tel" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" placeholder="8 dígitos" required>
                         </div>
+                        @error('telefono')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
 
                     <div>
-                        <label class="form-label" for="ciudad"><i class="fas fa-location-dot me-1"></i>Ciudad</label>
+                        <label class="form-label" for="ciudad"><i class="fas fa-location-dot me-1"></i>Ciudad <span class="text-danger">*</span></label>
                         <div class="input-wrap">
                             <i class="fas fa-location-dot"></i>
-                            <input id="ciudad" type="text" class="form-control" name="ciudad" value="{{ old('ciudad') }}" autocomplete="address-level2">
+                            <input id="ciudad" type="text" class="form-control @error('ciudad') is-invalid @enderror" name="ciudad" value="{{ old('ciudad') }}" autocomplete="address-level2" maxlength="100" required>
                         </div>
+                        @error('ciudad')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                     </div>
 
                 </div>

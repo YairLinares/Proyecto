@@ -18,11 +18,12 @@
         <div class="card">
             <div class="card-header"><h5>Información</h5></div>
             <div class="card-body">
-                <p><strong>Stock Actual:</strong> {{ $insumo->stock_actual }} {{ $insumo->unidad }}</p>
+                <p><strong>Stock físico:</strong> {{ number_format($insumo->stock_actual, 2, ',', '.') }} {{ $insumo->unidad }}</p>
                 <p><strong>Apartado para pedidos:</strong> {{ number_format($insumo->reservas()->sum('cantidad'), 2, ',', '.') }} {{ $insumo->unidad }}</p>
                 <p><strong>Libre para nuevos pedidos:</strong> {{ number_format(max(0, $insumo->stockLibre()), 2, ',', '.') }} {{ $insumo->unidad }}</p>
                 <p><strong>Stock Mínimo:</strong> {{ $insumo->stock_minimo }}</p>
-                <p><strong>Precio Unitario:</strong> Bs {{ number_format($insumo->precio_unitario, 2, ',', '.') }}</p>
+                <p><strong>Precio unitario:</strong> Bs {{ number_format($insumo->precio_unitario, 2, ',', '.') }} / {{ $insumo->unidad }}</p>
+                <p><strong>Valor del stock físico:</strong> Bs {{ number_format($insumo->stock_actual * $insumo->precio_unitario, 2, ',', '.') }}</p>
                 <p><strong>Estado:</strong> <span class="badge badge-{{ $insumo->estado == 'Normal' ? 'completed' : 'pending' }}">{{ $insumo->estado }}</span></p>
             </div>
         </div>

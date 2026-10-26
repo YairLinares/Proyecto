@@ -79,8 +79,12 @@ class AuthController extends Controller
             'apellido' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8|confirmed',
-            'telefono' => 'nullable|string',
-            'ciudad' => 'nullable|string',
+            'telefono' => 'required|digits:8',
+            'ciudad' => 'required|string|max:100',
+        ], [
+            'telefono.required' => 'Ingresa el celular del empleado.',
+            'telefono.digits' => 'El celular del empleado debe tener 8 dígitos.',
+            'ciudad.required' => 'Ingresa la ciudad del empleado.',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);

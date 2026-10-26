@@ -62,7 +62,7 @@
             </div>
 
             <div>
-                <label class="form-label" for="stock_actual">Stock actual *</label>
+                <label class="form-label" for="stock_actual">Stock físico *</label>
                 <div class="input-group">
                     <input id="stock_actual" type="number" class="form-control @error('stock_actual') is-invalid @enderror" name="stock_actual" step="0.01" min="0" value="{{ old('stock_actual', 0) }}" required>
                     <span class="input-group-text unidad-label">Kg</span>
@@ -81,18 +81,18 @@
             </div>
 
             <div>
-                <label class="form-label" for="precio_unitario">Costo por <span class="unidad-label">Kg</span> *</label>
+                <label class="form-label" for="precio_unitario">Precio unitario (Bs por <span class="unidad-label">Kg</span>) *</label>
                 <div class="input-group">
                     <span class="input-group-text">Bs</span>
                     <input id="precio_unitario" type="number" class="form-control @error('precio_unitario') is-invalid @enderror" name="precio_unitario" step="0.01" min="0" value="{{ old('precio_unitario') }}" placeholder="Ej.: 8.00" required>
                     @error('precio_unitario')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
-                <small class="text-muted">El costo de una unidad de medida del insumo.</small>
+                <small class="text-muted">Ingresa el precio que pagas en tu ciudad. El sistema calculará el valor del stock físico.</small>
             </div>
         </div>
 
         <div class="insumo-summary">
-            <span><i class="fas fa-calculator me-1"></i> Valor inicial del inventario</span>
+            <span><i class="fas fa-calculator me-1"></i> Valor del stock físico (cantidad × precio unitario)</span>
             <strong id="valor_total">Bs 0,00</strong>
         </div>
 

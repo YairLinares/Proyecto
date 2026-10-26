@@ -17,7 +17,7 @@
 
     .insumos-table {
         margin-bottom: 0;
-        min-width: 900px;
+        min-width: 1050px;
         vertical-align: middle;
     }
 
@@ -207,7 +207,7 @@
     <div class="col-md-3">
         <div class="card">
             <div class="card-body">
-                <p class="text-muted mb-1">Valor en Inventario</p>
+                <p class="text-muted mb-1">Valor del stock físico</p>
                 <h3 class="mb-0" style="color: #198754;">Bs {{ number_format($valorInventario, 2, ',', '.') }}</h3>
             </div>
         </div>
@@ -244,7 +244,8 @@
                     <th>Nombre</th>
                     <th>Stock físico / libre</th>
                     <th>Unidad</th>
-                    <th>Precio Unitario</th>
+                    <th>Precio unitario (Bs)</th>
+                    <th>Valor del stock (Bs)</th>
                     <th>Usado en</th>
                     <th>Estado</th>
                     <th>Acciones</th>
@@ -263,7 +264,8 @@
                     </td>
                     <td>{{ number_format($insumo->stock_actual, 2, ',', '.') }} / {{ number_format(max(0, $insumo->stockLibre()), 2, ',', '.') }}</td>
                     <td>{{ $insumo->unidad }}</td>
-                    <td>Bs {{ number_format($insumo->precio_unitario, 2, ',', '.') }}</td>
+                    <td>Bs {{ number_format($insumo->precio_unitario, 2, ',', '.') }} / {{ $insumo->unidad }}</td>
+                    <td>Bs {{ number_format($insumo->stock_actual * $insumo->precio_unitario, 2, ',', '.') }}</td>
                     <td>{{ $insumo->productos_count }} producto(s)</td>
                     <td>
                         <span class="badge {{ $insumo->estado == 'Normal' ? 'badge-completed' : ($insumo->estado == 'Stock bajo' ? 'badge-pending' : 'badge-cancelled') }}">
@@ -280,7 +282,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="7" class="text-center text-muted">No hay insumos registrados</td></tr>
+                <tr><td colspan="8" class="text-center text-muted">No hay insumos registrados</td></tr>
                 @endforelse
             </tbody>
         </table>
