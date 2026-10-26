@@ -37,7 +37,7 @@ class AuthController extends Controller
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
                 return redirect()->route('login')
-                    ->withErrors(['email' => $lock::MESSAGE]);
+                    ->withErrors(['username' => $lock::MESSAGE]);
             }
             return redirect()->route('dashboard')->with('success', '¡Bienvenido!');
         }

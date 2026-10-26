@@ -32,7 +32,7 @@ class PublicTunnelTest extends TestCase
         $user = User::factory()->create(['cargo' => 'Empleado']);
 
         $this->post('http://localhost:8000/login', [
-            'email' => $user->email,
+            'username' => $user->username,
             'password' => 'password',
         ])->assertRedirect('https://example.devtunnels.ms/dashboard');
     }

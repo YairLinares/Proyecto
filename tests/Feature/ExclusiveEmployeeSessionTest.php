@@ -22,7 +22,7 @@ class ExclusiveEmployeeSessionTest extends TestCase
     public function test_first_employee_can_login_and_logout_releases_access(): void
     {
         $admin = User::factory()->create(['cargo' => 'Empleado']);
-        $this->post('/login', ['email' => $admin->email, 'password' => 'password'])
+        $this->post('/login', ['username' => $admin->username, 'password' => 'password'])
             ->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($admin);
         $this->assertDatabaseHas('admin_session_lock', ['id' => 2, 'user_id' => $admin->id]);
@@ -35,7 +35,7 @@ class ExclusiveEmployeeSessionTest extends TestCase
     {
         $employee = User::factory()->create(['cargo' => 'Empleado']);
         $this->occupy($employee, 301);
-        $this->post('/login', ['email' => $employee->email, 'password' => 'password'])
+        $this->post('/login', ['username' => $employee->username, 'password' => 'password'])
             ->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($employee);
     }
@@ -46,7 +46,7 @@ class ExclusiveEmployeeSessionTest extends TestCase
         $employee = User::factory()->create(['cargo' => 'Empleado']);
         $this->occupy($employee, 60);
         DB::table('admin_session_lock')->where('id', 2)->update(['session_id' => 'deleted-session']);
-        $this->post('/login', ['email' => $employee->email, 'password' => 'password'])
+        $this->post('/login', ['username' => $employee->username, 'password' => 'password'])
             ->assertRedirect(route('dashboard'));
     }
 
@@ -56,8 +56,8 @@ class ExclusiveEmployeeSessionTest extends TestCase
         $employee = User::factory()->create(['cargo' => 'Empleado']);
         $this->occupy($employee, 10);
         DB::table('admin_session_lock')->where('id', 2)->update(['session_id' => 'pending-session']);
-        $this->post('/login', ['email' => $employee->email, 'password' => 'password'])
-            ->assertSessionHasErrors('email');
+        $this->post('/login', ['username' => $employee->username, 'password' => 'password'])
+            ->assertSessionHasErrors('username');
         $this->assertGuest();
     }
 
@@ -66,8 +66,8 @@ class ExclusiveEmployeeSessionTest extends TestCase
         $first = User::factory()->create(['cargo' => 'Empleado']);
         $second = User::factory()->create(['cargo' => 'Empleado']);
         $this->occupy($first);
-        $this->post('/login', ['email' => $second->email, 'password' => 'password'])
-            ->assertRedirect(route('login'))->assertSessionHasErrors('email');
+        $this->post('/login', ['username' => $second->username, 'password' => 'password'])
+            ->assertRedirect(route('login'))->assertSessionHasErrors('username');
         $this->assertGuest();
         $this->assertDatabaseHas('admin_session_lock', ['token' => 'another-device', 'user_id' => $first->id]);
     }
@@ -76,8 +76,8 @@ class ExclusiveEmployeeSessionTest extends TestCase
     {
         $admin = User::factory()->create(['cargo' => 'Empleado']);
         $this->occupy($admin);
-        $this->post('/login', ['email' => $admin->email, 'password' => 'password'])
-            ->assertSessionHasErrors('email');
+        $this->post('/login', ['username' => $admin->username, 'password' => 'password'])
+            ->assertSessionHasErrors('username');
         $this->assertGuest();
     }
 
@@ -85,7 +85,7 @@ class ExclusiveEmployeeSessionTest extends TestCase
     {
         $this->occupy(User::factory()->create(['cargo' => 'Empleado']));
         $employee = User::factory()->create(['cargo' => 'Administrador']);
-        $this->post('/login', ['email' => $employee->email, 'password' => 'password'])
+        $this->post('/login', ['username' => $employee->username, 'password' => 'password'])
             ->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($employee);
         $this->post('/logout');
@@ -97,7 +97,7 @@ class ExclusiveEmployeeSessionTest extends TestCase
         $first = User::factory()->create(['cargo' => 'Empleado']);
         $second = User::factory()->create(['cargo' => 'Empleado']);
         $this->occupy($first, (int) config('session.lifetime') * 60 + 1);
-        $this->post('/login', ['email' => $second->email, 'password' => 'password'])
+        $this->post('/login', ['username' => $second->username, 'password' => 'password'])
             ->assertRedirect(route('dashboard'));
         $this->actingAs($first)->withSession(['employee_access_token' => 'another-device'])
             ->get('/perfil')->assertRedirect(route('login'));

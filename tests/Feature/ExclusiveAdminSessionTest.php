@@ -22,7 +22,7 @@ class ExclusiveAdminSessionTest extends TestCase
     public function test_first_admin_can_login_and_logout_releases_access(): void
     {
         $admin = User::factory()->create(['cargo' => 'Administrador']);
-        $this->post('/login', ['email' => $admin->email, 'password' => 'password'])
+        $this->post('/login', ['username' => $admin->username, 'password' => 'password'])
             ->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($admin);
         $this->assertDatabaseHas('admin_session_lock', ['id' => 1, 'user_id' => $admin->id]);
@@ -36,8 +36,8 @@ class ExclusiveAdminSessionTest extends TestCase
         $first = User::factory()->create(['cargo' => 'Administrador']);
         $second = User::factory()->create(['cargo' => 'Administrador']);
         $this->occupy($first);
-        $this->post('/login', ['email' => $second->email, 'password' => 'password'])
-            ->assertRedirect(route('login'))->assertSessionHasErrors('email');
+        $this->post('/login', ['username' => $second->username, 'password' => 'password'])
+            ->assertRedirect(route('login'))->assertSessionHasErrors('username');
         $this->assertGuest();
         $this->assertDatabaseHas('admin_session_lock', ['token' => 'another-device', 'user_id' => $first->id]);
     }
@@ -46,8 +46,8 @@ class ExclusiveAdminSessionTest extends TestCase
     {
         $admin = User::factory()->create(['cargo' => 'Administrador']);
         $this->occupy($admin);
-        $this->post('/login', ['email' => $admin->email, 'password' => 'password'])
-            ->assertSessionHasErrors('email');
+        $this->post('/login', ['username' => $admin->username, 'password' => 'password'])
+            ->assertSessionHasErrors('username');
         $this->assertGuest();
     }
 
@@ -55,7 +55,7 @@ class ExclusiveAdminSessionTest extends TestCase
     {
         $this->occupy(User::factory()->create(['cargo' => 'Administrador']));
         $employee = User::factory()->create(['cargo' => 'Empleado']);
-        $this->post('/login', ['email' => $employee->email, 'password' => 'password'])
+        $this->post('/login', ['username' => $employee->username, 'password' => 'password'])
             ->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($employee);
         $this->post('/logout');
@@ -67,7 +67,7 @@ class ExclusiveAdminSessionTest extends TestCase
         $first = User::factory()->create(['cargo' => 'Administrador']);
         $second = User::factory()->create(['cargo' => 'Administrador']);
         $this->occupy($first, (int) config('session.lifetime') * 60 + 1);
-        $this->post('/login', ['email' => $second->email, 'password' => 'password'])
+        $this->post('/login', ['username' => $second->username, 'password' => 'password'])
             ->assertRedirect(route('dashboard'));
         $this->actingAs($first)->withSession(['admin_access_token' => 'another-device'])
             ->get('/perfil')->assertRedirect(route('login'));
