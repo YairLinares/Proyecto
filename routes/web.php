@@ -22,8 +22,6 @@ Route::view('/compartir', 'compartir')->name('compartir');
 // Rutas de Autenticación
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Rutas protegidas (requieren autenticación)
@@ -41,6 +39,8 @@ Route::middleware(['auth', \App\Http\Middleware\ExclusiveAdminSession::class])->
     Route::resource('clientes', ClienteController::class);
 
     Route::middleware('admin')->group(function () {
+        Route::get('/usuarios/nuevo', [AuthController::class, 'showRegister'])->name('register');
+        Route::post('/usuarios', [AuthController::class, 'register'])->name('usuarios.store');
         Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
         Route::get('/reportes/ventas.csv', [ReporteController::class, 'exportarVentas'])->name('reportes.ventas.csv');
         // Categorías

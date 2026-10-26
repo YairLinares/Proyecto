@@ -29,18 +29,18 @@
             <div class="card-body text-center">
                 <div class="perfil-avatar-wrap mb-3">
                     <div class="perfil-avatar">
-                        {{ strtoupper(substr($user->nombre, 0, 1)) }}{{ strtoupper(substr($user->apellido, 0, 1)) }}
+                        {{ strtoupper(substr($user->name, 0, 1)) }}
                     </div>
                     <div class="perfil-avatar-cam"><i class="fas fa-camera"></i></div>
                 </div>
-                <h4 class="mb-1">{{ $user->nombre }} {{ $user->apellido }}</h4>
+                <h4 class="mb-1">{{ $user->name }}</h4>
                 <p class="text-muted mb-0">{{ $user->cargo }}</p>
                 <span class="perfil-badge-activa"><i class="fas fa-check"></i> Cuenta Activa</span>
 
                 <hr>
 
                 <div class="text-start perfil-contacto">
-                    <p><i class="fas fa-envelope"></i> {{ $user->email }}</p>
+                    <p><i class="fas fa-user"></i> Usuario: {{ $user->username }}</p>
                     @if($user->telefono)
                         <p><i class="fas fa-phone"></i> {{ $user->telefono }}</p>
                     @endif
@@ -74,21 +74,21 @@
             </div>
             <div class="card-body">
                 @php
-                    $tieneErroresPerfil = $errors->hasAny(['nombre', 'apellido', 'email']);
+                    $tieneErroresPerfil = $errors->hasAny(['nombre', 'apellido', 'telefono', 'ciudad']);
                 @endphp
                 <div id="vistaPerfil" style="{{ $tieneErroresPerfil ? 'display: none;' : '' }}">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="info-label">Nombre</div>
-                            <div class="info-value">{{ $user->nombre }} {{ $user->apellido }}</div>
+                            <div class="info-value">{{ $user->name }}</div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="info-label">Rol</div>
                             <div class="info-value">{{ $user->cargo }}</div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <div class="info-label">Correo Electrónico</div>
-                            <div class="info-value">{{ $user->email }}</div>
+                            <div class="info-label">Usuario</div>
+                            <div class="info-value">{{ $user->username }}</div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="info-label">Teléfono</div>
@@ -124,17 +124,10 @@
                                 <div class="mb-3">
                                     <label class="form-label">Apellido</label>
                                     <input type="text" class="form-control @error('apellido') is-invalid @enderror"
-                                           name="apellido" value="{{ old('apellido', $user->apellido) }}" required>
+                                           name="apellido" value="{{ old('apellido', $user->apellido) }}">
                                     @error('apellido')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Correo Electrónico</label>
-                            <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                   name="email" value="{{ old('email', $user->email) }}" required>
-                            @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="row">
@@ -151,16 +144,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        @if($user->esAdministrador())
-                            <div class="mb-3">
-                                <label class="form-label">Cargo</label>
-                                <select class="form-select" name="cargo" required>
-                                    <option value="Administrador" {{ old('cargo', $user->cargo) == 'Administrador' ? 'selected' : '' }}>Administrador</option>
-                                    <option value="Empleado" {{ old('cargo', $user->cargo) == 'Empleado' ? 'selected' : '' }}>Empleado</option>
-                                </select>
-                            </div>
-                        @endif
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Cambios</button>

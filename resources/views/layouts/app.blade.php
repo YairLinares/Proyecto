@@ -367,6 +367,13 @@
             </div>
 
             @if(Auth::user()->esAdministrador())
+                <div class="sidebar-section-title">Administración</div>
+                <div class="sidebar-menu">
+                    <a href="{{ route('register') }}" class="@if(request()->routeIs('register')) active @endif">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Nuevo empleado</span>
+                    </a>
+                </div>
                 <div class="sidebar-menu">
                     <a href="{{ route('reportes.index') }}" class="@if(request()->routeIs('reportes.*')) active @endif">
                         <i class="fas fa-chart-bar"></i>

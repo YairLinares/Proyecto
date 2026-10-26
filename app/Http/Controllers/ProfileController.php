@@ -26,19 +26,12 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'apellido' => 'nullable|string|max:255',
             'telefono' => 'nullable|string|max:20',
             'ciudad' => 'nullable|string|max:255',
         ]);
 
-        if ($user->esAdministrador()) {
-            $validated += $request->validate([
-                'cargo' => 'required|in:Administrador,Empleado',
-            ]);
-        } else {
-            $validated['cargo'] = $user->cargo;
-        }
+        $validated['name'] = trim($validated['nombre'].' '.($validated['apellido'] ?? ''));
 
         $user->update($validated);
 

@@ -76,12 +76,12 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
             <div class="field">
-                <label for="email">Correo electrónico</label>
+                <label for="username">Usuario</label>
                 <div class="input-wrap">
-                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-                    <input id="email" name="email" type="email" value="{{ old('email') }}" placeholder="tu@correo.com" autocomplete="email" aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}" required autofocus>
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+                    <input id="username" name="username" type="text" value="{{ old('username') }}" placeholder="Tu usuario" autocomplete="username" aria-invalid="{{ $errors->has('username') ? 'true' : 'false' }}" required autofocus>
                 </div>
-                @error('email')<p class="field-error">{{ $message }}</p>@enderror
+                @error('username')<p class="field-error">{{ $message }}</p>@enderror
             </div>
             <div class="field">
                 <label for="password">Contraseña</label>
@@ -101,7 +101,6 @@
             <button class="submit" type="submit">Iniciar sesión <span aria-hidden="true">→</span></button>
         </form>
 
-        <p class="register-link">¿No tienes cuenta? <a href="{{ route('register') }}">Regístrate aquí</a></p>
     </main>
     <script>
         const toggle = document.querySelector('.show-password');

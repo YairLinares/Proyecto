@@ -40,7 +40,7 @@
         <header class="register-brand">
             <div class="register-brand__icon"><i class="fas fa-birthday-cake"></i></div>
             <h1>Delicias Dulces</h1>
-            <p>Crea una nueva cuenta</p>
+            <p>Crea una cuenta para un empleado</p>
         </header>
 
         <section class="register-form">
@@ -49,16 +49,27 @@
                     @foreach ($errors->all() as $error)<div>{{ $error }}</div>@endforeach
                 </div>
             @endif
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
 
-            <form method="POST" action="{{ route('register') }}">
+            <form method="POST" action="{{ route('usuarios.store') }}">
                 @csrf
 
                 <div class="form-grid">
+                    <div class="field--full">
+                        <label class="form-label" for="username"><i class="fas fa-user-tag me-1"></i>Usuario</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-user-tag"></i>
+                            <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" autocomplete="username" required autofocus>
+                        </div>
+                        @error('username')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
                     <div>
                         <label class="form-label" for="nombre"><i class="fas fa-user me-1"></i>Nombre</label>
                         <div class="input-wrap">
                             <i class="fas fa-user"></i>
-                            <input id="nombre" type="text" class="form-control @error('nombre') is-invalid @enderror" name="nombre" value="{{ old('nombre') }}" autocomplete="given-name" required autofocus>
+                            <input id="nombre" type="text" class="form-control @error('nombre') is-invalid @enderror" name="nombre" value="{{ old('nombre') }}" autocomplete="given-name" required>
                         </div>
                         @error('nombre')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
@@ -114,50 +125,13 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label class="form-label" for="cargo"><i class="fas fa-user-shield me-1"></i>Rol</label>
-                        <div class="input-wrap">
-                            <i class="fas fa-user-shield"></i>
-                            <select id="cargo" class="form-select @error('cargo') is-invalid @enderror" name="cargo" required>
-                                <option value="Empleado" {{ old('cargo', 'Empleado') == 'Empleado' ? 'selected' : '' }}>Empleado</option>
-                                <option value="Administrador" {{ old('cargo') == 'Administrador' ? 'selected' : '' }}>Administrador</option>
-                            </select>
-                        </div>
-                        @error('cargo')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-
-                    <div id="campoCodigoAdministrador" style="display: none;">
-                        <label class="form-label" for="codigo_administrador"><i class="fas fa-key me-1"></i>C&oacute;digo de autorizaci&oacute;n</label>
-                        <div class="input-wrap">
-                            <i class="fas fa-key"></i>
-                            <input id="codigo_administrador" type="text" class="form-control @error('codigo_administrador') is-invalid @enderror" name="codigo_administrador" value="{{ old('codigo_administrador') }}" autocomplete="off" placeholder="C&oacute;digo para crear administrador">
-                        </div>
-                        @error('codigo_administrador')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
                 </div>
 
                 <button type="submit" class="btn register-submit">Crear cuenta</button>
             </form>
         </section>
 
-        <footer class="register-footer">&iquest;Ya tienes cuenta? <a href="{{ route('login') }}">Inicia sesi&oacute;n</a></footer>
+        <footer class="register-footer">Las cuentas nuevas se crean como empleados.</footer>
     </main>
-    <script>
-        const selectorCargo = document.getElementById('cargo');
-        const campoCodigoAdministrador = document.getElementById('campoCodigoAdministrador');
-        const codigoAdministrador = document.getElementById('codigo_administrador');
-
-        function actualizarCampoAdministrador() {
-            const esAdministrador = selectorCargo.value === 'Administrador';
-            campoCodigoAdministrador.style.display = esAdministrador ? 'block' : 'none';
-            codigoAdministrador.required = esAdministrador;
-            if (!esAdministrador) {
-                codigoAdministrador.value = '';
-            }
-        }
-
-        selectorCargo.addEventListener('change', actualizarCampoAdministrador);
-        actualizarCampoAdministrador();
-    </script>
 </body>
 </html>
