@@ -14,7 +14,7 @@ class PermisosUsuariosTest extends TestCase
     {
         $this->actingAs(User::factory()->create(['cargo' => 'Empleado']));
 
-        foreach (['reportes', 'reportes/ventas.csv', 'productos', 'insumos', 'categorias'] as $ruta) {
+        foreach (['empleados', 'reportes', 'reportes/ventas.csv', 'productos', 'insumos', 'categorias'] as $ruta) {
             $this->get('/'.$ruta)->assertRedirect(route('dashboard'))
                 ->assertSessionHas('error');
         }
@@ -28,7 +28,7 @@ class PermisosUsuariosTest extends TestCase
     {
         $this->actingAs(User::factory()->create(['cargo' => 'Administrador']));
 
-        foreach (['dashboard', 'reportes', 'productos', 'insumos', 'categorias'] as $ruta) {
+        foreach (['dashboard', 'empleados', 'reportes', 'productos', 'insumos', 'categorias'] as $ruta) {
             $this->get('/'.$ruta)->assertOk();
         }
     }
@@ -59,23 +59,44 @@ class PermisosUsuariosTest extends TestCase
 
     public function test_visitante_necesita_iniciar_sesion(): void
     {
-        foreach (['dashboard', 'clientes', 'pedidos', 'ventas', 'reportes', 'perfil'] as $ruta) {
+        foreach (['dashboard', 'clientes', 'pedidos', 'ventas', 'reportes', 'perfil', 'empleados'] as $ruta) {
             $this->get('/'.$ruta)->assertRedirect(route('login'));
         }
     }
 
-    public function test_solo_administrador_ve_total_de_empleados_registrados(): void
+    public function test_administrador_ve_empleados_en_administracion_y_no_en_dashboard(): void
     {
         $admin = User::factory()->create(['cargo' => 'Administrador']);
-        User::factory()->create(['cargo' => 'Administrador']);
-        $empleados = User::factory()->count(3)->create(['cargo' => 'Empleado']);
+        $otroAdmin = User::factory()->create(['cargo' => 'Administrador', 'nombre' => 'Otra', 'apellido' => 'Administradora']);
+        $empleado = User::factory()->create([
+            'cargo' => 'Empleado',
+            'nombre' => 'Ana',
+            'apellido' => 'Flores',
+            'username' => 'ana_flores',
+            'email' => 'ana@example.com',
+            'telefono' => '12345678',
+            'ciudad' => 'La Paz',
+        ]);
 
         $this->actingAs($admin)->get('/dashboard')->assertOk()
-            ->assertViewHas('empleadosTotal', 3)
-            ->assertSee('Empleados registrados');
+            ->assertDontSee('Total de cuentas con el cargo Empleado');
 
-        $this->actingAs($empleados->first())->get('/dashboard')->assertOk()
-            ->assertViewHas('empleadosTotal', null)
-            ->assertDontSee('Empleados registrados');
+        $this->actingAs($admin)->get(route('empleados.index'))->assertOk()
+            ->assertViewHas('empleadosTotal', 1)
+            ->assertSee('Ana Flores')
+            ->assertSee('ana_flores')
+            ->assertSee('ana@example.com')
+            ->assertSee('12345678')
+            ->assertSee('La Paz')
+            ->assertDontSee('Otra Administradora');
+
+        $this->actingAs($admin)->get(route('empleados.index', ['buscar' => 'ana_flores']))->assertOk()
+            ->assertSee('Ana Flores');
+
+        $this->actingAs($admin)->get(route('empleados.index', ['buscar' => 'sin_coincidencia']))->assertOk()
+            ->assertDontSee('Ana Flores');
+
+        $this->actingAs($empleado)->get(route('empleados.index'))
+            ->assertRedirect(route('dashboard'));
     }
 }

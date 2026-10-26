@@ -65,6 +65,14 @@
                         </div>
                         @error('username')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
+                    <div class="field--full">
+                        <label class="form-label" for="rol"><i class="fas fa-user-shield me-1"></i>Rol</label>
+                        <div class="input-wrap">
+                            <i class="fas fa-user-shield"></i>
+                            <input id="rol" type="text" class="form-control" value="Empleado" readonly aria-describedby="rolAyuda">
+                        </div>
+                        <div id="rolAyuda" class="form-text">Esta cuenta tendrá acceso de empleado.</div>
+                    </div>
                     <div>
                         <label class="form-label" for="nombre"><i class="fas fa-user me-1"></i>Nombre</label>
                         <div class="input-wrap">
@@ -131,7 +139,10 @@
             </form>
         </section>
 
-        <footer class="register-footer">Las cuentas nuevas se crean como empleados.</footer>
+        <footer class="register-footer">
+            <div>Las cuentas nuevas se crean como empleados.</div>
+            <a href="{{ route('empleados.index') }}">Ver empleados registrados</a>
+        </footer>
     </main>
 </body>
 </html>

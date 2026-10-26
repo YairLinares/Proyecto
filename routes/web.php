@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\CategoriaController;
@@ -39,6 +40,7 @@ Route::middleware(['auth', \App\Http\Middleware\ExclusiveAdminSession::class])->
     Route::resource('clientes', ClienteController::class);
 
     Route::middleware('admin')->group(function () {
+        Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
         Route::get('/usuarios/nuevo', [AuthController::class, 'showRegister'])->name('register');
         Route::post('/usuarios', [AuthController::class, 'register'])->name('usuarios.store');
         Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');

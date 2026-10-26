@@ -369,6 +369,12 @@
             @if(Auth::user()->esAdministrador())
                 <div class="sidebar-section-title">Administración</div>
                 <div class="sidebar-menu">
+                    <a href="{{ route('empleados.index') }}" class="@if(request()->routeIs('empleados.*')) active @endif">
+                        <i class="fas fa-user-group"></i>
+                        <span>Empleados registrados</span>
+                    </a>
+                </div>
+                <div class="sidebar-menu">
                     <a href="{{ route('register') }}" class="@if(request()->routeIs('register')) active @endif">
                         <i class="fas fa-user-plus"></i>
                         <span>Nuevo empleado</span>
