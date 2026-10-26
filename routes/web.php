@@ -41,6 +41,7 @@ Route::middleware(['auth', \App\Http\Middleware\ExclusiveAdminSession::class])->
 
     Route::middleware('admin')->group(function () {
         Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
+        Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
         Route::get('/usuarios/nuevo', [AuthController::class, 'showRegister'])->name('register');
         Route::post('/usuarios', [AuthController::class, 'register'])->name('usuarios.store');
         Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');

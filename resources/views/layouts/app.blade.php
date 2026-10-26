@@ -450,7 +450,7 @@
                                         @if(!empty($notificacion['detalle']))
                                             <div class="text-muted" style="font-size: 12px;">{{ $notificacion['detalle'] }}</div>
                                         @endif
-                                        <small class="text-muted">{{ $notificacion['fecha']->diffForHumans() }}</small>
+                                        <small class="text-muted">{{ $notificacion['fecha_texto'] ?? $notificacion['fecha']->diffForHumans() }}</small>
                                     </div>
                                 </a>
                             @empty

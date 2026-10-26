@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Insumo;
+use App\Models\LoteInsumo;
 use App\Models\Pedido;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\URL;
@@ -31,6 +32,45 @@ class AppServiceProvider extends ServiceProvider
 
     private function obtenerNotificaciones()
     {
+        $lotesPorVencer = auth()->user()?->esAdministrador()
+            ? LoteInsumo::with('insumo')
+                ->where('cantidad', '>', 0)
+                ->whereDate('fecha_vencimiento', '>=', today())
+                ->whereDate('fecha_vencimiento', '<=', today()->addDays(7))
+                ->orderBy('fecha_vencimiento')
+                ->take(5)
+                ->get()
+                ->map(fn ($lote) => [
+                    'tipo' => 'vencimiento',
+                    'icono' => 'fa-clock',
+                    'color' => '#b77900',
+                    'titulo' => "Por vencer: {$lote->insumo->nombre} (lote {$lote->codigo})",
+                    'detalle' => 'Vence el '.$lote->fecha_vencimiento->format('d/m/Y').' · '.number_format((float) $lote->cantidad, 2, ',', '.').' '.$lote->insumo->unidad.' disponibles.',
+                    'url' => route('insumos.show', $lote->insumo),
+                    'fecha' => $lote->fecha_vencimiento,
+                    'fecha_texto' => $lote->fecha_vencimiento->isToday() ? 'Vence hoy' : 'Vence '.$lote->fecha_vencimiento->diffForHumans(),
+                ])
+            : collect();
+
+        $lotesVencidos = auth()->user()?->esAdministrador()
+            ? LoteInsumo::with('insumo')
+                ->where('cantidad', '>', 0)
+                ->whereDate('fecha_vencimiento', '<', today())
+                ->orderByDesc('fecha_vencimiento')
+                ->take(3)
+                ->get()
+                ->map(fn ($lote) => [
+                    'tipo' => 'vencido',
+                    'icono' => 'fa-triangle-exclamation',
+                    'color' => '#dc3545',
+                    'titulo' => "Lote vencido: {$lote->insumo->nombre} ({$lote->codigo})",
+                    'detalle' => 'Venció el '.$lote->fecha_vencimiento->format('d/m/Y').' · '.number_format((float) $lote->cantidad, 2, ',', '.').' '.$lote->insumo->unidad.' por retirar.',
+                    'url' => route('insumos.show', $lote->insumo),
+                    'fecha' => $lote->fecha_vencimiento,
+                    'fecha_texto' => 'Vencido',
+                ])
+            : collect();
+
         $stockCritico = auth()->user()?->esAdministrador()
             ? Insumo::whereColumn('stock_actual', '<=', 'stock_minimo')
                 ->latest('updated_at')
@@ -95,10 +135,10 @@ class AppServiceProvider extends ServiceProvider
                 ];
             });
 
-        return $stockCritico
+        return $lotesPorVencer
+            ->concat($lotesVencidos)
+            ->concat($stockCritico)
             ->concat($pedidos)
-            ->sortByDesc('fecha')
-            ->take(8)
             ->values();
     }
 }

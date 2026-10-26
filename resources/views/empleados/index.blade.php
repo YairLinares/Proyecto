@@ -54,6 +54,7 @@
                             <th scope="col">Ciudad</th>
                             <th scope="col">Rol</th>
                             <th scope="col">Registrado</th>
+                            <th scope="col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -66,10 +67,19 @@
                                 <td class="{{ $empleado->ciudad ? '' : 'dato-vacio' }}">{{ $empleado->ciudad ?: 'No registrada' }}</td>
                                 <td><span class="badge text-bg-light border">{{ $empleado->cargo }}</span></td>
                                 <td>{{ $empleado->created_at?->format('d/m/Y') ?? '—' }}</td>
+                                <td>
+                                    <form method="POST" action="{{ route('empleados.destroy', $empleado) }}" onsubmit="return confirm('¿Eliminar esta cuenta? Sus pedidos y movimientos se conservarán, pero dejarán de mostrar a este empleado como responsable. Esta acción no se puede deshacer.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Eliminar cuenta de {{ trim($empleado->nombre.' '.$empleado->apellido) ?: $empleado->name }}">
+                                            <i class="fas fa-trash-can me-1" aria-hidden="true"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
+                                <td colspan="8" class="text-center text-muted py-4">
                                     {{ $buscar !== '' ? 'No se encontraron empleados con esa búsqueda.' : 'Todavía no hay empleados registrados.' }}
                                 </td>
                             </tr>

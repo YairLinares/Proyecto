@@ -91,6 +91,30 @@ class LotesInsumoTest extends TestCase
         $this->assertEquals('2027-01-01', $i->lotes()->first()->fecha_vencimiento->format('Y-m-d'));
     }
 
+    public function test_administrador_recibe_alertas_de_lotes_por_vencer_y_vencidos(): void
+    {
+        $insumo = $this->insumo();
+        $this->entrada($insumo, 'HOY', today()->toDateString());
+        $this->entrada($insumo, 'PROXIMO', today()->addDays(7)->toDateString());
+        $this->entrada($insumo, 'VENCIDO', today()->subDay()->toDateString());
+        $this->entrada($insumo, 'FUTURO', today()->addDays(8)->toDateString());
+        $insumo->lotes()->create(['codigo' => 'SIN-STOCK', 'fecha_vencimiento' => today(), 'cantidad' => 0]);
+
+        $admin = User::factory()->create(['cargo' => 'Administrador']);
+        $this->actingAs($admin)->get(route('profile.show'))->assertOk()
+            ->assertSee('Por vencer: Harina (lote HOY)')
+            ->assertSee('Por vencer: Harina (lote PROXIMO)')
+            ->assertSee('Lote vencido: Harina (VENCIDO)')
+            ->assertSee('Vence el '.today()->addDays(7)->format('d/m/Y'))
+            ->assertDontSee('FUTURO')
+            ->assertDontSee('SIN-STOCK');
+
+        $empleado = User::factory()->create(['cargo' => 'Empleado']);
+        $this->actingAs($empleado)->get(route('profile.show'))->assertOk()
+            ->assertDontSee('Por vencer: Harina')
+            ->assertDontSee('Lote vencido: Harina');
+    }
+
     public function test_migracion_conserva_stock_preexistente(): void
     {
         $migration = require database_path('migrations/2026_09_15_000000_create_lotes_insumo.php');

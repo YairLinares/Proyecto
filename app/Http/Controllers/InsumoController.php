@@ -20,7 +20,9 @@ class InsumoController extends Controller
 
         $query = Insumo::query()->withCount('productos')->withCount([
             'lotes as lotes_vencidos' => fn ($q) => $q->where('cantidad', '>', 0)->whereDate('fecha_vencimiento', '<', today()),
-            'lotes as lotes_por_vencer' => fn ($q) => $q->where('cantidad', '>', 0)->whereBetween('fecha_vencimiento', [today()->toDateString(), today()->addDays(7)->toDateString()]),
+            'lotes as lotes_por_vencer' => fn ($q) => $q->where('cantidad', '>', 0)
+                ->whereDate('fecha_vencimiento', '>=', today())
+                ->whereDate('fecha_vencimiento', '<=', today()->addDays(7)),
         ]);
 
         if ($search) {

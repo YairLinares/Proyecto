@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class PermisosUsuariosTest extends TestCase
@@ -98,5 +99,39 @@ class PermisosUsuariosTest extends TestCase
 
         $this->actingAs($empleado)->get(route('empleados.index'))
             ->assertRedirect(route('dashboard'));
+    }
+
+    public function test_solo_administrador_puede_eliminar_cuentas_de_empleados(): void
+    {
+        $admin = User::factory()->create(['cargo' => 'Administrador']);
+        $empleado = User::factory()->create(['cargo' => 'Empleado']);
+        $otroEmpleado = User::factory()->create(['cargo' => 'Empleado']);
+
+        $this->actingAs($empleado)->delete(route('empleados.destroy', $otroEmpleado))
+            ->assertRedirect(route('dashboard'));
+        $this->assertDatabaseHas('users', ['id' => $otroEmpleado->id]);
+
+        $this->actingAs($admin)->delete(route('empleados.destroy', $admin))->assertNotFound();
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+
+        DB::table('sessions')->insert([
+            'id' => 'sesion-empleado',
+            'user_id' => $otroEmpleado->id,
+            'payload' => '',
+            'last_activity' => time(),
+        ]);
+        DB::table('admin_session_lock')->where('id', 2)->update([
+            'user_id' => $otroEmpleado->id,
+            'token' => 'sesion-empleado',
+            'last_activity' => time(),
+            'session_id' => 'sesion-empleado',
+        ]);
+
+        $this->actingAs($admin)->delete(route('empleados.destroy', $otroEmpleado))
+            ->assertRedirect(route('empleados.index'));
+
+        $this->assertDatabaseMissing('users', ['id' => $otroEmpleado->id]);
+        $this->assertDatabaseMissing('sessions', ['user_id' => $otroEmpleado->id]);
+        $this->assertDatabaseHas('admin_session_lock', ['id' => 2, 'user_id' => null]);
     }
 }
