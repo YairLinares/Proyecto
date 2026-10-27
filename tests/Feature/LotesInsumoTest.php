@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Insumo;
 use App\Models\MovimientoInsumo;
 use App\Models\User;
+use Database\Seeders\InsumosQuequeZanahoriaSeeder;
+use Database\Seeders\InventarioEjemploQuequeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -83,12 +85,40 @@ class LotesInsumoTest extends TestCase
         $this->entrada($i, 'PRUEBA', null);
         $user = User::factory()->create(['cargo' => 'Administrador']);
         $this->actingAs($user);
-        $this->get(route('insumos.index'))->assertOk();
-        $this->get(route('insumos.show', $i))->assertOk()->assertSee('PRUEBA');
-        $this->get(route('insumos.create'))->assertOk();
+        $this->get(route('insumos.index'))->assertOk()
+            ->assertSee('Precio unitario (Bs)')
+            ->assertSee('Bs 10,00 / Kg')
+            ->assertSee('Bs 50,00');
+        $this->get(route('insumos.show', $i))->assertOk()->assertSee('PRUEBA')
+            ->assertSee('Valor del stock físico:')
+            ->assertSee('Bs 50,00');
+        $this->get(route('insumos.create'))->assertOk()->assertSee('Stock físico');
+        $this->get(route('insumos.edit', $i))->assertOk()->assertSee('Valor del stock físico');
         $this->get(route('insumos.movimientos.create', $i))->assertOk();
         $this->patch(route('insumos.lotes.update', [$i, $i->lotes()->first()->id]), ['fecha_vencimiento' => '2027-01-01'])->assertRedirect();
         $this->assertEquals('2027-01-01', $i->lotes()->first()->fecha_vencimiento->format('Y-m-d'));
+    }
+
+    public function test_carga_de_ejemplo_conserva_stock_previo_y_no_se_duplica(): void
+    {
+        $this->seed(InsumosQuequeZanahoriaSeeder::class);
+        $harina = Insumo::where('nombre', 'Harina de Trigo')->firstOrFail();
+        $this->entrada($harina, 'LOTE-EXISTENTE', null, 0.87);
+
+        $this->seed(InventarioEjemploQuequeSeeder::class);
+        $this->seed(InventarioEjemploQuequeSeeder::class);
+
+        $this->assertEquals(2.87, $harina->fresh()->stock_actual);
+        $this->assertEquals(9, $harina->fresh()->precio_unitario);
+        $this->assertEquals(0.87, $harina->lotes()->where('codigo', 'LOTE-EXISTENTE')->firstOrFail()->cantidad);
+        $this->assertEquals(2, $harina->movimientos()->count());
+
+        $azucar = Insumo::where('nombre', 'Azúcar')->firstOrFail();
+        $this->assertEquals(2, $azucar->stock_actual);
+        $this->assertEquals(8, $azucar->precio_unitario);
+        $this->assertEquals(1, $azucar->movimientos()->count());
+        $this->assertEquals(12, Insumo::where('nombre', 'Huevos')->firstOrFail()->stock_actual);
+        $this->assertEquals(100, Insumo::where('nombre', 'Polvo de hornear')->firstOrFail()->stock_actual);
     }
 
     public function test_administrador_recibe_alertas_de_lotes_por_vencer_y_vencidos(): void

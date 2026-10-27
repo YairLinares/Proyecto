@@ -11,7 +11,9 @@
         * { box-sizing: border-box; }
         body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; background: #fff8fc; color: var(--ink); font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
         .register-card { width: min(100%, 640px); border: 1px solid #eef0f4; border-radius: 8px; background: #fff; box-shadow: 0 12px 32px rgba(44, 55, 78, .11); overflow: hidden; }
-        .register-brand { padding: 30px 32px 24px; border-bottom: 1px solid #eef0f4; text-align: center; }
+        .register-brand { position: relative; padding: 30px 32px 24px; border-bottom: 1px solid #eef0f4; text-align: center; }
+        .register-back { position: absolute; top: 20px; left: 20px; display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border-radius: 8px; color: var(--pink); font-size: .88rem; font-weight: 600; text-decoration: none; }
+        .register-back:hover, .register-back:focus-visible { background: #fff0f6; color: #c91853; }
         .register-brand__icon { display: inline-grid; width: 68px; height: 68px; place-items: center; border-radius: 20px; background: #fff0c7; color: var(--pink); font-size: 1.8rem; }
         .register-brand h1 { margin: 14px 0 4px; color: var(--ink); font-size: 1.55rem; font-weight: 700; }
         .register-brand p { margin: 0; color: var(--muted); font-size: .92rem; }
@@ -27,17 +29,15 @@
         .form-select:focus { border-color: var(--pink); box-shadow: 0 0 0 .2rem rgba(233, 30, 99, .12); }
         .register-submit { width: 100%; min-height: 48px; margin-top: 26px; border: 0; border-radius: 999px; background: var(--pink); box-shadow: 0 5px 12px rgba(233, 30, 99, .22); color: #fff; font-weight: 700; }
         .register-submit:hover { background: #c91853; color: #fff; }
-        .register-footer { padding: 18px 32px; border-top: 1px solid #eef0f4; color: var(--muted); font-size: .88rem; text-align: center; }
-        .register-footer a { color: var(--pink); font-weight: 700; text-decoration: none; }
-        .register-footer a:hover { text-decoration: underline; }
         .alert { border-radius: 8px; font-size: .9rem; }
         .invalid-feedback { margin-left: 12px; }
-        @media (max-width: 575px) { body { padding: 16px; } .register-brand, .register-form { padding-right: 20px; padding-left: 20px; } .register-footer { padding-right: 20px; padding-left: 20px; } .form-grid { grid-template-columns: 1fr; gap: 14px; } .field--full { grid-column: auto; } }
+        @media (max-width: 575px) { body { padding: 16px; } .register-brand, .register-form { padding-right: 20px; padding-left: 20px; } .form-grid { grid-template-columns: 1fr; gap: 14px; } .field--full { grid-column: auto; } }
     </style>
 </head>
 <body>
     <main class="register-card">
         <header class="register-brand">
+            <a class="register-back" href="{{ route('empleados.index') }}" aria-label="Volver a empleados"><i class="fas fa-arrow-left" aria-hidden="true"></i> Volver</a>
             <div class="register-brand__icon"><i class="fas fa-birthday-cake"></i></div>
             <h1>Delicias Dulces</h1>
             <p>Crea una cuenta para un empleado</p>
@@ -141,10 +141,6 @@
             </form>
         </section>
 
-        <footer class="register-footer">
-            <div>Las cuentas nuevas se crean como empleados.</div>
-            <a href="{{ route('empleados.index') }}">Ver empleados registrados</a>
-        </footer>
     </main>
 </body>
 </html>
