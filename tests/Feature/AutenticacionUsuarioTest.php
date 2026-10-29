@@ -30,7 +30,10 @@ class AutenticacionUsuarioTest extends TestCase
         $this->get('/register')->assertNotFound();
 
         $admin = User::factory()->create(['cargo' => 'Administrador']);
-        $this->actingAs($admin)->get(route('register'))->assertOk()
+        $this->actingAs($admin)->get(route('register'))
+            ->assertRedirect(route('empleados.index', ['nuevo' => 1]));
+        $this->get(route('empleados.index', ['nuevo' => 1]))->assertOk()
+            ->assertSee('data-bs-target="#nuevoEmpleado"', false)
             ->assertSee('Celular del empleado')
             ->assertSee('Ciudad');
 
@@ -43,7 +46,7 @@ class AutenticacionUsuarioTest extends TestCase
             'ciudad' => 'La Paz',
             'password' => 'contrasena-segura',
             'password_confirmation' => 'contrasena-segura',
-        ])->assertRedirect(route('register'));
+        ])->assertRedirect(route('empleados.index'));
 
         $this->assertDatabaseHas('users', [
             'username' => 'nuevo_empleado',
@@ -71,9 +74,41 @@ class AutenticacionUsuarioTest extends TestCase
         $this->assertDatabaseMissing('users', ['username' => 'sin_datos']);
     }
 
+    public function test_errores_del_registro_se_muestran_en_espanol(): void
+    {
+        $admin = User::factory()->create(['cargo' => 'Administrador']);
+        $existente = User::factory()->create(['cargo' => 'Empleado']);
+
+        $this->actingAs($admin)->from(route('empleados.index'))->post(route('usuarios.store'), [
+            'username' => $existente->username,
+            'nombre' => '',
+            'apellido' => 'Linares',
+            'email' => $existente->email,
+            'password' => 'corta',
+            'password_confirmation' => 'diferente',
+            'telefono' => '63324544',
+            'ciudad' => 'Santa Cruz',
+        ])->assertRedirect(route('empleados.index'))->assertSessionHasErrors([
+            'username' => 'Ese nombre de usuario ya está registrado. Elige otro.',
+            'email' => 'Ese correo electrónico ya está registrado. Usa otro.',
+            'nombre' => 'El campo nombre es obligatorio.',
+            'password' => 'El campo contraseña debe tener al menos 8 caracteres.',
+        ]);
+
+        $this->get(route('empleados.index'))->assertOk()
+            ->assertSee('Ese nombre de usuario ya está registrado. Elige otro.')
+            ->assertSee('bootstrap.Offcanvas.getOrCreateInstance', false)
+            ->assertSee('value="'.$existente->username.'"', false)
+            ->assertDontSee('The username has already been taken.');
+    }
+
     public function test_el_perfil_no_permite_cambiar_el_cargo(): void
     {
         $admin = User::factory()->create(['cargo' => 'Administrador']);
+
+        $this->actingAs($admin)->get(route('profile.show'))->assertOk()
+            ->assertSee('id="botonEditarPerfil"', false)
+            ->assertSee('action="'.route('profile.update').'"', false);
 
         $this->actingAs($admin)->put(route('profile.update'), [
             'nombre' => 'Lidia',

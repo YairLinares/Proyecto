@@ -15,7 +15,7 @@ class PermisosUsuariosTest extends TestCase
     {
         $this->actingAs(User::factory()->create(['cargo' => 'Empleado']));
 
-        foreach (['empleados', 'reportes', 'reportes/ventas.csv', 'productos', 'insumos', 'categorias'] as $ruta) {
+        foreach (['empleados', 'reportes', 'reportes/ventas.csv', 'productos', 'insumos', 'categorias', 'compartir'] as $ruta) {
             $this->get('/'.$ruta)->assertRedirect(route('dashboard'))
                 ->assertSessionHas('error');
         }
@@ -29,9 +29,11 @@ class PermisosUsuariosTest extends TestCase
     {
         $this->actingAs(User::factory()->create(['cargo' => 'Administrador']));
 
-        foreach (['dashboard', 'empleados', 'reportes', 'productos', 'insumos', 'categorias'] as $ruta) {
+        foreach (['dashboard', 'empleados', 'reportes', 'productos', 'insumos', 'categorias', 'compartir'] as $ruta) {
             $this->get('/'.$ruta)->assertOk();
         }
+
+        $this->get('/dashboard')->assertSee('href="'.route('compartir').'"', false);
     }
 
     public function test_empleado_puede_abrir_secciones_operativas_sin_menu_administrativo(): void
@@ -41,26 +43,36 @@ class PermisosUsuariosTest extends TestCase
         foreach (['dashboard', 'clientes', 'pedidos', 'ventas', 'perfil'] as $ruta) {
             $this->get('/'.$ruta)->assertOk()
                 ->assertDontSee('href="'.route('reportes.index').'"', false)
+                ->assertDontSee('href="'.route('compartir').'"', false)
                 ->assertDontSee('href="'.route('insumos.index').'"', false);
         }
     }
 
-    public function test_empleado_no_puede_ascender_desde_su_perfil(): void
+    public function test_empleado_consulta_su_perfil_pero_no_puede_editar_sus_datos(): void
     {
         $empleado = User::factory()->create(['cargo' => 'Empleado']);
+        $datosOriginales = $empleado->fresh()->getAttributes();
+
+        $this->actingAs($empleado)->get(route('profile.show'))->assertOk()
+            ->assertSee($empleado->username)
+            ->assertSee('Para corregir tus datos, contacta al administrador.')
+            ->assertDontSee('id="botonEditarPerfil"', false)
+            ->assertDontSee('action="'.route('profile.update').'"', false)
+            ->assertSee('action="'.route('profile.password').'"', false);
+
         $this->actingAs($empleado)->put('/perfil', [
             'nombre' => 'Yair',
             'apellido' => 'Prueba',
             'email' => $empleado->email,
             'cargo' => 'Administrador',
-        ])->assertSessionHasNoErrors();
+        ])->assertRedirect(route('dashboard'))->assertSessionHas('error');
 
-        $this->assertSame('Empleado', $empleado->fresh()->cargo);
+        $this->assertSame($datosOriginales, $empleado->fresh()->getAttributes());
     }
 
     public function test_visitante_necesita_iniciar_sesion(): void
     {
-        foreach (['dashboard', 'clientes', 'pedidos', 'ventas', 'reportes', 'perfil', 'empleados'] as $ruta) {
+        foreach (['dashboard', 'clientes', 'pedidos', 'ventas', 'reportes', 'perfil', 'empleados', 'compartir'] as $ruta) {
             $this->get('/'.$ruta)->assertRedirect(route('login'));
         }
     }

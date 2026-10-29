@@ -405,10 +405,12 @@
 
             <div class="sidebar-section-title">Cuenta</div>
             <div class="sidebar-menu">
+                @if(auth()->user()->esAdministrador())
                 <a href="{{ route('compartir') }}">
                     <i class="fas fa-qrcode"></i>
                     <span>Compartir sistema</span>
                 </a>
+                @endif
                 <a href="{{ route('profile.show') }}" class="@if(request()->routeIs('profile.*')) active @endif">
     <i class="fas fa-user-circle"></i>
     <span>Mi Perfil</span>

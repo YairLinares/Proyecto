@@ -65,7 +65,7 @@ class AuthController extends Controller
      */
     public function showRegister()
     {
-        return view('auth.register');
+        return redirect()->route('empleados.index', ['nuevo' => 1]);
     }
 
     /**
@@ -82,9 +82,26 @@ class AuthController extends Controller
             'telefono' => 'required|digits:8',
             'ciudad' => 'required|string|max:100',
         ], [
+            'required' => 'El campo :attribute es obligatorio.',
+            'string' => 'El campo :attribute debe ser texto.',
+            'min' => 'El campo :attribute debe tener al menos :min caracteres.',
+            'max' => 'El campo :attribute no debe superar los :max caracteres.',
+            'username.alpha_dash' => 'El usuario solo puede contener letras, números, guiones y guiones bajos.',
+            'username.unique' => 'Ese nombre de usuario ya está registrado. Elige otro.',
+            'email.email' => 'Ingresa un correo electrónico válido.',
+            'email.unique' => 'Ese correo electrónico ya está registrado. Usa otro.',
+            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
             'telefono.required' => 'Ingresa el celular del empleado.',
             'telefono.digits' => 'El celular del empleado debe tener 8 dígitos.',
             'ciudad.required' => 'Ingresa la ciudad del empleado.',
+        ], [
+            'username' => 'usuario',
+            'nombre' => 'nombre',
+            'apellido' => 'apellido',
+            'email' => 'correo electrónico',
+            'password' => 'contraseña',
+            'telefono' => 'celular del empleado',
+            'ciudad' => 'ciudad',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -93,6 +110,6 @@ class AuthController extends Controller
 
         User::create($validated);
 
-        return redirect()->route('register')->with('success', 'Empleado registrado correctamente.');
+        return redirect()->route('empleados.index')->with('success', 'Empleado registrado correctamente.');
     }
 }

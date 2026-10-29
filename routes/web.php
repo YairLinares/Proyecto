@@ -18,7 +18,6 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::view('/compartir', 'compartir')->name('compartir');
 
 // Rutas de Autenticación
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -33,13 +32,14 @@ Route::middleware(['auth', \App\Http\Middleware\ExclusiveAdminSession::class])->
 
     // Perfil
     Route::get('/perfil', [ProfileController::class, 'show'])->name('profile.show');
-    Route::put('/perfil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/perfil', [ProfileController::class, 'update'])->middleware('admin')->name('profile.update');
     Route::put('/perfil/contrasena', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
     // Clientes
     Route::resource('clientes', ClienteController::class);
 
     Route::middleware('admin')->group(function () {
+        Route::view('/compartir', 'compartir')->name('compartir');
         Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
         Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
         Route::get('/usuarios/nuevo', [AuthController::class, 'showRegister'])->name('register');

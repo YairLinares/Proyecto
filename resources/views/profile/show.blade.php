@@ -20,7 +20,7 @@
 <div class="page-header">
     <h1 class="page-title"><i class="fas fa-cog"></i> Mi Perfil</h1>
 </div>
-<p class="text-muted mb-4">Administra tu información personal</p>
+<p class="text-muted mb-4">{{ $user->esAdministrador() ? 'Administra tu información personal' : 'Consulta tu información personal. Para corregir tus datos, contacta al administrador.' }}</p>
 
 <div class="row">
     <!-- Tarjeta lateral con resumen -->
@@ -68,13 +68,15 @@
         <div class="card">
             <div class="card-header perfil-card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-user-edit"></i> Información Personal</h5>
+                @if($user->esAdministrador())
                 <button type="button" class="btn btn-outline-secondary pill-btn btn-sm" id="botonEditarPerfil" onclick="alternarEdicionPerfil()">
                     <i class="fas fa-pen"></i> Editar Perfil
                 </button>
+                @endif
             </div>
             <div class="card-body">
                 @php
-                    $tieneErroresPerfil = $errors->hasAny(['nombre', 'apellido', 'telefono', 'ciudad']);
+                    $tieneErroresPerfil = $user->esAdministrador() && $errors->hasAny(['nombre', 'apellido', 'telefono', 'ciudad']);
                 @endphp
                 <div id="vistaPerfil" style="{{ $tieneErroresPerfil ? 'display: none;' : '' }}">
                     <div class="row">
@@ -106,6 +108,7 @@
                 </div>
 
                 <!-- Formulario de edición -->
+                @if($user->esAdministrador())
                 <div id="formularioPerfil" style="{{ $tieneErroresPerfil ? '' : 'display: none;' }}">
                     <form method="POST" action="{{ route('profile.update') }}">
                         @csrf
@@ -151,6 +154,7 @@
                         </div>
                     </form>
                 </div>
+                @endif
             </div>
         </div>
 

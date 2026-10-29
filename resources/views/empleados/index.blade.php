@@ -12,6 +12,15 @@
     .empleados-card td { vertical-align: middle; }
     .empleados-card .nombre { color: #550d25; font-weight: 700; }
     .empleados-card .dato-vacio { color: #858995; }
+    #nuevoEmpleado { --bs-offcanvas-width: 540px; }
+    #nuevoEmpleado .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    #nuevoEmpleado .field--full { grid-column: 1 / -1; }
+    #nuevoEmpleado .input-wrap { position: relative; }
+    #nuevoEmpleado .input-wrap > i { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); color: #8794a9; }
+    #nuevoEmpleado .form-control { padding-left: 36px; }
+    #nuevoEmpleado .register-submit { width: 100%; margin-top: 24px; background: var(--primary-color); color: #fff; }
+    #nuevoEmpleado .invalid-feedback { display: block; }
+    @media (max-width: 575px) { #nuevoEmpleado .form-grid { grid-template-columns: 1fr; } }
 </style>
 @endsection
 
@@ -22,7 +31,7 @@
             <h1 class="page-title"><i class="fas fa-user-group" aria-hidden="true"></i> Empleados registrados</h1>
             <p class="text-muted mb-0">Consulta las cuentas de empleados del sistema.</p>
         </div>
-        <a href="{{ route('register') }}" class="btn btn-primary"><i class="fas fa-user-plus me-1" aria-hidden="true"></i> Nuevo empleado</a>
+        <button type="button" class="btn btn-primary" data-bs-toggle="offcanvas" data-bs-target="#nuevoEmpleado" aria-controls="nuevoEmpleado"><i class="fas fa-user-plus me-1" aria-hidden="true"></i> Nuevo empleado</button>
     </div>
 
     <div class="empleados-resumen d-inline-flex align-items-center gap-3 p-3 mb-4">
@@ -92,4 +101,30 @@
         </div>
     </div>
 </div>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="nuevoEmpleado" aria-labelledby="nuevoEmpleadoTitulo">
+    <div class="offcanvas-header border-bottom">
+        <div>
+            <h2 class="h5 mb-1" id="nuevoEmpleadoTitulo">Nuevo empleado</h2>
+            <p class="text-muted small mb-0">Crea una cuenta sin salir del listado.</p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body">
+        @if($errors->any())
+            <div class="alert alert-danger" role="alert">
+                @foreach($errors->all() as $error)<div>{{ $error }}</div>@endforeach
+            </div>
+        @endif
+        @include('empleados.formulario')
+        <button type="button" class="btn btn-outline-secondary w-100 mt-2" data-bs-dismiss="offcanvas">Cancelar</button>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+@if(request()->boolean('nuevo') || $errors->hasAny(['username', 'nombre', 'apellido', 'email', 'password', 'telefono', 'ciudad']))
+<script>
+    bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('nuevoEmpleado')).show();
+</script>
+@endif
 @endsection
