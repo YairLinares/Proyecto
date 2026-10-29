@@ -31,10 +31,10 @@ class ExclusiveEmployeeSessionTest extends TestCase
         $this->assertDatabaseHas('admin_session_lock', ['id' => 2, 'token' => null]);
     }
 
-    public function test_abandoned_slot_expires_after_five_minutes(): void
+    public function test_abandoned_slot_expires_after_one_minute(): void
     {
         $employee = User::factory()->create(['cargo' => 'Empleado']);
-        $this->occupy($employee, 301);
+        $this->occupy($employee, 60);
         $this->post('/login', ['username' => $employee->username, 'password' => 'password'])
             ->assertRedirect(route('dashboard'));
         $this->assertAuthenticatedAs($employee);

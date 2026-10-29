@@ -51,6 +51,29 @@ class ExclusiveAdminSessionTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_reservation_remains_exclusive_until_one_minute_of_inactivity(): void
+    {
+        $this->freezeTime();
+        $first = User::factory()->create(['cargo' => 'Administrador']);
+        $second = User::factory()->create(['cargo' => 'Administrador']);
+        $this->occupy($first, 59);
+
+        $this->post('/login', ['username' => $second->username, 'password' => 'password'])
+            ->assertSessionHasErrors('username');
+        $this->assertGuest();
+        $this->assertDatabaseHas('admin_session_lock', ['id' => 1, 'token' => 'another-device']);
+
+        $this->travel(1)->seconds();
+
+        $this->post('/login', ['username' => $second->username, 'password' => 'password'])
+            ->assertRedirect(route('dashboard'));
+        $this->assertAuthenticatedAs($second);
+
+        $this->actingAs($first)->withSession(['admin_access_token' => 'another-device'])
+            ->get('/perfil')->assertRedirect(route('login'));
+        $this->assertDatabaseHas('admin_session_lock', ['id' => 1, 'user_id' => $second->id]);
+    }
+
     public function test_employee_can_login_while_admin_is_active(): void
     {
         $this->occupy(User::factory()->create(['cargo' => 'Administrador']));

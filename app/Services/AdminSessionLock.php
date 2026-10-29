@@ -10,14 +10,14 @@ class AdminSessionLock
 {
     protected const SLOT = 1;
     protected const SESSION_KEY = 'admin_access_token';
-    public const MESSAGE = 'Hay una sesión de administrador reservada recientemente. Cierra la sesión anterior o espera 5 minutos sin actividad e intenta de nuevo.';
+    public const MESSAGE = 'Hay una sesión de administrador reservada recientemente. Cierra la sesión anterior o espera 1 minuto sin actividad e intenta de nuevo.';
 
     public function acquire(Request $request): bool
     {
         $token = $request->session()->get(static::SESSION_KEY) ?? Str::random(64);
         $accepted = DB::transaction(function () use ($request, $token) {
             $lock = DB::table('admin_session_lock')->where('id', static::SLOT)->lockForUpdate()->first();
-            $cutoff = now()->timestamp - min((int) config('session.lifetime'), (int) config('access.idle_minutes', 5)) * 60;
+            $cutoff = now()->timestamp - min((int) config('session.lifetime'), (int) config('access.idle_minutes', 1)) * 60;
             $ownsLock = $lock->token === $token && $lock->user_id === $request->user()->id;
 
             // La sesión se guarda al terminar la respuesta: respetar un margen
