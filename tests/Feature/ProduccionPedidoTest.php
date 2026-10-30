@@ -48,6 +48,43 @@ class ProduccionPedidoTest extends TestCase
         $this->patch(route('pedidos.cambiarEstado', $pedido), ['estado' => $estado])->assertRedirect();
     }
 
+    public function test_editar_muestra_la_fecha_de_entrega_guardada(): void
+    {
+        [$cliente, $producto] = $this->datos();
+        $pedido = $this->crearPedido($cliente, $producto);
+
+        $this->get(route('pedidos.edit', $pedido))->assertOk()
+            ->assertSee('name="fecha_entrega" value="'.today()->addDay()->format('Y-m-d').'"', false);
+    }
+
+    public function test_editar_pedido_rechaza_telefono_con_texto_y_acepta_solo_numeros(): void
+    {
+        [$cliente, $producto] = $this->datos();
+        $pedido = $this->crearPedido($cliente, $producto);
+        $datos = [
+            'cliente_id' => $cliente->id,
+            'tipo_pedido' => 'Predefinido',
+            'prioridad' => 'Normal',
+            'fecha_entrega' => today()->addDay()->toDateString(),
+            'direccion_entrega' => 'Casa',
+            'metodo_pago' => 'Efectivo',
+            'estado' => 'Pendiente',
+        ];
+
+        foreach (['texto', '6332abc44', '6332 4544', '+59163324544', '123.45'] as $telefono) {
+            $this->from(route('pedidos.edit', $pedido))
+                ->put(route('pedidos.update', $pedido), $datos + ['telefono_contacto' => $telefono])
+                ->assertSessionHasErrors([
+                    'telefono_contacto' => 'El teléfono de contacto debe contener solo números, sin espacios ni letras.',
+                ]);
+            $this->assertSame('123456', $pedido->fresh()->telefono_contacto);
+        }
+
+        $this->put(route('pedidos.update', $pedido), $datos + ['telefono_contacto' => '06332454'])
+            ->assertRedirect(route('pedidos.show', $pedido))->assertSessionHasNoErrors();
+        $this->assertSame('06332454', $pedido->fresh()->telefono_contacto);
+    }
+
     public function test_reserva_sin_consumir_y_consume_al_iniciar(): void
     {
         [$cliente, $producto, $insumo] = $this->datos();

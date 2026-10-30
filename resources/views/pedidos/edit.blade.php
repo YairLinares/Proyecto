@@ -53,7 +53,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Fecha Entrega *</label>
-                                <input type="date" class="form-control" name="fecha_entrega" value="{{ $pedido->fecha_entrega }}" required>
+                                <input type="date" class="form-control" name="fecha_entrega" value="{{ old('fecha_entrega', $pedido->fecha_entrega?->format('Y-m-d')) }}" required>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -80,7 +80,8 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Teléfono *</label>
-                                <input type="text" class="form-control" name="telefono_contacto" value="{{ $pedido->telefono_contacto }}" required>
+                                <input type="tel" class="form-control @error('telefono_contacto') is-invalid @enderror" name="telefono_contacto" value="{{ old('telefono_contacto', $pedido->telefono_contacto) }}" inputmode="numeric" pattern="[0-9]+" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                                @error('telefono_contacto')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
                     </div>

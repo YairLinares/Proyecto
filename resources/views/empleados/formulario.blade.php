@@ -1,86 +1,75 @@
-            <form method="POST" action="{{ route('usuarios.store') }}">
-                @csrf
-
-                <div class="form-grid">
-                    <div class="field--full">
-                        <label class="form-label" for="username"><i class="fas fa-user-tag me-1"></i>Usuario</label>
-                        <div class="input-wrap">
-                            <i class="fas fa-user-tag"></i>
-                            <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" autocomplete="username" required>
-                        </div>
-                        @error('username')<div class="invalid-feedback">{{ $message }}</div>@enderror
+<form id="crearEmpleadoForm" method="POST" action="{{ route('usuarios.store') }}">
+    @csrf
+    <fieldset class="empleado-seccion">
+        <legend><i class="fas fa-user" aria-hidden="true"></i> Datos personales</legend>
+        <div class="form-grid">
+            @foreach(['nombre' => ['Nombre', 'Ej. María', 'given-name'], 'apellido' => ['Apellido', 'Ej. Pérez', 'family-name']] as $campo => $datos)
+                <div>
+                    <label class="form-label" for="{{ $campo }}">{{ $datos[0] }} <span class="text-danger">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                        <input id="{{ $campo }}" type="text" class="form-control @error($campo) is-invalid @enderror" name="{{ $campo }}" value="{{ old($campo) }}" placeholder="{{ $datos[1] }}" autocomplete="{{ $datos[2] }}" maxlength="255" required>
                     </div>
-                    <div class="field--full">
-                        <label class="form-label" for="rol"><i class="fas fa-user-shield me-1"></i>Rol</label>
-                        <div class="input-wrap">
-                            <i class="fas fa-user-shield"></i>
-                            <input id="rol" type="text" class="form-control" value="Empleado" readonly aria-describedby="rolAyuda">
-                        </div>
-                        <div id="rolAyuda" class="form-text">Esta cuenta tendrá acceso de empleado.</div>
-                    </div>
-                    <div>
-                        <label class="form-label" for="nombre"><i class="fas fa-user me-1"></i>Nombre</label>
-                        <div class="input-wrap">
-                            <i class="fas fa-user"></i>
-                            <input id="nombre" type="text" class="form-control @error('nombre') is-invalid @enderror" name="nombre" value="{{ old('nombre') }}" autocomplete="given-name" required>
-                        </div>
-                        @error('nombre')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-
-                    <div>
-                        <label class="form-label" for="apellido"><i class="fas fa-user me-1"></i>Apellido</label>
-                        <div class="input-wrap">
-                            <i class="fas fa-user"></i>
-                            <input id="apellido" type="text" class="form-control @error('apellido') is-invalid @enderror" name="apellido" value="{{ old('apellido') }}" autocomplete="family-name" required>
-                        </div>
-                        @error('apellido')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-
-                    <div class="field--full">
-                        <label class="form-label" for="email"><i class="fas fa-envelope me-1"></i>Correo electr&oacute;nico</label>
-                        <div class="input-wrap">
-                            <i class="fas fa-envelope"></i>
-                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" autocomplete="email" required>
-                        </div>
-                        @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-
-                    <div>
-                        <label class="form-label" for="password"><i class="fas fa-lock me-1"></i>Contrase&ntilde;a</label>
-                        <div class="input-wrap">
-                            <i class="fas fa-key"></i>
-                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="new-password" required>
-                        </div>
-                        @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-
-                    <div>
-                        <label class="form-label" for="password_confirmation"><i class="fas fa-lock me-1"></i>Confirmar contrase&ntilde;a</label>
-                        <div class="input-wrap">
-                            <i class="fas fa-key"></i>
-                            <input id="password_confirmation" type="password" class="form-control" name="password_confirmation" autocomplete="new-password" required>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="form-label" for="telefono"><i class="fas fa-mobile-screen-button me-1"></i>Celular del empleado <span class="text-danger">*</span></label>
-                        <div class="input-wrap">
-                            <i class="fas fa-mobile-screen-button"></i>
-                            <input id="telefono" type="tel" class="form-control @error('telefono') is-invalid @enderror" name="telefono" value="{{ old('telefono') }}" autocomplete="tel" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" placeholder="8 dígitos" required>
-                        </div>
-                        @error('telefono')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                    </div>
-
-                    <div>
-                        <label class="form-label" for="ciudad"><i class="fas fa-location-dot me-1"></i>Ciudad <span class="text-danger">*</span></label>
-                        <div class="input-wrap">
-                            <i class="fas fa-location-dot"></i>
-                            <input id="ciudad" type="text" class="form-control @error('ciudad') is-invalid @enderror" name="ciudad" value="{{ old('ciudad') }}" autocomplete="address-level2" maxlength="100" required>
-                        </div>
-                        @error('ciudad')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                    </div>
-
+                    @error($campo)<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
-
-                <button type="submit" class="btn register-submit">Crear cuenta</button>
-            </form>
+            @endforeach
+            <div class="field--full">
+                <label class="form-label" for="email">Correo electrónico <span class="text-danger">*</span></label>
+                <div class="input-wrap">
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" placeholder="nombre@correo.com" autocomplete="email" required>
+                </div>
+                @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div>
+                <label class="form-label" for="telefono">Celular del empleado <span class="text-danger">*</span></label>
+                <div class="input-wrap">
+                    <i class="fas fa-mobile-screen-button" aria-hidden="true"></i>
+                    <input id="telefono" type="tel" class="form-control @error('telefono') is-invalid @enderror" name="telefono" value="{{ old('telefono') }}" autocomplete="tel" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" placeholder="Ej. 70000000" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                </div>
+                @error('telefono')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div>
+                <label class="form-label" for="ciudad">Ciudad <span class="text-danger">*</span></label>
+                <div class="input-wrap">
+                    <i class="fas fa-location-dot" aria-hidden="true"></i>
+                    <input id="ciudad" type="text" class="form-control" name="ciudad" value="Santa Cruz de la Sierra" readonly required>
+                </div>
+                @error('ciudad')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="empleado-seccion">
+        <legend><i class="fas fa-lock" aria-hidden="true"></i> Datos de acceso</legend>
+        <div class="form-grid">
+            <div class="field--full">
+                <label class="form-label" for="username">Nombre de usuario <span class="text-danger">*</span></label>
+                <div class="input-wrap">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" placeholder="Ej. maria_perez" autocomplete="off" minlength="3" maxlength="30" required>
+                </div>
+                @error('username')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div class="field--full">
+                <label class="form-label" for="rol">Rol</label>
+                <div class="input-wrap">
+                    <i class="fas fa-lock" aria-hidden="true"></i>
+                    <input id="rol" type="text" class="form-control" value="Empleado" readonly aria-describedby="rolAyuda">
+                </div>
+                <div id="rolAyuda" class="form-text">Acceso asignado para las funciones del empleado.</div>
+            </div>
+            @foreach(['password' => 'Contraseña', 'password_confirmation' => 'Confirmar contraseña'] as $campo => $etiqueta)
+                <div>
+                    <label class="form-label" for="{{ $campo }}">{{ $etiqueta }} <span class="text-danger">*</span></label>
+                    <div class="input-wrap password-wrap">
+                        <i class="fas fa-lock" aria-hidden="true"></i>
+                        <input id="{{ $campo }}" type="password" class="form-control @error($campo) is-invalid @enderror" name="{{ $campo }}" autocomplete="new-password" minlength="8" @if($campo === 'password') aria-describedby="passwordAyuda" @endif required>
+                        <button type="button" class="empleado-ver-password" data-password-target="{{ $campo }}" aria-label="Mostrar {{ mb_strtolower($etiqueta) }}" aria-pressed="false"><i class="fas fa-eye" aria-hidden="true"></i></button>
+                    </div>
+                    @if($campo === 'password')<div id="passwordAyuda" class="form-text">Usa al menos 8 caracteres.</div>@endif
+                    @error($campo)<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+            @endforeach
+        </div>
+    </fieldset>
+</form>

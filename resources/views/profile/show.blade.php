@@ -6,7 +6,6 @@
 <style>
     .perfil-avatar-wrap { position: relative; width: 90px; height: 90px; margin: 0 auto; }
     .perfil-avatar { width: 90px; height: 90px; border-radius: 22px; background: linear-gradient(135deg, #fbe0cf, #f6c9de); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; color: #c7436f; }
-    .perfil-avatar-cam { position: absolute; bottom: -6px; right: -6px; width: 30px; height: 30px; border-radius: 50%; background: var(--primary-color); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; border: 3px solid #fff; }
     .perfil-badge-activa { display: inline-block; margin-top: 8px; padding: 4px 14px; border-radius: 20px; background: #dcfce7; color: #15733a; font-size: 13px; font-weight: 600; }
     .perfil-contacto p { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #52617a; }
     .perfil-contacto i { color: var(--primary-color); width: 16px; }
@@ -29,9 +28,13 @@
             <div class="card-body text-center">
                 <div class="perfil-avatar-wrap mb-3">
                     <div class="perfil-avatar">
-                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                        @php
+                            $partesNombre = preg_split('/\s+/u', trim($user->name));
+                            $nombreAvatar = trim($user->nombre ?? '') ?: ($partesNombre[0] ?? '');
+                            $apellidoAvatar = trim($user->apellido ?? '') ?: ($partesNombre[1] ?? '');
+                        @endphp
+                        {{ mb_strtoupper(mb_substr($nombreAvatar, 0, 1).mb_substr($apellidoAvatar, 0, 1)) }}
                     </div>
-                    <div class="perfil-avatar-cam"><i class="fas fa-camera"></i></div>
                 </div>
                 <h4 class="mb-1">{{ $user->name }}</h4>
                 <p class="text-muted mb-0">{{ $user->cargo }}</p>
@@ -100,10 +103,12 @@
                             <div class="info-label">Ciudad</div>
                             <div class="info-value">{{ $user->ciudad ?: '—' }}</div>
                         </div>
+                        @if($user->esAdministrador())
                         <div class="col-12">
                             <div class="info-label">Emprendimiento</div>
                             <div class="info-value">Delicias Dulces</div>
                         </div>
+                        @endif
                     </div>
                 </div>
 

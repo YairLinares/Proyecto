@@ -88,6 +88,13 @@ class AppServiceProvider extends ServiceProvider
             : collect();
 
         $pedidos = Pedido::with(['cliente', 'detalles.producto'])
+            ->where(function ($query) {
+                $query->whereIn('estado', ['Pendiente', 'En proceso'])
+                    ->orWhere(function ($cerrados) {
+                        $cerrados->whereIn('estado', ['Completado', 'Cancelado'])
+                            ->whereBetween('updated_at', [today(), today()->endOfDay()]);
+                    });
+            })
             ->latest('updated_at')
             ->take(8)
             ->get()

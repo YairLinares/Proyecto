@@ -213,12 +213,16 @@ class PedidoController extends Controller
             'fecha_entrega' => 'required|date',
             'descripcion_especificaciones' => 'nullable|string',
             'direccion_entrega' => 'required|string',
-            'telefono_contacto' => 'required|string',
+            'telefono_contacto' => ['required', 'string', 'regex:/^[0-9]+$/D'],
             'metodo_pago' => 'required|in:Efectivo',
             'anticipo_recibido' => 'nullable|numeric|min:0',
             'descuento' => 'nullable|numeric|min:0',
             'costo_envio' => 'nullable|numeric|min:0',
             'estado' => 'required|in:Pendiente,En proceso,Completado,Cancelado',
+        ], [
+            'telefono_contacto.required' => 'Ingresa el teléfono de contacto.',
+            'telefono_contacto.string' => 'El teléfono de contacto debe contener solo números.',
+            'telefono_contacto.regex' => 'El teléfono de contacto debe contener solo números, sin espacios ni letras.',
         ]);
 
         if ($request->has('productos')) {
