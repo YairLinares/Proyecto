@@ -34,13 +34,10 @@
         .show-password:hover, .show-password:focus-visible { background: #fff0e6; color: var(--rojo); }
         .show-password svg { width: 22px; height: 22px; }
         .show-password[aria-pressed="true"] .eye-open, .show-password[aria-pressed="false"] .eye-closed { display: none; }
-        .form-options { display: flex; align-items: center; justify-content: space-between; margin: 2px 0 26px; }
-        .remember { display: inline-flex; align-items: center; gap: 9px; margin: 0; font-size: 14px; font-weight: 500; cursor: pointer; }
-        .remember input { width: 18px; height: 18px; margin: 0; accent-color: var(--naranja); cursor: pointer; }
         .submit { display: flex; align-items: center; justify-content: center; gap: 16px; width: 100%; min-height: 58px; border: 0; border-radius: 12px; background: linear-gradient(105deg, #ff8429, #d0173c); box-shadow: 0 10px 20px rgba(211, 55, 37, .19); color: #fff; font: inherit; font-size: 20px; font-weight: 700; cursor: pointer; }
         .submit span { font-size: 29px; line-height: 1; font-weight: 400; }
         .submit:hover { filter: brightness(.95); }
-        .submit:focus-visible, a:focus-visible, .remember input:focus-visible { outline: 3px solid #ffac72; outline-offset: 3px; }
+        .submit:focus-visible, a:focus-visible { outline: 3px solid #ffac72; outline-offset: 3px; }
         .message { margin: 18px 0; padding: 11px 13px; border-radius: 8px; font-size: 13px; line-height: 1.4; }
         .message--error { border: 1px solid #f1bcc4; background: #fff0f2; color: #8d2638; }
         .message--success { border: 1px solid #b9e4c0; background: #effaf0; color: #246a34; }
@@ -94,9 +91,6 @@
                     </button>
                 </div>
                 @error('password')<p class="field-error">{{ $message }}</p>@enderror
-            </div>
-            <div class="form-options">
-                <label class="remember" for="remember"><input id="remember" type="checkbox" name="remember" value="1" @checked(old('remember'))> Recordarme</label>
             </div>
             <button class="submit" type="submit">Iniciar sesión <span aria-hidden="true">→</span></button>
         </form>

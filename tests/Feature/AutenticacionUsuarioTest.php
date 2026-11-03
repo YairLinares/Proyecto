@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -11,18 +12,24 @@ class AutenticacionUsuarioTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_usuario_puede_iniciar_sesion_y_ser_recordado(): void
+    public function test_usuario_puede_iniciar_sesion_sin_recordatorio_persistente(): void
     {
+        $this->get(route('login'))->assertOk()
+            ->assertDontSee('name="remember"', false)
+            ->assertDontSee('Recordarme');
+
         $user = User::factory()->create([
             'username' => 'yairl',
             'password' => Hash::make('contrasena-segura'),
+            'remember_token' => null,
         ]);
 
         $this->post(route('login'), ['username' => 'yairl', 'password' => 'contrasena-segura', 'remember' => '1'])
-            ->assertRedirect(route('dashboard'));
+            ->assertRedirect(route('dashboard'))
+            ->assertCookieMissing(Auth::guard()->getRecallerName());
 
         $this->assertAuthenticatedAs($user);
-        $this->assertNotNull($user->fresh()->remember_token);
+        $this->assertNull($user->fresh()->remember_token);
     }
 
     public function test_registro_publico_no_esta_disponible_y_el_administrador_crea_empleados(): void

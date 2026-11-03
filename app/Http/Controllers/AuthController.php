@@ -29,7 +29,7 @@ class AuthController extends Controller
             'password' => 'required|min:6',
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             $lock = app($request->user()->esAdministrador() ? AdminSessionLock::class : EmployeeSessionLock::class);
             if (! $lock->acquire($request)) {
