@@ -43,9 +43,21 @@ class DashboardController extends Controller
             now()->endOfWeek(),
         ])->count();
 
-        // Pedidos recientes
+        // Entregas del mes actual y pedidos atrasados que siguen activos.
+        $inicioMes = today()->startOfMonth()->toDateString();
+        $inicioMesSiguiente = today()->startOfMonth()->addMonth()->toDateString();
         $pedidosRecientes = Pedido::with(['cliente', 'detalles.producto'])
+            ->where(function ($query) use ($inicioMes, $inicioMesSiguiente) {
+                $query->where(function ($mesActual) use ($inicioMes, $inicioMesSiguiente) {
+                    $mesActual->where('fecha_entrega', '>=', $inicioMes)
+                        ->where('fecha_entrega', '<', $inicioMesSiguiente);
+                })->orWhere(function ($atrasados) use ($inicioMes) {
+                    $atrasados->where('fecha_entrega', '<', $inicioMes)
+                        ->whereIn('estado', ['Pendiente', 'En proceso']);
+                });
+            })
             ->latest()
+            ->orderByDesc('id')
             ->take(5)
             ->get();
 

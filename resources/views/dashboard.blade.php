@@ -281,6 +281,7 @@
             <div class="card-body">
                 <div class="table-responsive">
                 <table class="table table-hover">
+                    <caption class="caption-top">Últimos 5 pedidos con entrega este mes o de meses anteriores que siguen pendientes o en proceso.</caption>
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -317,7 +318,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6"><div class="empty-state"><img src="{{ asset('images/ilustraciones/queque-entero.png') }}" alt="" aria-hidden="true"><p>No hay pedidos registrados.</p></div></td>
+                            <td colspan="6"><div class="empty-state"><img src="{{ asset('images/ilustraciones/queque-entero.png') }}" alt="" aria-hidden="true"><p>No hay pedidos con entrega este mes ni pedidos pendientes o en proceso de meses anteriores.</p></div></td>
                         </tr>
                         @endforelse
                     </tbody>
