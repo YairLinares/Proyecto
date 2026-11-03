@@ -72,7 +72,7 @@
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
-                        <a href="{{ route('insumos.show', $insumo) }}" class="btn btn-secondary">Cancelar</a>
+                        <a href="{{ route('insumos.index') }}" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </form>
             </div>

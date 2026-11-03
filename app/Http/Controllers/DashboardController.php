@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\Pedido;
 use App\Models\Insumo;
+use App\Models\LoteInsumo;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -32,6 +33,16 @@ class DashboardController extends Controller
         $stockBajo = Insumo::whereColumn('stock_actual', '>', 'stock_minimo')
             ->whereRaw('stock_actual <= stock_minimo * 1.2')
             ->count();
+
+        $lotesPorVencer = auth()->user()->esAdministrador()
+            ? LoteInsumo::with('insumo')
+                ->where('cantidad', '>', 0)
+                ->whereDate('fecha_vencimiento', '>=', today())
+                ->whereDate('fecha_vencimiento', '<=', today()->addDays(7))
+                ->orderBy('fecha_vencimiento')
+                ->orderBy('id')
+                ->get()
+            : collect();
 
         $produccionHoy = DB::table('detalles_pedidos')
             ->join('pedidos', 'detalles_pedidos.pedido_id', '=', 'pedidos.id')
@@ -61,16 +72,16 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Productos más vendidos, según las unidades de pedidos completados.
-        $productosMasVendidos = DB::table('productos')
+        // Producto líder por unidades vendidas en todo el historial completado.
+        $productoMasVendido = DB::table('productos')
             ->join('detalles_pedidos', 'productos.id', '=', 'detalles_pedidos.producto_id')
             ->join('pedidos', 'detalles_pedidos.pedido_id', '=', 'pedidos.id')
-            ->selectRaw('productos.nombre, SUM(detalles_pedidos.cantidad) as cantidad')
+            ->selectRaw('productos.id, productos.nombre, productos.imagen, SUM(detalles_pedidos.cantidad) as cantidad')
             ->where('pedidos.estado', 'Completado')
-            ->groupBy('productos.id', 'productos.nombre')
+            ->groupBy('productos.id', 'productos.nombre', 'productos.imagen')
             ->orderByDesc('cantidad')
-            ->limit(5)
-            ->get();
+            ->orderBy('productos.id')
+            ->first();
         return view('dashboard', compact(
             'pedidosPendientes',
             'pedidosEnProceso',
@@ -79,10 +90,11 @@ class DashboardController extends Controller
             'ventasHoy',
             'stockCritico',
             'stockBajo',
+            'lotesPorVencer',
             'produccionHoy',
             'pedidosSemana',
             'pedidosRecientes',
-            'productosMasVendidos',
+            'productoMasVendido',
         ));
     }
 }

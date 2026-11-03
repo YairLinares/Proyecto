@@ -92,7 +92,7 @@ class InsumoController extends Controller
             return $insumo;
         });
 
-        return redirect()->route('insumos.show', $insumo)->with('success', 'Insumo registrado correctamente.');
+        return redirect()->route('insumos.index')->with('success', 'Insumo registrado correctamente.');
     }
 
     /**
@@ -156,7 +156,7 @@ class InsumoController extends Controller
             }
         });
 
-        return redirect()->route('insumos.show', $insumo)->with('success', 'Insumo actualizado correctamente.');
+        return redirect()->route('insumos.index')->with('success', 'Insumo actualizado correctamente.');
     }
 
     /**

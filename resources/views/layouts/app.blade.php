@@ -428,7 +428,7 @@
         <!-- Main Content -->
         <div class="main-wrap">
             <!-- Topbar -->
-            <div class="topbar">
+            <div class="topbar {{ request()->routeIs('dashboard') ? 'dashboard-topbar' : '' }}">
                 <div>
                     <h5 class="topbar-brand">Delicias Dulces <img class="topbar-brand-cake" src="{{ asset('images/ilustraciones/queque-color.png') }}" alt="" aria-hidden="true"></h5>
                     <small class="topbar-date">{{ ucfirst(now()->translatedFormat('l, d \d\e F \d\e Y')) }}</small>
@@ -504,7 +504,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    @if(request()->routeIs('dashboard', 'reportes.index'))
+    @if(request()->routeIs('reportes.index'))
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @endif
     @yield('scripts')

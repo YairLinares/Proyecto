@@ -99,6 +99,38 @@ class LotesInsumoTest extends TestCase
         $this->assertEquals('2027-01-01', $i->lotes()->first()->fecha_vencimiento->format('Y-m-d'));
     }
 
+    public function test_crear_y_editar_insumo_regresa_al_listado_con_confirmacion(): void
+    {
+        $this->actingAs(User::factory()->create(['cargo' => 'Administrador']));
+        $datos = [
+            'nombre' => 'Harina de prueba',
+            'unidad' => 'Kg',
+            'stock_actual' => 5,
+            'stock_minimo' => 1,
+            'precio_unitario' => 8,
+        ];
+
+        $this->post(route('insumos.store'), $datos)
+            ->assertRedirect(route('insumos.index'))
+            ->assertSessionHas('success', 'Insumo registrado correctamente.');
+
+        $insumo = Insumo::where('nombre', $datos['nombre'])->firstOrFail();
+        $this->assertEquals(5, $insumo->stock_actual);
+        $this->assertEquals(5, $insumo->lotes()->sum('cantidad'));
+
+        $datos['stock_actual'] = 7;
+        $this->put(route('insumos.update', $insumo), $datos)
+            ->assertRedirect(route('insumos.index'))
+            ->assertSessionHas('success', 'Insumo actualizado correctamente.');
+
+        $this->get(route('insumos.index'))->assertOk()
+            ->assertSee('Insumo actualizado correctamente.')
+            ->assertSee($datos['nombre']);
+        $this->assertEquals(7, $insumo->fresh()->stock_actual);
+        $this->assertEquals(7, $insumo->lotes()->sum('cantidad'));
+        $this->get(route('insumos.show', $insumo))->assertOk()->assertSee('Lotes y caducidad');
+    }
+
     public function test_carga_de_ejemplo_conserva_stock_previo_y_no_se_duplica(): void
     {
         $this->seed(InsumosQuequeZanahoriaSeeder::class);
@@ -129,6 +161,7 @@ class LotesInsumoTest extends TestCase
         $this->entrada($insumo, 'VENCIDO', today()->subDay()->toDateString());
         $this->entrada($insumo, 'FUTURO', today()->addDays(8)->toDateString());
         $insumo->lotes()->create(['codigo' => 'SIN-STOCK', 'fecha_vencimiento' => today(), 'cantidad' => 0]);
+        $insumo->lotes()->create(['codigo' => 'SIN-FECHA', 'fecha_vencimiento' => null, 'cantidad' => 1]);
 
         $admin = User::factory()->create(['cargo' => 'Administrador']);
         $this->actingAs($admin)->get(route('profile.show'))->assertOk()
@@ -139,10 +172,22 @@ class LotesInsumoTest extends TestCase
             ->assertDontSee('FUTURO')
             ->assertDontSee('SIN-STOCK');
 
+        $this->get(route('dashboard'))->assertOk()
+            ->assertViewHas('lotesPorVencer', fn ($lotes) => $lotes->pluck('codigo')->all() === ['HOY', 'PROXIMO'])
+            ->assertSee('Insumos por vencer')
+            ->assertSee('2 alertas')
+            ->assertSee('Vence hoy')
+            ->assertSee('Vence el '.today()->addDays(7)->format('d/m/Y'))
+            ->assertSee('href="'.route('insumos.show', $insumo).'"', false)
+            ->assertDontSee('No hay alertas de inventario por el momento.');
+
         $empleado = User::factory()->create(['cargo' => 'Empleado']);
         $this->actingAs($empleado)->get(route('profile.show'))->assertOk()
             ->assertDontSee('Por vencer: Harina')
             ->assertDontSee('Lote vencido: Harina');
+        $this->get(route('dashboard'))->assertOk()
+            ->assertViewHas('lotesPorVencer', fn ($lotes) => $lotes->isEmpty())
+            ->assertDontSee('Insumos por vencer');
     }
 
     public function test_migracion_conserva_stock_preexistente(): void
