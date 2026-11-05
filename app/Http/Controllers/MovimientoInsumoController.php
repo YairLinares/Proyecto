@@ -20,7 +20,7 @@ class MovimientoInsumoController extends Controller
     {
         $validated = $request->validate([
             'tipo' => 'required|in:Entrada,Salida,Ajuste',
-            'cantidad' => 'required|numeric|min:0',
+            'cantidad' => 'required|numeric|min:0|max:99999999.99|decimal:0,2',
             'motivo' => 'required|string|max:255',
             'codigo_lote' => 'nullable|string|max:100',
             'fecha_vencimiento' => 'nullable|date_format:Y-m-d',

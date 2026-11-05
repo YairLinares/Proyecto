@@ -19,6 +19,11 @@ class ProductoController extends Controller
      */
     public function index(Request $request)
     {
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+            'categoria' => 'nullable|integer|exists:categorias,id',
+            'page' => 'nullable|integer|min:1',
+        ]);
         $search = $request->get('search');
         $categoria = $request->get('categoria');
 
@@ -54,36 +59,39 @@ class ProductoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'categoria_id' => 'required|exists:categorias,id',
+            'categoria_id' => 'required|integer|exists:categorias,id',
             'nombre' => 'required|unique:productos|string|max:255',
-            'descripcion' => 'nullable|string',
-            'precio_venta' => 'required|numeric|min:0',
-            'tiempo_preparacion_dias' => 'required|integer|min:1',
+            'descripcion' => 'nullable|string|max:16000',
+            'precio_venta' => 'required|numeric|min:0|max:99999999.99|decimal:0,2',
+            'tiempo_preparacion_dias' => 'required|integer|min:1|max:2147483647',
             'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'insumos' => 'nullable|array',
-            'insumos.*' => 'nullable|numeric|min:0',
+            'insumos.*' => 'nullable|numeric|min:0|max:99999999.99|decimal:0,2',
         ]);
 
-        [, $costoProduccion] = $this->prepararReceta($validated['insumos'] ?? []);
+        [$receta, $costoProduccion] = $this->prepararReceta($validated['insumos'] ?? []);
         unset($validated['insumos']);
         $validated['costo_produccion'] = $costoProduccion;
         $validated['stock_disponible'] = 0;
         $validated['stock_minimo'] = 0;
         $validated['unidad_medida'] = 'Unidad';
 
-        if ($request->hasFile('imagen')) {
-            $validated['imagen'] = $request->file('imagen')->store('productos', 'public');
+        $imagenNueva = $this->guardarImagen($request);
+        if ($imagenNueva) {
+            $validated['imagen'] = $imagenNueva;
         }
+        try {
+            $producto = DB::transaction(function () use ($validated, $receta) {
+                $producto = Producto::create($validated);
+                $producto->insumos()->sync($receta);
 
-        $producto = Producto::create($validated);
-
-        // Asociar insumos si se envían
-        if ($request->has('insumos')) {
-            foreach ($request->insumos as $insumoId => $cantidad) {
-                if ($cantidad > 0) {
-                    $producto->insumos()->attach($insumoId, ['cantidad_necesaria' => $cantidad]);
-                }
+                return $producto;
+            });
+        } catch (\Throwable $exception) {
+            if ($imagenNueva) {
+                Storage::disk('public')->delete($imagenNueva);
             }
+            throw $exception;
         }
 
         return redirect()->route('productos.show', $producto)->with('success', 'Producto creado correctamente.');
@@ -115,40 +123,42 @@ class ProductoController extends Controller
     public function update(Request $request, Producto $producto)
     {
         $validated = $request->validate([
-            'categoria_id' => 'required|exists:categorias,id',
+            'categoria_id' => 'required|integer|exists:categorias,id',
             'nombre' => 'required|unique:productos,nombre,' . $producto->id . '|string|max:255',
-            'descripcion' => 'nullable|string',
-            'precio_venta' => 'required|numeric|min:0',
-            'tiempo_preparacion_dias' => 'required|integer|min:1',
+            'descripcion' => 'nullable|string|max:16000',
+            'precio_venta' => 'required|numeric|min:0|max:99999999.99|decimal:0,2',
+            'tiempo_preparacion_dias' => 'required|integer|min:1|max:2147483647',
             'estado' => 'required|in:activo,inactivo',
             'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'insumos' => 'nullable|array',
-            'insumos.*' => 'nullable|numeric|min:0',
+            'insumos.*' => 'nullable|numeric|min:0|max:99999999.99|decimal:0,2',
         ]);
 
-        [, $costoProduccion] = $this->prepararReceta($validated['insumos'] ?? []);
+        [$receta, $costoProduccion] = $this->prepararReceta($validated['insumos'] ?? []);
         unset($validated['insumos']);
         $validated['costo_produccion'] = $costoProduccion;
         $validated['unidad_medida'] = 'Unidad';
 
-        if ($request->hasFile('imagen')) {
-            if ($producto->imagen) {
-                Storage::disk('public')->delete($producto->imagen);
-            }
-
-            $validated['imagen'] = $request->file('imagen')->store('productos', 'public');
+        $imagenAnterior = $producto->imagen;
+        $imagenNueva = $this->guardarImagen($request);
+        unset($validated['imagen']);
+        if ($imagenNueva) {
+            $validated['imagen'] = $imagenNueva;
         }
-
-        $producto->update($validated);
-
-        // Actualizar insumos
-        $producto->insumos()->detach();
-        if ($request->has('insumos')) {
-            foreach ($request->insumos as $insumoId => $cantidad) {
-                if ($cantidad > 0) {
-                    $producto->insumos()->attach($insumoId, ['cantidad_necesaria' => $cantidad]);
-                }
+        try {
+            DB::transaction(function () use ($producto, $validated, $receta) {
+                $producto = Producto::whereKey($producto->id)->lockForUpdate()->firstOrFail();
+                $producto->update($validated);
+                $producto->insumos()->sync($receta);
+            });
+        } catch (\Throwable $exception) {
+            if ($imagenNueva) {
+                Storage::disk('public')->delete($imagenNueva);
             }
+            throw $exception;
+        }
+        if ($imagenNueva && $imagenAnterior) {
+            Storage::disk('public')->delete($imagenAnterior);
         }
 
         return redirect()->route('productos.show', $producto)->with('success', 'Producto actualizado correctamente.');
@@ -207,6 +217,19 @@ class ProductoController extends Controller
         return redirect()->route('productos.index')->with('success', 'Producto eliminado correctamente.');
     }
 
+    private function guardarImagen(Request $request): ?string
+    {
+        if (! $request->hasFile('imagen')) {
+            return null;
+        }
+        $ruta = $request->file('imagen')->store('productos', 'public');
+        if (! $ruta) {
+            throw ValidationException::withMessages(['imagen' => 'No se pudo guardar la imagen. Inténtalo nuevamente.']);
+        }
+
+        return $ruta;
+    }
+
     private function prepararReceta(array $cantidades): array
     {
         $cantidades = collect($cantidades)->filter(fn ($cantidad) => (float) $cantidad > 0);
@@ -233,6 +256,10 @@ class ProductoController extends Controller
             $cantidad = (float) $cantidad;
             $receta[$insumo->id] = ['cantidad_necesaria' => $cantidad];
             $costoProduccion += (float) $insumo->precio_unitario * $cantidad;
+        }
+
+        if (! is_finite($costoProduccion) || $costoProduccion > 99999999.99) {
+            throw ValidationException::withMessages(['insumos' => 'El costo de la receta supera el máximo permitido.']);
         }
 
         return [$receta, round($costoProduccion, 2)];

@@ -20,18 +20,27 @@ class PedidoController extends Controller
      */
     public function index(Request $request)
     {
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+            'estado' => 'nullable|in:todos,Pendiente,En proceso,Completado,Cancelado',
+            'fecha' => 'nullable|in:hoy,semana',
+            'entrega' => 'nullable|in:hoy',
+            'page' => 'nullable|integer|min:1',
+        ]);
         $search = $request->get('search');
-        $estado = $request->get('estado', 'todos');
+        $estado = $request->get('estado') ?? 'todos';
         $fecha = $request->get('fecha');
         $entrega = $request->get('entrega');
 
         $query = Pedido::with(['cliente', 'detalles.producto'])->withExists('movimientosInsumo');
 
         if ($search) {
-            $query->where('numero_pedido', 'like', "%$search%")
-                ->orWhereHas('cliente', function ($q) use ($search) {
-                    $q->where('nombre_completo', 'like', "%$search%");
-                });
+            $query->where(function ($busqueda) use ($search) {
+                $busqueda->where('numero_pedido', 'like', "%$search%")
+                    ->orWhereHas('cliente', function ($q) use ($search) {
+                        $q->where('nombre_completo', 'like', "%$search%");
+                    });
+            });
         }
 
         if ($estado != 'todos') {
@@ -70,19 +79,19 @@ class PedidoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'cliente_id' => 'required|exists:clientes,id',
+            'cliente_id' => 'required|integer|exists:clientes,id',
             'tipo_pedido' => 'required|in:Personalizado,Predefinido',
             'prioridad' => 'required|in:Bajo,Normal,Alto',
-            'fecha_entrega' => 'required|date|after_or_equal:today',
-            'descripcion_especificaciones' => 'nullable|string',
-            'direccion_entrega' => 'nullable|string',
-            'telefono_contacto' => 'nullable|string',
+            'fecha_entrega' => 'required|date_format:Y-m-d|after_or_equal:today',
+            'descripcion_especificaciones' => 'nullable|string|max:16000',
+            'direccion_entrega' => 'nullable|string|max:16000',
+            'telefono_contacto' => ['nullable', 'string', 'max:255', 'regex:/^[0-9]+$/D'],
             'metodo_pago' => 'required|in:Efectivo',
-            'anticipo_recibido' => 'nullable|numeric|min:0',
-            'descuento' => 'nullable|numeric|min:0',
-            'costo_envio' => 'nullable|numeric|min:0',
+            'anticipo_recibido' => 'nullable|numeric|min:0|max:99999999.99|decimal:0,2',
+            'descuento' => 'nullable|numeric|min:0|max:99999999.99|decimal:0,2',
+            'costo_envio' => 'nullable|numeric|min:0|max:99999999.99|decimal:0,2',
             'productos' => 'required|array|min:1',
-            'productos.*.cantidad' => 'required|integer|min:1',
+            'productos.*.cantidad' => 'required|integer|min:1|max:2147483647',
         ]);
 
         $cliente = Cliente::findOrFail($validated['cliente_id']);
@@ -109,6 +118,12 @@ class PedidoController extends Controller
         $validated['usuario_id'] = Auth::id();
         $validated['estado'] = 'Pendiente';
         $validated['insumos_reservados_at'] = now();
+
+        $subtotalPrevisto = 0;
+        foreach ($validated['productos'] as $productoId => $datos) {
+            $subtotalPrevisto += (float) $productos->get((int) $productoId)->precio_venta * (int) $datos['cantidad'];
+        }
+        $this->validarImportes($subtotalPrevisto, (float) $validated['costo_envio'], (float) $validated['descuento'], (float) $validated['anticipo_recibido']);
 
         $consumoPorInsumo = [];
         foreach ($validated['productos'] as $productoId => $datos) {
@@ -207,17 +222,17 @@ class PedidoController extends Controller
     public function update(Request $request, Pedido $pedido)
     {
         $validated = $request->validate([
-            'cliente_id' => 'required|exists:clientes,id',
+            'cliente_id' => 'required|integer|exists:clientes,id',
             'tipo_pedido' => 'required|in:Personalizado,Predefinido',
             'prioridad' => 'required|in:Bajo,Normal,Alto',
-            'fecha_entrega' => 'required|date',
-            'descripcion_especificaciones' => 'nullable|string',
-            'direccion_entrega' => 'required|string',
-            'telefono_contacto' => ['required', 'string', 'regex:/^[0-9]+$/D'],
+            'fecha_entrega' => 'required|date_format:Y-m-d',
+            'descripcion_especificaciones' => 'nullable|string|max:16000',
+            'direccion_entrega' => 'required|string|max:16000',
+            'telefono_contacto' => ['required', 'string', 'max:255', 'regex:/^[0-9]+$/D'],
             'metodo_pago' => 'required|in:Efectivo',
-            'anticipo_recibido' => 'nullable|numeric|min:0',
-            'descuento' => 'nullable|numeric|min:0',
-            'costo_envio' => 'nullable|numeric|min:0',
+            'anticipo_recibido' => 'nullable|numeric|min:0|max:99999999.99|decimal:0,2',
+            'descuento' => 'nullable|numeric|min:0|max:99999999.99|decimal:0,2',
+            'costo_envio' => 'nullable|numeric|min:0|max:99999999.99|decimal:0,2',
             'estado' => 'required|in:Pendiente,En proceso,Completado,Cancelado',
         ], [
             'telefono_contacto.required' => 'Ingresa el teléfono de contacto.',
@@ -231,10 +246,16 @@ class PedidoController extends Controller
 
         DB::transaction(function () use ($pedido, $validated) {
             $pedido = Pedido::whereKey($pedido->id)->lockForUpdate()->firstOrFail();
+            foreach (['descuento', 'costo_envio', 'anticipo_recibido'] as $campo) {
+                $validated[$campo] = $validated[$campo] ?? $pedido->{$campo};
+            }
+            $this->validarImportes((float) $pedido->subtotal, (float) $validated['costo_envio'], (float) $validated['descuento'], (float) $validated['anticipo_recibido']);
             $this->transicionar($pedido, $validated['estado']);
             $datos = $validated;
             unset($datos['estado']);
             $pedido->update($datos);
+            $pedido->calcularTotal();
+            $pedido->save();
         });
 
         // Los productos solo se reemplazan cuando el formulario los envía.
@@ -277,6 +298,20 @@ class PedidoController extends Controller
         });
 
         return back()->with('success', 'Estado del pedido actualizado.');
+    }
+
+    private function validarImportes(float $subtotal, float $envio, float $descuento, float $anticipo): void
+    {
+        if (! is_finite($subtotal) || $subtotal > 99999999.99 || $subtotal + $envio > 99999999.99) {
+            throw ValidationException::withMessages(['productos' => 'El importe del pedido supera el máximo permitido. Reduce las cantidades.']);
+        }
+        $importe = round($subtotal + $envio, 2);
+        if ($descuento > $importe) {
+            throw ValidationException::withMessages(['descuento' => 'El descuento no puede superar el importe del pedido.']);
+        }
+        if ($anticipo > round($importe - $descuento, 2)) {
+            throw ValidationException::withMessages(['anticipo_recibido' => 'El anticipo no puede superar el total del pedido.']);
+        }
     }
 
     private function transicionar(Pedido $pedido, string $nuevoEstado): void

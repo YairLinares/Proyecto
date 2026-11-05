@@ -15,8 +15,13 @@ class InsumoController extends Controller
      */
     public function index(Request $request)
     {
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+            'filter' => 'nullable|in:todos,critico,Normal,Stock bajo,Agotado',
+            'page' => 'nullable|integer|min:1',
+        ]);
         $search = $request->get('search');
-        $filter = $request->get('filter', 'todos');
+        $filter = $request->get('filter') ?? 'todos';
 
         $query = Insumo::query()->withCount('productos')->withCount([
             'lotes as lotes_vencidos' => fn ($q) => $q->where('cantidad', '>', 0)->whereDate('fecha_vencimiento', '<', today()),
@@ -62,11 +67,11 @@ class InsumoController extends Controller
             'nombre' => 'required|unique:insumos|string|max:255',
             'codigo_lote' => 'nullable|string|max:100',
             'fecha_vencimiento' => 'nullable|date_format:Y-m-d',
-            'descripcion' => 'nullable|string',
+            'descripcion' => 'nullable|string|max:16000',
             'unidad' => 'required|in:Kg,Gramos,Litros,Mililitros,Unidad',
-            'stock_actual' => 'required|numeric|min:0',
-            'stock_minimo' => 'required|numeric|min:0',
-            'precio_unitario' => 'required|numeric|min:0',
+            'stock_actual' => 'required|numeric|min:0|max:99999999.99|decimal:0,2',
+            'stock_minimo' => 'required|numeric|min:0|max:99999999.99|decimal:0,2',
+            'precio_unitario' => 'required|numeric|min:0|max:99999999.99|decimal:0,2',
         ]);
 
         $stockInicial = (float) $validated['stock_actual'];
@@ -124,17 +129,24 @@ class InsumoController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|unique:insumos,nombre,' . $insumo->id . '|string|max:255',
-            'descripcion' => 'nullable|string',
+            'descripcion' => 'nullable|string|max:16000',
             'unidad' => 'required|in:Kg,Gramos,Litros,Mililitros,Unidad',
-            'stock_actual' => 'required|numeric|min:0',
-            'stock_minimo' => 'required|numeric|min:0',
-            'precio_unitario' => 'required|numeric|min:0',
+            'stock_actual' => 'required|numeric|min:0|max:99999999.99|decimal:0,2',
+            'stock_minimo' => 'required|numeric|min:0|max:99999999.99|decimal:0,2',
+            'precio_unitario' => 'required|numeric|min:0|max:99999999.99|decimal:0,2',
         ]);
 
         $stockNuevo = (float) $validated['stock_actual'];
 
         DB::transaction(function () use ($insumo, $validated, $stockNuevo) {
             $insumo = Insumo::whereKey($insumo->id)->lockForUpdate()->firstOrFail();
+            if ($insumo->unidad !== $validated['unidad'] && (
+                $insumo->movimientos()->exists() || $insumo->lotes()->exists() || $insumo->productos()->exists() || $insumo->reservas()->exists()
+            )) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'unidad' => 'No puedes cambiar la unidad de un insumo con lotes, movimientos, recetas o reservas. Registra otro insumo con la unidad correcta.',
+                ]);
+            }
             $stockAnterior = (float) $insumo->stock_actual;
             $datos = $validated;
             unset($datos['stock_actual']);

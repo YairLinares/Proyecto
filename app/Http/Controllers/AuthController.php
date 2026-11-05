@@ -26,7 +26,7 @@ class AuthController extends Controller
     {
         $credentials = $request->validate([
             'username' => 'required|string',
-            'password' => 'required|min:6',
+            'password' => 'required|string|min:6',
         ]);
 
         if (Auth::attempt($credentials)) {
@@ -77,8 +77,8 @@ class AuthController extends Controller
             'username' => 'required|string|min:3|max:30|alpha_dash|unique:users',
             'nombre' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:8|confirmed',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
             'telefono' => 'required|digits:8',
             'ciudad' => 'required|string|max:100',
         ], [
@@ -106,6 +106,9 @@ class AuthController extends Controller
 
         $validated['password'] = Hash::make($validated['password']);
         $validated['name'] = trim($validated['nombre'] . ' ' . $validated['apellido']);
+        if (mb_strlen($validated['name']) > 255) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['nombre' => 'El nombre y apellido juntos no deben superar los 255 caracteres.']);
+        }
         $validated['cargo'] = 'Empleado';
 
         User::create($validated);

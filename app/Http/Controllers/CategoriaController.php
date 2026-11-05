@@ -32,10 +32,10 @@ class CategoriaController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|unique:categorias|string|max:255',
-            'descripcion' => 'nullable|string',
+            'descripcion' => 'nullable|string|max:16000',
         ]);
 
-        $validated['slug'] = Str::slug($validated['nombre']);
+        $validated['slug'] = $this->slugDisponible($validated['nombre']);
 
         Categoria::create($validated);
 
@@ -66,14 +66,28 @@ class CategoriaController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|unique:categorias,nombre,' . $categoria->id . '|string|max:255',
-            'descripcion' => 'nullable|string',
+            'descripcion' => 'nullable|string|max:16000',
         ]);
 
-        $validated['slug'] = Str::slug($validated['nombre']);
+        $validated['slug'] = $this->slugDisponible($validated['nombre'], $categoria->id);
 
         $categoria->update($validated);
 
         return redirect()->route('categorias.show', $categoria)->with('success', 'Categoría actualizada correctamente.');
+    }
+
+    private function slugDisponible(string $nombre, ?int $ignorarId = null): string
+    {
+        $base = Str::limit(Str::slug($nombre) ?: 'sabor', 240, '');
+        $slug = $base;
+        $sufijo = 2;
+        while (Categoria::where('slug', $slug)
+            ->when($ignorarId, fn ($query) => $query->where('id', '!=', $ignorarId))
+            ->exists()) {
+            $slug = $base.'-'.$sufijo++;
+        }
+
+        return $slug;
     }
 
     /**

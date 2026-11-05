@@ -9,6 +9,12 @@ class VentaController extends Controller
 {
     public function index(Request $request)
     {
+        $request->validate([
+            'desde' => 'nullable|date_format:Y-m-d',
+            'hasta' => 'nullable|date_format:Y-m-d'.($request->filled('desde') ? '|after_or_equal:desde' : ''),
+            'buscar' => 'nullable|string|max:255',
+            'page' => 'nullable|integer|min:1',
+        ]);
         $desde = $request->get('desde');
         $hasta = $request->get('hasta');
         $buscar = $request->get('buscar');

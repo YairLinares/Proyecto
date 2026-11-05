@@ -75,8 +75,14 @@ class MovimientoInsumo extends Model
             $stockAnterior = (float) $insumo->stock_actual;
             $cantidad = round($cantidad, 2);
 
+            if (! is_finite($cantidad) || $cantidad > 99999999.99) {
+                throw new InvalidArgumentException('La cantidad supera el máximo permitido.');
+            }
             if ($cantidad < 0) {
                 throw new InvalidArgumentException('La cantidad del movimiento no puede ser negativa.');
+            }
+            if (in_array($tipo, ['Entrada', 'Salida'], true) && $cantidad <= 0) {
+                throw new InvalidArgumentException('La cantidad debe ser mayor que cero.');
             }
 
             if ($tipo === 'Entrada') {
@@ -98,6 +104,9 @@ class MovimientoInsumo extends Model
                 throw new InvalidArgumentException('El tipo de movimiento no es valido.');
             }
 
+            if (! is_finite($stockPosterior) || $stockPosterior > 99999999.99) {
+                throw ValidationException::withMessages(['cantidad' => 'El stock resultante supera el máximo permitido.']);
+            }
             $insumo->stock_actual = round($stockPosterior, 2);
             $insumo->actualizarEstado();
 

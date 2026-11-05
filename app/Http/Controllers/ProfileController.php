@@ -32,6 +32,9 @@ class ProfileController extends Controller
         ]);
 
         $validated['name'] = trim($validated['nombre'].' '.($validated['apellido'] ?? ''));
+        if (mb_strlen($validated['name']) > 255) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['nombre' => 'El nombre y apellido juntos no deben superar los 255 caracteres.']);
+        }
 
         $user->update($validated);
 
@@ -46,8 +49,8 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'contrasena_actual' => 'required',
-            'nueva_contrasena' => 'required|min:8|confirmed',
+            'contrasena_actual' => 'required|string',
+            'nueva_contrasena' => 'required|string|min:8|confirmed',
         ]);
 
         if (!Hash::check($validated['contrasena_actual'], $user->password)) {

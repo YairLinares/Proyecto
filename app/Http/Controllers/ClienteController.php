@@ -12,8 +12,13 @@ class ClienteController extends Controller
      */
     public function index(Request $request)
     {
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+            'filter' => 'nullable|in:todos,activo,inactivo',
+            'page' => 'nullable|integer|min:1',
+        ]);
         $search = $request->get('search');
-        $filter = $request->get('filter', 'todos');
+        $filter = $request->get('filter') ?? 'todos';
 
         $query = Cliente::query();
 
@@ -53,7 +58,7 @@ class ClienteController extends Controller
             'nombre_completo' => 'required|string|max:255',
             'telefono_principal' => ['required', 'string', 'size:8', 'regex:/^[0-9]{8}$/'],
             'tipo_cliente' => 'nullable|in:Regular,Corporativo',
-            'direccion' => 'nullable|string',
+            'direccion' => 'nullable|string|max:16000',
         ]);
 
         $validated['tipo_cliente'] = $validated['tipo_cliente'] ?? 'Regular';
@@ -69,6 +74,8 @@ class ClienteController extends Controller
      */
     public function show(Cliente $cliente)
     {
+        $cliente->loadSum(['pedidos as total_compras' => fn ($query) => $query->where('estado', 'Completado')], 'total');
+        $cliente->total_compras = (float) ($cliente->total_compras ?? 0);
         $pedidos = $cliente->pedidos()->latest()->paginate(10);
         return view('clientes.show', compact('cliente', 'pedidos'));
     }
@@ -90,13 +97,14 @@ class ClienteController extends Controller
             'nombre_completo' => 'required|string|max:255',
             'telefono_principal' => ['required', 'string', 'size:8', 'regex:/^[0-9]{8}$/'],
             'tipo_cliente' => 'nullable|in:Regular,Corporativo',
-            'direccion' => 'nullable|string',
+            'direccion' => 'nullable|string|max:16000',
             'estado' => 'nullable|in:activo,inactivo',
         ]);
 
         $validated['tipo_cliente'] = $validated['tipo_cliente'] ?? 'Regular';
         $validated['direccion'] = $validated['direccion'] ?? 'No especificada';
 
+        $validated['estado'] = $validated['estado'] ?? $cliente->estado;
         $cliente->update($validated);
 
         return redirect()->route('clientes.show', $cliente)->with('success', 'Cliente actualizado correctamente.');
