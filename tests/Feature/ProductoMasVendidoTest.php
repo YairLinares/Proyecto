@@ -56,7 +56,7 @@ class ProductoMasVendidoTest extends TestCase
 
         $this->get(route('dashboard'))->assertOk()
             ->assertViewHas('productoMasVendido', fn ($producto) => $producto->id === $zanahoria->id && (int) $producto->cantidad === 5)
-            ->assertSee('src="'.Storage::disk('public')->url('productos/zanahoria.jpg').'"', false)
+            ->assertSee('src="'.asset('storage/productos/zanahoria.jpg').'"', false)
             ->assertSee('5 unidades vendidas')
             ->assertDontSee('chartProductosMasVendidos');
 

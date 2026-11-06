@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Services\ImagenProducto;
 
 class Producto extends Model
 {
@@ -19,6 +20,11 @@ class Producto extends Model
         'unidad_medida',
         'estado',
     ];
+
+    public function getImagenUrlAttribute(): ?string
+    {
+        return ImagenProducto::url($this->imagen);
+    }
 
     public function categoria()
     {

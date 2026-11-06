@@ -54,7 +54,7 @@
             bottom: -14px;
             width: 270px;
             height: 190px;
-            background: url('{{ asset('images/ilustraciones/queque-entero.png') }}') center/contain no-repeat;
+            background: url('{{ asset('images/ilustraciones/queque-entero.webp') }}') center/contain no-repeat;
             opacity: .16;
             pointer-events: none;
         }
@@ -179,7 +179,7 @@
         }
         .main-content > .alert-success { display: flex; align-items: center; gap: 15px; min-height: 63px; border: 1px solid #aad5b8; background: #eaf5ec; color: #087249; box-shadow: 0 4px 14px rgba(71, 108, 70, .06); position: relative; overflow: hidden; }
         .main-content > .alert-success::before { content: '✓'; display: grid; flex: 0 0 27px; width: 27px; height: 27px; place-items: center; border-radius: 50%; background: #078454; color: white; font-weight: 700; }
-        .main-content > .alert-success::after { content: ''; position: absolute; right: 45px; top: -45px; width: 220px; height: 140px; background: url('{{ asset('images/ilustraciones/queque-entero.png') }}') center/contain no-repeat; opacity: .15; pointer-events: none; }
+        .main-content > .alert-success::after { content: ''; position: absolute; right: 45px; top: -45px; width: 220px; height: 140px; background: url('{{ asset('images/ilustraciones/queque-entero.webp') }}') center/contain no-repeat; opacity: .15; pointer-events: none; }
         .main-content > .alert-success .btn-close { margin-left: auto; }
 
         .page-header {
@@ -430,7 +430,7 @@
             <!-- Topbar -->
             <div class="topbar {{ request()->routeIs('dashboard') ? 'dashboard-topbar' : '' }}">
                 <div>
-                    <h5 class="topbar-brand">Delicias Dulces <img class="topbar-brand-cake" src="{{ asset('images/ilustraciones/queque-color.png') }}" alt="" aria-hidden="true"></h5>
+                    <h5 class="topbar-brand">Delicias Dulces <img class="topbar-brand-cake" src="{{ asset('images/ilustraciones/queque-color.webp') }}" alt="" aria-hidden="true"></h5>
                     <small class="topbar-date">{{ ucfirst(now()->translatedFormat('l, d \d\e F \d\e Y')) }}</small>
                 </div>
                 <div class="topbar-right">

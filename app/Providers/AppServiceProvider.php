@@ -6,7 +6,6 @@ use App\Models\Insumo;
 use App\Models\LoteInsumo;
 use App\Models\Pedido;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,13 +17,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // El túnel puede reenviar Host: localhost. Usar la URL pública configurada
-        // para formularios, recursos y redirecciones mientras esté habilitada.
-        if (str_starts_with(config('app.url'), 'https://')) {
-            URL::forceRootUrl(config('app.url'));
-            URL::forceScheme('https');
-        }
-
         View::composer('layouts.app', function ($view) {
             $view->with('notificaciones', $this->obtenerNotificaciones());
         });

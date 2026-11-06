@@ -65,8 +65,8 @@
             @endphp
             <a href="{{ route('productos.show', $producto) }}" class="producto-card">
                 <div class="producto-imagen">
-                    @if($producto->imagen)
-                        <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}">
+                    @if($producto->imagen_url)
+                        <img src="{{ $producto->imagen_url }}" alt="{{ $producto->nombre }}">
                     @else
                         {{ $emoji }}
                     @endif

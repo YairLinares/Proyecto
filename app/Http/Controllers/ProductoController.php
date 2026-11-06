@@ -6,6 +6,7 @@ use App\Models\Producto;
 use App\Models\Categoria;
 use App\Models\DetallePedido;
 use App\Models\Insumo;
+use App\Services\ImagenProducto;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -89,7 +90,7 @@ class ProductoController extends Controller
             });
         } catch (\Throwable $exception) {
             if ($imagenNueva) {
-                Storage::disk('public')->delete($imagenNueva);
+                ImagenProducto::eliminar($imagenNueva);
             }
             throw $exception;
         }
@@ -153,12 +154,12 @@ class ProductoController extends Controller
             });
         } catch (\Throwable $exception) {
             if ($imagenNueva) {
-                Storage::disk('public')->delete($imagenNueva);
+                ImagenProducto::eliminar($imagenNueva);
             }
             throw $exception;
         }
         if ($imagenNueva && $imagenAnterior) {
-            Storage::disk('public')->delete($imagenAnterior);
+            ImagenProducto::eliminar($imagenAnterior);
         }
 
         return redirect()->route('productos.show', $producto)->with('success', 'Producto actualizado correctamente.');
@@ -202,7 +203,7 @@ class ProductoController extends Controller
             });
 
             if ($producto->imagen) {
-                Storage::disk('public')->delete($producto->imagen);
+                ImagenProducto::eliminar($producto->imagen);
             }
         } catch (\RuntimeException $exception) {
             if ($exception->getMessage() === 'producto_en_pedidos_activos') {
@@ -226,6 +227,8 @@ class ProductoController extends Controller
         if (! $ruta) {
             throw ValidationException::withMessages(['imagen' => 'No se pudo guardar la imagen. Inténtalo nuevamente.']);
         }
+
+        ImagenProducto::optimizar($ruta);
 
         return $ruta;
     }

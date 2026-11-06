@@ -44,8 +44,8 @@
         </div>
 
         <div class="producto-detalle-imagen">
-            @if($producto->imagen)
-                <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}">
+            @if($producto->imagen_url)
+                <img src="{{ $producto->imagen_url }}" alt="{{ $producto->nombre }}">
             @else
                 {{ $emoji }}
             @endif

@@ -5,6 +5,8 @@
 $imagenes = [
     'logo-delicias-dulces' => 400,
     'ilustraciones/queque-rebanado' => 600,
+    'ilustraciones/queque-entero' => 450,
+    'ilustraciones/queque-color' => 160,
 ];
 
 foreach ($imagenes as $nombre => $limite) {
@@ -23,4 +25,16 @@ foreach ($imagenes as $nombre => $limite) {
     echo $nombre.': '.filesize($base.'.png').' -> '.filesize($base.'.webp')." bytes\n";
     imagedestroy($origen);
     imagedestroy($destino);
+}
+
+require __DIR__.'/../vendor/autoload.php';
+$app = require __DIR__.'/../bootstrap/app.php';
+$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
+foreach (App\Models\Producto::whereNotNull('imagen')->get() as $producto) {
+    $disco = Illuminate\Support\Facades\Storage::disk('public');
+    if (App\Services\ImagenProducto::optimizar($producto->imagen)) {
+        $copia = App\Services\ImagenProducto::rutaOptimizada($producto->imagen);
+        echo 'Producto '.$producto->id.': '.$disco->size($producto->imagen).' -> '.$disco->size($copia)." bytes\n";
+    }
 }

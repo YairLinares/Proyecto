@@ -144,8 +144,9 @@
                 @if($productoMasVendido)
                     <div class="bestseller-product">
                         <div class="bestseller-photo">
-                            @if($productoMasVendido->imagen && \Illuminate\Support\Facades\Storage::disk('public')->exists($productoMasVendido->imagen))
-                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($productoMasVendido->imagen) }}" alt="{{ $productoMasVendido->nombre }}" width="100" height="85">
+                            @php($fotoProducto = \App\Services\ImagenProducto::url($productoMasVendido->imagen))
+                            @if($fotoProducto)
+                                <img src="{{ $fotoProducto }}" alt="{{ $productoMasVendido->nombre }}" width="100" height="85" decoding="async">
                             @else
                                 <span class="bestseller-no-photo"><i class="fas fa-cake-candles" aria-hidden="true"></i>Sin foto</span>
                             @endif

@@ -39,9 +39,9 @@
 
                     <div class="mb-3">
                         <label class="form-label" for="imagen">Imagen del producto <span class="text-muted">(opcional)</span></label>
-                        @if($producto->imagen)
+                        @if($producto->imagen_url)
                             <div class="mb-2">
-                                <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" style="width: 180px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #edf0f3;">
+                                <img src="{{ $producto->imagen_url }}" alt="{{ $producto->nombre }}" style="width: 180px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #edf0f3;">
                             </div>
                         @endif
                         <input id="imagen" type="file" class="form-control @error('imagen') is-invalid @enderror" name="imagen" accept="image/jpeg,image/png,image/webp">
