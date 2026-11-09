@@ -42,7 +42,7 @@
     .cliente-actions .cliente-delete { border-color: #f0b9b9; background: #fff3f1; color: #d72c32; }
     .cliente-actions .cliente-delete:hover { background: #ffe4e1; border-color: #d72c32; }
     .clientes-footer { padding: 15px 20px; }
-    .clientes-footer .app-pagination { margin: 0; padding: 0; }
+    .clientes-footer .app-pagination { justify-content: center; margin: 0; padding: 0; }
     .clientes-footer .app-pagination__summary { color: #74665c; font-size: .85rem; }
     .clientes-footer .app-pagination__summary strong { color: inherit; font-weight: 400; }
     .clientes-footer .app-pagination__link { width: 32px; height: 32px; min-width: 32px; border-radius: 8px; background: #fff; color: #705348; border-color: #e8ddd3; }
@@ -57,7 +57,7 @@
         .clientes-state-filter { justify-content: space-between; }
         .clientes-filter select { flex: 1; max-width: 240px; }
         .clientes-table { min-width: 690px; }
-        .clientes-footer .app-pagination { gap: 14px; }
+        .clientes-footer .app-pagination { align-items: center; gap: 14px; }
     }
 </style>
 @endsection
@@ -142,7 +142,6 @@
                 @include('components.pagination', ['paginator' => $clientes->withQueryString()])
             @else
                 <nav class="app-pagination" aria-label="Paginación de clientes">
-                    <div class="app-pagination__summary">Mostrando {{ $clientes->firstItem() ?? 0 }}–{{ $clientes->lastItem() ?? 0 }} de {{ $clientes->total() }} {{ $clientes->total() === 1 ? 'cliente' : 'clientes' }}</div>
                     <ul class="app-pagination__links">
                         <li><span class="app-pagination__link app-pagination__link--disabled" aria-disabled="true"><i class="fas fa-chevron-left" aria-hidden="true"></i><span class="visually-hidden">Anterior</span></span></li>
                         <li><span class="app-pagination__link app-pagination__link--active" aria-current="page">1</span></li>

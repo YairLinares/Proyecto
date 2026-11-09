@@ -44,14 +44,14 @@
     .pedido-actions .btn:hover { background: #fff1de; }
     .pedido-actions .pedido-delete { border-color: #efb7b7; color: #c42a36; }
     .pedidos-footer { padding: 18px 24px; border-top: 1px solid #e8dfd5; }
-    .pedidos-footer .app-pagination { margin: 0; padding: 0; }
+    .pedidos-footer .app-pagination { justify-content: center; margin: 0; padding: 0; }
     .pedidos-footer .app-pagination__summary { color: #685e59; font-size: .9rem; }
     .pedidos-footer .app-pagination__link { border-color: #e5cfaf; border-radius: 9px; color: #a17c44; background: #fffdf9; }
     .pedidos-footer .app-pagination__link--active, .pedidos-footer a.app-pagination__link:hover { border-color: var(--wine); background: var(--wine); color: #fff; }
     .pedidos-footer .app-pagination__link--disabled { color: #b5a896; background: #faf7f2; }
     .pedidos-page a:focus-visible, .pedidos-page button:focus-visible { outline: 3px solid #d5a751; outline-offset: 3px; }
     @media (max-width: 1150px) { .pedidos-heading { align-items: flex-start; flex-direction: column; } .pedidos-heading-actions { align-self: flex-end; } }
-    @media (max-width: 575px) { .pedidos-heading-copy { gap: 13px; } .pedidos-heading-icon { padding-right: 13px; font-size: 2rem; } .pedidos-heading-actions { align-self: stretch; flex-wrap: wrap; gap: 12px; } .pedidos-filters { padding: 18px 15px; } .pedido-filter { padding: 8px 14px; font-size: .85rem; } .pedidos-footer { padding: 17px 15px; } .pedidos-count { font-size: .8rem; } }
+    @media (max-width: 575px) { .pedidos-heading-copy { gap: 13px; } .pedidos-heading-icon { padding-right: 13px; font-size: 2rem; } .pedidos-heading-actions { align-self: stretch; flex-wrap: wrap; gap: 12px; } .pedidos-filters { padding: 18px 15px; } .pedido-filter { padding: 8px 14px; font-size: .85rem; } .pedidos-footer { padding: 17px 15px; } .pedidos-footer .app-pagination { align-items: center; } .pedidos-count { font-size: .8rem; } }
 </style>
 @endsection
 
@@ -124,7 +124,6 @@
                 @include('components.pagination', ['paginator' => $pedidos->withQueryString()])
             @else
                 <nav class="app-pagination" aria-label="Paginación de pedidos">
-                    <div class="app-pagination__summary">Mostrando {{ $pedidos->firstItem() ?? 0 }}–{{ $pedidos->lastItem() ?? 0 }} de {{ $pedidos->total() }} {{ $pedidos->total() === 1 ? 'pedido' : 'pedidos' }}</div>
                     <ul class="app-pagination__links">
                         <li><span class="app-pagination__link app-pagination__link--disabled" aria-disabled="true"><i class="fas fa-chevron-left" aria-hidden="true"></i><span class="visually-hidden">Anterior</span></span></li>
                         <li><span class="app-pagination__link app-pagination__link--active" aria-current="page">1</span></li>
