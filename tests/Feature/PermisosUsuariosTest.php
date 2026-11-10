@@ -15,7 +15,7 @@ class PermisosUsuariosTest extends TestCase
     {
         $this->actingAs(User::factory()->create(['cargo' => 'Empleado']));
 
-        foreach (['empleados', 'reportes', 'reportes/ventas.csv', 'productos', 'insumos', 'categorias', 'compartir'] as $ruta) {
+        foreach (['empleados', 'reportes', 'reportes/ventas.csv', 'productos', 'insumos', 'categorias'] as $ruta) {
             $this->get('/'.$ruta)->assertRedirect(route('dashboard'))
                 ->assertSessionHas('error');
         }
@@ -29,11 +29,9 @@ class PermisosUsuariosTest extends TestCase
     {
         $this->actingAs(User::factory()->create(['cargo' => 'Administrador']));
 
-        foreach (['dashboard', 'empleados', 'reportes', 'productos', 'insumos', 'categorias', 'compartir'] as $ruta) {
+        foreach (['dashboard', 'empleados', 'reportes', 'productos', 'insumos', 'categorias'] as $ruta) {
             $this->get('/'.$ruta)->assertOk();
         }
-
-        $this->get('/dashboard')->assertSee('href="'.route('compartir').'"', false);
     }
 
     public function test_empleado_puede_abrir_secciones_operativas_sin_menu_administrativo(): void
@@ -43,7 +41,6 @@ class PermisosUsuariosTest extends TestCase
         foreach (['dashboard', 'clientes', 'pedidos', 'ventas', 'perfil'] as $ruta) {
             $this->get('/'.$ruta)->assertOk()
                 ->assertDontSee('href="'.route('reportes.index').'"', false)
-                ->assertDontSee('href="'.route('compartir').'"', false)
                 ->assertDontSee('href="'.route('insumos.index').'"', false);
         }
     }
@@ -72,7 +69,7 @@ class PermisosUsuariosTest extends TestCase
 
     public function test_visitante_necesita_iniciar_sesion(): void
     {
-        foreach (['dashboard', 'clientes', 'pedidos', 'ventas', 'reportes', 'perfil', 'empleados', 'compartir'] as $ruta) {
+        foreach (['dashboard', 'clientes', 'pedidos', 'ventas', 'reportes', 'perfil', 'empleados'] as $ruta) {
             $this->get('/'.$ruta)->assertRedirect(route('login'));
         }
     }
