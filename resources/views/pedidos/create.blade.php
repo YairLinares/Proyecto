@@ -93,6 +93,12 @@
                             @error('fecha_entrega')<div id="fecha-error" class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-12">
+                            <label class="form-label" for="fecha_preparacion">Fecha de preparación <span class="text-danger" aria-hidden="true">*</span></label>
+                            <input type="date" id="fecha_preparacion" class="form-control @error('fecha_preparacion') is-invalid @enderror" name="fecha_preparacion" min="{{ today()->toDateString() }}" value="{{ old('fecha_preparacion', old('fecha_entrega', today()->toDateString())) }}" required aria-describedby="preparacion-help @error('fecha_preparacion') preparacion-error @enderror" @error('fecha_preparacion') aria-invalid="true" @enderror>
+                            @error('fecha_preparacion')<div id="preparacion-error" class="invalid-feedback">{{ $message }}</div>@enderror
+                            <p id="preparacion-help" class="pedido-help">Elige cuándo comenzarás a elaborar el pedido. Se comprobará que los insumos sigan vigentes ese día. El stock se descuenta al iniciar la preparación.</p>
+                        </div>
+                        <div class="col-12">
                             <label class="form-label" for="cliente_id">Cliente <span class="text-danger" aria-hidden="true">*</span></label>
                             <select id="cliente_id" class="form-select @error('cliente_id') is-invalid @enderror" name="cliente_id" required @error('cliente_id') aria-invalid="true" aria-describedby="cliente-error" @enderror>
                                 <option value="">Seleccionar cliente...</option>

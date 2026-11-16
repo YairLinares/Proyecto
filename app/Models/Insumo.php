@@ -45,6 +45,21 @@ class Insumo extends Model
         return round($this->stockUtilizable() - (float) $this->reservas()->sum('cantidad'), 2);
     }
 
+    public function stockLibreParaFecha(string $fecha, ?int $excluirPedido = null): float
+    {
+        // No se cuenta stock vencido hoy ni stock que vencerá antes de preparar.
+        $stock = (float) $this->lotes()->utilizables()
+            ->where(fn ($query) => $query->whereNull('fecha_vencimiento')->orWhereDate('fecha_vencimiento', '>=', $fecha))
+            ->sum('cantidad');
+        $reservas = $this->reservas();
+        if ($excluirPedido !== null) {
+            $reservas->where('pedido_id', '!=', $excluirPedido);
+        }
+
+        // Conservador: se respetan todos los compromisos, sin asignar lotes físicos aún.
+        return round($stock - (float) $reservas->sum('cantidad'), 2);
+    }
+
     public function productos()
     {
         return $this->belongsToMany(Producto::class, 'insumo_producto')

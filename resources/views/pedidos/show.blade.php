@@ -74,6 +74,14 @@
                 <div class="pedido-detail__field"><i class="fas fa-coins" aria-hidden="true"></i><div><span class="pedido-detail__label">Total del pedido</span><strong class="pedido-detail__value pedido-detail__value--total">Bs {{ number_format($pedido->total, 2, ',', '.') }}</strong></div></div>
             </div>
 
+            <div class="pedido-detail__field my-3"><i class="far fa-calendar" aria-hidden="true"></i><div><span class="pedido-detail__label">Fecha de preparación</span><strong class="pedido-detail__value">{{ ($pedido->fecha_preparacion ?? $pedido->fecha_entrega)->format('d/m/Y') }}</strong></div></div>
+            @if($faltantes = $pedido->faltantesPreparacion())
+                <section class="alert alert-warning" role="alert">
+                    <h3 class="h6">Insumos insuficientes para la preparación</h3>
+                    <ul class="mb-2">@foreach($faltantes as $faltante)<li>{{ $faltante }}</li>@endforeach</ul>
+                    <p class="mb-0">Solicita al administrador que reponga los insumos o reprograma la preparación antes de iniciar.</p>
+                </section>
+            @endif
             @if($pedido->insumos_reservados_at && $pedido->estado === 'Pendiente')
                 <section class="pedido-detail__notice" aria-label="Reserva de insumos">
                     <i class="fas fa-circle-info" aria-hidden="true"></i><div><h3>Insumos apartados</h3><p>El stock se descontará cuando inicie la preparación.</p>

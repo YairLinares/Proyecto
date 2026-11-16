@@ -91,6 +91,18 @@ class AppServiceProvider extends ServiceProvider
             ->take(8)
             ->get()
             ->map(function ($pedido) {
+                $faltantes = $pedido->faltantesPreparacion();
+                if ($faltantes !== []) {
+                    return [
+                        'tipo' => 'preparacion',
+                        'icono' => 'fa-triangle-exclamation',
+                        'color' => '#b77900',
+                        'titulo' => "Revisar insumos del pedido {$pedido->codigo_pedido}",
+                        'detalle' => implode(' ', $faltantes),
+                        'url' => route('pedidos.show', $pedido),
+                        'fecha' => $pedido->updated_at,
+                    ];
+                }
                 $estado = match ($pedido->estado) {
                     'Pendiente' => [
                         'tipo' => 'pendiente',

@@ -14,6 +14,7 @@ class Pedido extends Model
         'prioridad',
         'fecha_pedido',
         'fecha_entrega',
+        'fecha_preparacion',
         'descripcion_especificaciones',
         'direccion_entrega',
         'telefono_contacto',
@@ -31,6 +32,7 @@ class Pedido extends Model
     protected $casts = [
         'fecha_pedido' => 'date',
         'fecha_entrega' => 'date',
+        'fecha_preparacion' => 'date',
         'insumos_reservados_at' => 'datetime',
         'produccion_iniciada_at' => 'datetime',
     ];
@@ -81,6 +83,25 @@ class Pedido extends Model
     public function reservas()
     {
         return $this->hasMany(ReservaInsumo::class);
+    }
+
+    public function faltantesPreparacion(?string $fecha = null): array
+    {
+        if ($this->estado !== 'Pendiente') {
+            return [];
+        }
+        $fecha ??= ($this->fecha_preparacion ?? $this->fecha_entrega)->toDateString();
+        $faltantes = [];
+        foreach ($this->reservas()->with('insumo')->orderBy('insumo_id')->get() as $reserva) {
+            $libre = max(0, $reserva->insumo->stockLibreParaFecha($fecha, $this->id));
+            if ($libre < (float) $reserva->cantidad) {
+                $faltantes[] = $reserva->insumo->nombre.': se requieren '.number_format((float) $reserva->cantidad, 2, ',', '.')
+                    .' '.$reserva->insumo->unidad.' y hay '.number_format($libre, 2, ',', '.')
+                    .' vigentes disponibles para el '.\Illuminate\Support\Carbon::parse($fecha)->format('d/m/Y').'.';
+            }
+        }
+
+        return $faltantes;
     }
 
     public function movimientosInsumo()

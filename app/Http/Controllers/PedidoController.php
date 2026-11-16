@@ -83,6 +83,7 @@ class PedidoController extends Controller
             'tipo_pedido' => 'required|in:Personalizado,Predefinido',
             'prioridad' => 'required|in:Bajo,Normal,Alto',
             'fecha_entrega' => 'required|date_format:Y-m-d|after_or_equal:today',
+            'fecha_preparacion' => 'nullable|date_format:Y-m-d|after_or_equal:today|before_or_equal:fecha_entrega',
             'descripcion_especificaciones' => 'nullable|string|max:16000',
             'direccion_entrega' => 'nullable|string|max:16000',
             'telefono_contacto' => ['nullable', 'string', 'max:255', 'regex:/^[0-9]+$/D'],
@@ -92,8 +93,10 @@ class PedidoController extends Controller
             'costo_envio' => 'nullable|numeric|min:0|max:99999999.99|decimal:0,2',
             'productos' => 'required|array|min:1',
             'productos.*.cantidad' => 'required|integer|min:1|max:2147483647',
-        ]);
+        ], $this->mensajesPreparacion());
 
+        // Compatibilidad con formularios anteriores: si no se indica, preparar el día de entrega.
+        $validated['fecha_preparacion'] = $validated['fecha_preparacion'] ?? $validated['fecha_entrega'];
         $cliente = Cliente::findOrFail($validated['cliente_id']);
         $productos = Producto::whereIn('id', array_keys($validated['productos']))
             ->where('estado', 'activo')
@@ -150,14 +153,16 @@ class PedidoController extends Controller
             foreach ($consumoPorInsumo as $insumoId => $cantidadAUsar) {
                 $insumo = $insumos->get($insumoId);
 
-                if (! $insumo || $insumo->stockLibre() < round($cantidadAUsar, 2)) {
+                $stockPrevisto = $insumo?->stockLibreParaFecha($validated['fecha_preparacion']) ?? 0;
+                if (! $insumo || $stockPrevisto < round($cantidadAUsar, 2)) {
                     $nombre = $insumo?->nombre ?? 'un insumo requerido';
                     $unidad = $insumo?->unidad ?? '';
-                    $disponible = $insumo ? number_format(max(0, $insumo->stockLibre()), 2, ',', '.') : '0';
+                    $disponible = number_format(max(0, $stockPrevisto), 2, ',', '.');
                     $requerido = number_format($cantidadAUsar, 2, ',', '.');
+                    $fecha = \Illuminate\Support\Carbon::parse($validated['fecha_preparacion'])->format('d/m/Y');
 
                     throw ValidationException::withMessages([
-                        'productos' => "No hay suficiente stock de {$nombre}. Se requieren {$requerido} {$unidad} y solo hay {$disponible}.",
+                        'productos' => "No hay suficiente stock vigente de {$nombre} para preparar el {$fecha}. Se requieren {$requerido} {$unidad} y solo hay {$disponible} disponibles. Los lotes que vencen antes de la preparación no cuentan. Repón el insumo o cambia la fecha de preparación.",
                     ]);
                 }
             }
@@ -226,6 +231,7 @@ class PedidoController extends Controller
             'tipo_pedido' => 'required|in:Personalizado,Predefinido',
             'prioridad' => 'required|in:Bajo,Normal,Alto',
             'fecha_entrega' => 'required|date_format:Y-m-d',
+            'fecha_preparacion' => 'nullable|date_format:Y-m-d|before_or_equal:fecha_entrega',
             'descripcion_especificaciones' => 'nullable|string|max:16000',
             'direccion_entrega' => 'required|string|max:16000',
             'telefono_contacto' => ['required', 'string', 'max:255', 'regex:/^[0-9]+$/D'],
@@ -234,11 +240,11 @@ class PedidoController extends Controller
             'descuento' => 'nullable|numeric|min:0|max:99999999.99|decimal:0,2',
             'costo_envio' => 'nullable|numeric|min:0|max:99999999.99|decimal:0,2',
             'estado' => 'required|in:Pendiente,En proceso,Completado,Cancelado',
-        ], [
+        ], array_merge($this->mensajesPreparacion(), [
             'telefono_contacto.required' => 'Ingresa el teléfono de contacto.',
             'telefono_contacto.string' => 'El teléfono de contacto debe contener solo números.',
             'telefono_contacto.regex' => 'El teléfono de contacto debe contener solo números, sin espacios ni letras.',
-        ]);
+        ]));
 
         if ($request->has('productos')) {
             throw ValidationException::withMessages(['productos' => 'Los productos de un pedido con reserva o consumo no se pueden cambiar desde esta pantalla.']);
@@ -246,6 +252,26 @@ class PedidoController extends Controller
 
         DB::transaction(function () use ($pedido, $validated) {
             $pedido = Pedido::whereKey($pedido->id)->lockForUpdate()->firstOrFail();
+            $fechaPreparacion = $validated['fecha_preparacion'] ?? ($pedido->fecha_preparacion ?? $pedido->fecha_entrega)->toDateString();
+            $fechaAnterior = ($pedido->fecha_preparacion ?? $pedido->fecha_entrega)->toDateString();
+            if ($fechaPreparacion > $validated['fecha_entrega']) {
+                throw ValidationException::withMessages(['fecha_preparacion' => 'La preparación debe ser anterior o igual a la entrega.']);
+            }
+            if ($fechaPreparacion !== $fechaAnterior) {
+                if ($pedido->estado !== 'Pendiente') {
+                    throw ValidationException::withMessages(['fecha_preparacion' => 'Solo puedes reprogramar la preparación de un pedido pendiente.']);
+                }
+                if ($fechaPreparacion < today()->toDateString()) {
+                    throw ValidationException::withMessages(['fecha_preparacion' => 'La nueva fecha de preparación no puede ser anterior a hoy.']);
+                }
+                // Mismo bloqueo de insumos que en el alta: no sobreasignar reservas concurrentes.
+                Insumo::whereIn('id', $pedido->reservas()->pluck('insumo_id'))->orderBy('id')->lockForUpdate()->get();
+                $faltantes = $pedido->faltantesPreparacion($fechaPreparacion);
+                if ($faltantes !== []) {
+                    throw ValidationException::withMessages(['fecha_preparacion' => implode(' ', $faltantes)]);
+                }
+            }
+            $validated['fecha_preparacion'] = $fechaPreparacion;
             foreach (['descuento', 'costo_envio', 'anticipo_recibido'] as $campo) {
                 $validated[$campo] = $validated[$campo] ?? $pedido->{$campo};
             }
@@ -312,6 +338,15 @@ class PedidoController extends Controller
         if ($anticipo > round($importe - $descuento, 2)) {
             throw ValidationException::withMessages(['anticipo_recibido' => 'El anticipo no puede superar el total del pedido.']);
         }
+    }
+
+    private function mensajesPreparacion(): array
+    {
+        return [
+            'fecha_preparacion.date_format' => 'Ingresa una fecha de preparación válida.',
+            'fecha_preparacion.after_or_equal' => 'La fecha de preparación no puede ser anterior a hoy.',
+            'fecha_preparacion.before_or_equal' => 'La preparación debe ser anterior o igual a la entrega.',
+        ];
     }
 
     private function transicionar(Pedido $pedido, string $nuevoEstado): void

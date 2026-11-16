@@ -86,6 +86,12 @@
                     @error('fecha_entrega')<div id="edit-entrega-error" class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div>
+                    <label class="form-label" for="edit-preparacion">Fecha de preparación <span class="text-danger" aria-hidden="true">*</span></label>
+                    <input type="date" id="edit-preparacion" class="form-control @error('fecha_preparacion') is-invalid @enderror" name="fecha_preparacion" value="{{ old('fecha_preparacion', ($pedido->fecha_preparacion ?? $pedido->fecha_entrega)->format('Y-m-d')) }}" required @readonly($pedido->estado !== 'Pendiente') aria-describedby="edit-preparacion-help @error('fecha_preparacion') edit-preparacion-error @enderror" @error('fecha_preparacion') aria-invalid="true" @enderror>
+                    @error('fecha_preparacion')<div id="edit-preparacion-error" class="invalid-feedback">{{ $message }}</div>@enderror
+                    <p id="edit-preparacion-help" class="edit-help">Al reprogramar un pedido pendiente se comprueba nuevamente la vigencia y disponibilidad de sus insumos.</p>
+                </div>
+                <div>
                     <label class="form-label" for="edit-prioridad">Prioridad <span class="text-danger" aria-hidden="true">*</span></label>
                     <select id="edit-prioridad" class="form-select @error('prioridad') is-invalid @enderror" name="prioridad" required @error('prioridad') aria-invalid="true" aria-describedby="edit-prioridad-error" @enderror>
                         @foreach(['Bajo', 'Normal', 'Alto'] as $prioridad)<option value="{{ $prioridad }}" @selected(old('prioridad', $pedido->prioridad) === $prioridad)>{{ $prioridad }}</option>@endforeach
