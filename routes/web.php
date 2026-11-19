@@ -59,6 +59,7 @@ Route::middleware(['auth', \App\Http\Middleware\ExclusiveAdminSession::class])->
     });
 
     // Pedidos
+    Route::get('/pedidos/agenda', [\App\Http\Controllers\AgendaPreparacionController::class, 'index'])->name('pedidos.agenda');
     Route::resource('pedidos', PedidoController::class);
     Route::patch('/pedidos/{pedido}/cambiar-estado', [PedidoController::class, 'cambiarEstado'])->name('pedidos.cambiarEstado');
 

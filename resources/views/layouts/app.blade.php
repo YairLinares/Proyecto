@@ -353,9 +353,13 @@
 
             <div class="sidebar-section-title">Pedidos</div>
             <div class="sidebar-menu">
-                <a href="{{ route('pedidos.index') }}" class="@if(request()->routeIs('pedidos.*')) active @endif">
+                <a href="{{ route('pedidos.index') }}" class="@if(request()->routeIs('pedidos.*') && !request()->routeIs('pedidos.agenda')) active @endif">
                     <i class="fas fa-receipt"></i>
                     <span>Gestión de Pedidos</span>
+                </a>
+                <a href="{{ route('pedidos.agenda') }}" class="@if(request()->routeIs('pedidos.agenda')) active @endif" @if(request()->routeIs('pedidos.agenda')) aria-current="page" @endif>
+                    <i class="far fa-calendar-check" aria-hidden="true"></i>
+                    <span>Agenda de preparación</span>
                 </a>
             </div>
 

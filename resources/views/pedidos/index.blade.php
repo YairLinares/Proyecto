@@ -66,6 +66,7 @@
         <div class="pedidos-heading-actions">
             <span class="pedidos-count">{{ $pedidos->total() }} {{ $pedidos->total() === 1 ? 'pedido' : 'pedidos' }} {{ $search || $estado !== 'todos' || request('fecha') || request('entrega') ? ($pedidos->total() === 1 ? 'encontrado' : 'encontrados') : ($pedidos->total() === 1 ? 'registrado' : 'registrados') }}</span>
             <a href="{{ route('pedidos.create') }}" class="pedidos-new-btn"><i class="fas fa-plus" aria-hidden="true"></i> Nuevo pedido</a>
+            <a href="{{ route('pedidos.agenda') }}" class="pedidos-new-btn"><i class="far fa-calendar-check" aria-hidden="true"></i> Agenda</a>
         </div>
     </header>
     <div class="pedidos-card">
